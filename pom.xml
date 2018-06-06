@@ -10,7 +10,7 @@
 
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -49,9 +49,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/PreferredAI/venom.git</connection>
-        <developerConnection>scm:git:ssh://github.com:PreferredAI/venom.git</developerConnection>
-        <url>http://github.com/PreferredAI/venom/tree/master</url>
+        <connection>scm:git:git://github.com/PreferredAI/Venom.git</connection>
+        <developerConnection>scm:git:ssh://github.com:PreferredAI/Venom.git</developerConnection>
+        <url>http://github.com/PreferredAI/Venom/tree/master</url>
     </scm>
 
     <build>
