@@ -4,7 +4,8 @@ Venom is an open source focused crawler for the Deep Web.
 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
-[PreferredAI](https://preferred.ai/)
+[Documentation](https://venom.preferred.ai/docs/) |
+[PreferredAI](https://preferred.ai/) |
 
 ## Getting started
 
