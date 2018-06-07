@@ -45,14 +45,11 @@ public class PipelineValidator implements Validator {
 
   @Override
   public Status isValid(Request request, Response response) {
-    int i = 0;
     for (final Validator v : validators) {
       final Status status = v.isValid(request, response);
       if (status != Status.VALID) {
-        LOGGER.warn("Validator {} failed for {}", v.getClass().getSimpleName(), request.getUrl());
         return status;
       }
-      i++;
     }
     return Status.VALID;
   }

@@ -18,6 +18,8 @@ package ai.preferred.venom.validator;
 
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -26,6 +28,8 @@ import java.util.regex.Pattern;
  * @author Ween Jiann Lee
  */
 public class MimeTypeValidator implements Validator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeValidator.class);
 
   private final Pattern regex;
 
@@ -42,6 +46,7 @@ public class MimeTypeValidator implements Validator {
     if (regex.matcher(response.getContentType().getMimeType()).matches()) {
       return Status.VALID;
     }
+    LOGGER.warn("Invalid ({}) Mime type received for {}", response.getContentType().getMimeType(), request.getUrl());
     return Status.INVALID_CONTENT;
   }
 

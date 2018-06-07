@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
  */
 public class StatusOkValidator implements Validator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PipelineValidator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StatusOkValidator.class);
 
   public static final StatusOkValidator INSTANCE = new StatusOkValidator();
 
   @Override
   public Status isValid(Request request, Response response) {
     if (response.getStatusCode() != 200) {
-      LOGGER.warn("Validator: response status code {} received.", response.getStatusCode());
+      LOGGER.warn("Status code {} received for {}", response.getStatusCode(), request.getUrl());
       return Status.INVALID_STATUS_CODE;
     }
     return Status.VALID;

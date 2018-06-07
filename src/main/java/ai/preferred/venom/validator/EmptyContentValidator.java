@@ -18,12 +18,16 @@ package ai.preferred.venom.validator;
 
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class EmptyContentValidator implements Validator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmptyContentValidator.class);
 
   public static final EmptyContentValidator INSTANCE = new EmptyContentValidator();
 
@@ -32,6 +36,7 @@ public class EmptyContentValidator implements Validator {
     if (response.getContent() != null && response.getContent().length > 0) {
       return Status.VALID;
     }
+    LOGGER.warn("Empty response received for {}", request.getUrl());
     return Status.INVALID_CONTENT;
   }
 
