@@ -1,11 +1,21 @@
 # Venom
 
-Venom is an open source focused crawler for the Deep Web.
+An open source focused crawler for the Deep Web.
+
+## Overview
+Our aim is to create a blazing fast, fully customizable and robust crawler that is simple and handy to use.
 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
 [API Reference](https://venom.preferred.ai/docs/) |
 [PreferredAI](https://preferred.ai/) |
+
+### Features
+- Multi-threaded out of the box
+- Structured crawling with JSoup integration
+- Page Validation
+- Automatic Retries
+- Proxy support
 
 ## Getting started
 
