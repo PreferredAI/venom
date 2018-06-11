@@ -23,6 +23,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 Add dependencies to your pom.xml:
 ```xml
 <dependency>
+    <!-- Venom: A focused crawler framework @ https://venom.preferred.ai/ -->
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
     <version>[4.0,5.0)</version>
