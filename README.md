@@ -8,7 +8,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
 [API Reference](https://venom.preferred.ai/docs/) |
-[PreferredAI](https://preferred.ai/) |
+[PreferredAI](https://preferred.ai/)
 
 ### Features
 - Multi-threaded out of the box
@@ -60,5 +60,7 @@ public class Example {
 }
 ```
 
+## License
 
+[Apache License 2.0](LICENSE)
 
