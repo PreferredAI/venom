@@ -38,22 +38,27 @@ public class SleepScheduler {
   }
 
   private SleepScheduler(long from, long to, @NotNull Random random) {
+    if (from < 0) {
+      throw new IllegalArgumentException("Sleep time cannot be less than 0.");
+    }
     this.from = from;
+    if (from > to) {
+      throw new IllegalArgumentException("Sleep time in \"from\" cannot be greater less than \"to\".");
+    }
     this.to = to;
     this.random = random;
   }
 
   /**
-   * Cause the current thread to sleep an amount of time
-   * specified in this class
+   * Get the amount of time to wait specified in this class
    *
-   * @throws InterruptedException thread has been interrupted before method has finished running
+   * @return interval required
    */
-  public void sleep() throws InterruptedException {
+  public long getSleepTime() {
     if (from == to) {
-      if (from != 0) Thread.sleep(from);
+      return from;
     } else {
-      Thread.sleep(random.nextInt((int) (to - from)) + from);
+      return random.nextInt((int) (to - from)) + from;
     }
   }
 

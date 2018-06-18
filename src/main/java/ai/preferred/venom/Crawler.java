@@ -223,7 +223,7 @@ public class Crawler implements Interruptible, AutoCloseable {
     /**
      * Sets the SleepScheduler to be used, if not set, default will be chosen.
      *
-     * @param sleepScheduler sleep scheduler to be used.
+     * @param sleepScheduler sleepAndGetTime scheduler to be used.
      * @return this.
      */
     public Builder sleepScheduler(@NotNull SleepScheduler sleepScheduler) {
@@ -290,7 +290,7 @@ public class Crawler implements Interruptible, AutoCloseable {
   @NotNull
   private final Map<Job, Future> uncompletedFutures;
 
-  protected Crawler(Builder builder) {
+  private Crawler(Builder builder) {
     crawlerThread = new Thread(this::run, builder.name);
     exitWhenDone = new AtomicBoolean(false);
     fetcher = builder.fetcher;
@@ -370,6 +370,25 @@ public class Crawler implements Interruptible, AutoCloseable {
 
   }
 
+  private long sleepAndGetTime(Job job, long lastRequestTime) throws InterruptedException {
+    final long sleepTime;
+    if (job.getRequest().getSleepScheduler() == null) {
+      sleepTime = sleepScheduler.getSleepTime();
+    } else if (job.getRequest().getSleepScheduler() != null) {
+      sleepTime = job.getRequest().getSleepScheduler().getSleepTime();
+    } else {
+      sleepTime = 0;
+    }
+
+    final long timeElapsed = System.nanoTime() - lastRequestTime;
+    final long timeElapsedMillis = TimeUnit.NANOSECONDS.toMillis(timeElapsed);
+    if (sleepTime > timeElapsedMillis) {
+      Thread.sleep(sleepTime - timeElapsedMillis);
+    }
+
+    return System.nanoTime();
+  }
+
   private CrawlerRequest normalizeRequest(Request request) {
     if (request instanceof CrawlerRequest) {
       return (CrawlerRequest) request;
@@ -389,9 +408,8 @@ public class Crawler implements Interruptible, AutoCloseable {
    * Start polling for jobs, and fetch request.
    */
   private void run() {
-
     fetcher.start();
-
+    long lastRequestTime = 0;
     while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown()) {
       try {
         final Job job = scheduler.poll(5, TimeUnit.SECONDS);
@@ -402,11 +420,7 @@ public class Crawler implements Interruptible, AutoCloseable {
           continue;
         }
 
-        if (job.getRequest().getSleepScheduler() == null) {
-          sleepScheduler.sleep();
-        } else if (job.getRequest().getSleepScheduler() != null) {
-          job.getRequest().getSleepScheduler().sleep();
-        }
+        lastRequestTime = sleepAndGetTime(job, lastRequestTime);
 
         connections.acquire();
         threadPool.execute(() -> {

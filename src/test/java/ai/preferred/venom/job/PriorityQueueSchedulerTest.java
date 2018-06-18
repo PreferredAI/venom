@@ -37,6 +37,7 @@ public class PriorityQueueSchedulerTest {
 
     scheduler.add(vRequest);
     Job job = scheduler.poll();
+    Assert.assertNotNull(job);
     Assert.assertEquals(vRequest, job.getRequest());
     Assert.assertNull(job.getHandler());
     Assert.assertEquals(Priority.DEFAULT, job.getPriority());
@@ -55,6 +56,7 @@ public class PriorityQueueSchedulerTest {
 
     scheduler.add(vRequest, handler);
     Job job = scheduler.poll();
+    Assert.assertNotNull(job);
     Assert.assertEquals(vRequest, job.getRequest());
     Assert.assertEquals(handler, job.getHandler());
     Assert.assertEquals(Priority.DEFAULT, job.getPriority());
@@ -74,6 +76,7 @@ public class PriorityQueueSchedulerTest {
     scheduler.add(vRequestNeg, Priority.LOW);
 
     Job job = scheduler.poll();
+    Assert.assertNotNull(job);
     Assert.assertEquals(vRequest, job.getRequest());
     Assert.assertNull(job.getHandler());
     Assert.assertEquals(Priority.HIGHEST, job.getPriority());
@@ -89,18 +92,21 @@ public class PriorityQueueSchedulerTest {
     scheduler.add(vRequest, Priority.HIGH, Priority.NORMAL);
 
     final Job job = scheduler.poll();
+    Assert.assertNotNull(job);
     Assert.assertEquals(vRequest, job.getRequest());
     Assert.assertNull(job.getHandler());
     Assert.assertEquals(Priority.HIGH, job.getPriority());
 
     job.reQueue();
     final Job jobRQ = scheduler.poll();
+    Assert.assertNotNull(jobRQ);
     Assert.assertEquals(vRequest, jobRQ.getRequest());
     Assert.assertNull(jobRQ.getHandler());
     Assert.assertEquals(Priority.NORMAL, jobRQ.getPriority());
 
     job.reQueue();
     final Job jobRQRQ = scheduler.poll();
+    Assert.assertNotNull(jobRQRQ);
     Assert.assertEquals(vRequest, jobRQRQ.getRequest());
     Assert.assertNull(jobRQRQ.getHandler());
     Assert.assertEquals(Priority.NORMAL, jobRQRQ.getPriority());

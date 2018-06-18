@@ -125,7 +125,7 @@ public class AsyncFetcher implements Fetcher {
 
     private boolean compressed;
 
-    protected Builder() {
+    private Builder() {
       callbacks = new ArrayList<>();
       fileManager = null;
       headers = Collections.emptyMap();
@@ -367,7 +367,7 @@ public class AsyncFetcher implements Fetcher {
 
   private final boolean compressed;
 
-  protected AsyncFetcher(Builder builder) {
+  private AsyncFetcher(Builder builder) {
     ImmutableList.Builder<Callback> callbackListBuilder = new ImmutableList.Builder<>();
     if (builder.fileManager != null) {
       callbackListBuilder.add(builder.fileManager.getCallback());
