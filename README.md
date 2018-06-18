@@ -1,6 +1,7 @@
 # Venom
-
 An open source focused crawler for the Deep Web.
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom)
 
 ## Overview
 Our aim is to create a blazing fast, fully customizable and robust crawler that is simple and handy to use.
