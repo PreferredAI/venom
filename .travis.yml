@@ -1,7 +1,15 @@
 language: java
 jdk:
 - oraclejdk8
-script: mvn clean deploy -P ossrh --settings .mvn.xml
+
 before_install:
 - openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv
   -in key.gpg.enc -out key.gpg -d
+
+script: make build
+
+deploy:
+  provider: script
+  script: make travis-deploy
+  on:
+    tags: true
