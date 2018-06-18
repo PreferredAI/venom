@@ -1,7 +1,7 @@
 language: java
 jdk:
 - oraclejdk8
-before_install:
-- openssl aes-256-cbc -K $encrypted_8aaa1b26af5b_key -iv $encrypted_8aaa1b26af5b_iv
-  -in key.gpg.enc -out key.gpg -d
 script: mvn clean deploy -P ossrh --settings .mvn.xml
+before_install:
+- openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv
+  -in key.gpg.enc -out key.gpg -d
