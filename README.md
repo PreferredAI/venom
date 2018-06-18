@@ -2,6 +2,8 @@
 An open source focused crawler for the Deep Web.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom)
+[![Build Status](https://travis-ci.org/PreferredAI/Venom.svg?branch=master)](https://travis-ci.org/PreferredAI/Venom)
+[![Coverage Status](https://coveralls.io/repos/github/PreferredAI/Venom/badge.svg?branch=master)](https://coveralls.io/github/PreferredAI/Venom?branch=master)
 
 ## Overview
 Our aim is to create a blazing fast, fully customizable and robust crawler that is simple and handy to use.
