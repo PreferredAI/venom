@@ -5,7 +5,7 @@ jdk:
 before_install:
 - openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv
   -in key.gpg.enc -out key.gpg -d
-- gpg --import path/to/private-key.gpg
+- gpg --import ~/key.gpg
 
 cache:
   directories:
