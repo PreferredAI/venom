@@ -13,4 +13,8 @@ install: mvn -s .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.ski
 
 before_deploy: gpg --import key.gpg
 
-deploy: mvn clean deploy -s .mvn.xml -DskipTests=true -B -U -P release
+deploy:
+  provider: script
+  script: mvn clean deploy -s .mvn.xml -DskipTests=true -B -U -P release
+  on:
+    tags: true
