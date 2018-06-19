@@ -7,6 +7,8 @@ before_install:
   -in key.gpg.enc -out key.gpg -d
 - gpg --import key.gpg
 
+install: mvn --settings .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
+
 cache:
   directories:
     - ~/.m2/repository
