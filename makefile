@@ -1,5 +1,5 @@
 build:
-	mvn install
+	mvn package
 
 travis-deploy:
 	gpg --import path/to/private-key.gpg
