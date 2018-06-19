@@ -5,13 +5,13 @@ cache:
   directories:
     - ~/.m2/repository
 
-before_install:
-- openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv
-  -in key.gpg.enc -out key.gpg -d
-
 install: mvn -s .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
-before_deploy: gpg --import key.gpg
+script: mvn test jacoco:report coveralls:report
+
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv -in key.gpg.enc -out key.gpg -d
+- gpg --import key.gpg
 
 deploy:
   provider: script
