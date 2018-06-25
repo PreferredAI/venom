@@ -67,30 +67,63 @@ public class Crawler implements Interruptible, AutoCloseable {
   }
 
   /**
-   * A builder for Crawler class
+   * A builder for Crawler class.
    */
   public static class Builder {
 
+    /**
+     * The fetcher used.
+     */
     private Fetcher fetcher;
 
+    /**
+     * The maximum number of simultaneous connections.
+     */
     private int maxConnections;
 
+    /**
+     * The maximum number of tries for a request.
+     */
     private int maxTries;
 
+    /**
+     * The name of this crawler.
+     */
     private String name;
 
+    /**
+     * The parallelism level for multithreading.
+     */
     private int parallelism;
 
+    /**
+     * The worker manager to use.
+     */
     private WorkerManager workerManager;
 
+    /**
+     * The proportion of tries to retain a specified proxy.
+     */
     private double propRetainProxy;
 
+    /**
+     * The router to be used.
+     */
     private HandlerRouter router;
 
+    /**
+     * The scheduler used.
+     */
     private AbstractQueueScheduler scheduler;
 
+    /**
+     * The sleep scheduler used.
+     */
     private SleepScheduler sleepScheduler;
 
+    /**
+     * The session store used.
+     */
     private Session session;
 
     private Builder() {
@@ -357,7 +390,7 @@ public class Crawler implements Interruptible, AutoCloseable {
       if (ex instanceof StopCodeException) {
         job.cancel(true);
       } else {
-        if (job.getTryCount() <= crawler.maxTries)
+        if (job.getTryCount() < crawler.maxTries)
           job.reQueue();
       }
     }
