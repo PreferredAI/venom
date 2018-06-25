@@ -4,6 +4,7 @@ An open source focused crawler for the Deep Web.
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom)
 [![Build Status](https://travis-ci.org/PreferredAI/Venom.svg?branch=master)](https://travis-ci.org/PreferredAI/Venom)
 [![Coverage Status](https://coveralls.io/repos/github/PreferredAI/Venom/badge.svg?branch=master)](https://coveralls.io/github/PreferredAI/Venom?branch=master)
+[![Javadocs](https://www.javadoc.io/badge/ai.preferred/venom.svg)](https://www.javadoc.io/doc/ai.preferred/venom)
 
 ## Overview
 Our aim is to create a blazing fast, fully customizable and robust crawler that is simple and handy to use.
@@ -29,7 +30,7 @@ Add dependencies to your pom.xml:
     <!-- Venom: A focused crawler framework @ https://venom.preferred.ai/ -->
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
-    <version>[4.0,5.0)</version>
+    <version>[4.0,4.1)</version>
 </dependency>
 ```
 
