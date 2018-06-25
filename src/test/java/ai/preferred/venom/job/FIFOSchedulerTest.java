@@ -23,14 +23,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class PriorityQueueSchedulerTest {
+public class FIFOSchedulerTest {
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testAddRequest() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
+    final FIFOScheduler scheduler = new FIFOScheduler();
 
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
@@ -45,7 +45,7 @@ public class PriorityQueueSchedulerTest {
 
   @Test
   public void testAddRequestHandler() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
+    final FIFOScheduler scheduler = new FIFOScheduler();
 
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
@@ -63,15 +63,15 @@ public class PriorityQueueSchedulerTest {
   }
 
   @Test
-  public void testPriority() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
+  public void testFIFOQueue() {
+    final FIFOScheduler scheduler = new FIFOScheduler();
 
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
     final VRequest vRequestNeg = new VRequest(url);
 
-    scheduler.add(vRequestNeg, Priority.HIGH);
-    scheduler.add(vRequest, Priority.HIGHEST);
+    scheduler.add(vRequest, Priority.HIGH);
+    scheduler.add(vRequestNeg, Priority.HIGHEST);
     scheduler.add(vRequestNeg, Priority.DEFAULT);
     scheduler.add(vRequestNeg, Priority.LOW);
 
@@ -79,37 +79,7 @@ public class PriorityQueueSchedulerTest {
     Assert.assertNotNull(job);
     Assert.assertEquals(vRequest, job.getRequest());
     Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.HIGHEST, job.getPriority());
-  }
-
-  @Test
-  public void testPriorityFloor() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-
-    scheduler.add(vRequest, Priority.HIGH, Priority.NORMAL);
-
-    final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
     Assert.assertEquals(Priority.HIGH, job.getPriority());
-
-    job.reQueue();
-    final Job jobRQ = scheduler.poll();
-    Assert.assertNotNull(jobRQ);
-    Assert.assertEquals(vRequest, jobRQ.getRequest());
-    Assert.assertNull(jobRQ.getHandler());
-    Assert.assertEquals(Priority.NORMAL, jobRQ.getPriority());
-
-    job.reQueue();
-    final Job jobRQRQ = scheduler.poll();
-    Assert.assertNotNull(jobRQRQ);
-    Assert.assertEquals(vRequest, jobRQRQ.getRequest());
-    Assert.assertNull(jobRQRQ.getHandler());
-    Assert.assertEquals(Priority.NORMAL, jobRQRQ.getPriority());
   }
 
 }

@@ -28,7 +28,7 @@ public class VRequestTest {
 
   @Test
   public void testGetRequest() {
-    final String url = "url";
+    final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
     Assert.assertEquals(Request.Method.GET, vRequest.getMethod());
     Assert.assertEquals(url, vRequest.getUrl());
@@ -41,7 +41,7 @@ public class VRequestTest {
   @Test
   public void testBuilderConstructorRequest() {
     final Request.Method method = Request.Method.DELETE;
-    final String url = "url";
+    final String url = "https://venom.preferred.ai";
     final VRequest vRequest = VRequest.build(method, url).build();
     Assert.assertEquals(method, vRequest.getMethod());
     Assert.assertEquals(url, vRequest.getUrl());
@@ -52,7 +52,7 @@ public class VRequestTest {
     final HttpHost proxy = new HttpHost("127.0.0.1");
     final SleepScheduler sleepScheduler = new SleepScheduler(0);
     final String body = "body";
-    final String url = "url";
+    final String url = "https://venom.preferred.ai";
 
     final String headerKey1 = "head1";
     final String headerValue1 = "tail1";
