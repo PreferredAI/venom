@@ -46,9 +46,13 @@ public class PipelineValidator implements Validator {
   @Override
   public Status isValid(Request request, Response response) {
     for (final Validator v : validators) {
-      final Status status = v.isValid(request, response);
-      if (status != Status.VALID) {
-        return status;
+      if (v != null) {
+        final Status status = v.isValid(request, response);
+        if (status != Status.VALID) {
+          return status;
+        }
+      } else {
+        LOGGER.warn("Null validator found. Please check your code, this might represent a bug.");
       }
     }
     return Status.VALID;
