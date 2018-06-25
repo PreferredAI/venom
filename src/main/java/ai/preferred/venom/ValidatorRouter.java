@@ -22,7 +22,7 @@ import ai.preferred.venom.validator.Validator;
 import javax.validation.constraints.NotNull;
 
 /**
- * This interface allows the user to map request to handleable
+ * This interface allows the user to map request to handleable.
  *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 public interface ValidatorRouter {
 
   /**
-   * Returns the handler to be used for a specified request
+   * Returns the handler to be used for a specified request.
    * <p>
    * This will only be used if a handler is not specified in when added to scheduler
    * </p>

@@ -27,16 +27,56 @@ import java.util.Map;
 /**
  * @author Maksim Tkachenko
  */
-public class Session {
+public final class Session {
 
+  /**
+   * An instance of an empty session.
+   */
   public static final Session EMPTY_SESSION = new Session();
+  /**
+   * A map of all session key and value.
+   */
+  private final Map<Key<?>, ?> map;
 
+  /**
+   * Constructs an empty session.
+   */
+  private Session() {
+    this.map = Collections.emptyMap();
+  }
+
+  /**
+   * Constructs a session with builder variables.
+   *
+   * @param builder An instance of builder
+   */
+  private Session(final @NotNull Builder builder) {
+    this.map = ImmutableMap.copyOf(builder.map);
+  }
+
+  /**
+   * Create a new instance of builder.
+   *
+   * @return A new instance of builder
+   */
   public static Builder builder() {
     return new Builder();
   }
 
   /**
-   * A class representing the key for a session
+   * Returns the session variable from the store.
+   *
+   * @param key the name of the session variable to retrieve
+   * @param <T> the type of the value of the session variable being retrieved
+   * @return the value of the session variable stored
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T get(final @NotNull Key<T> key) {
+    return (T) map.get(key);
+  }
+
+  /**
+   * A class representing the key for a session.
    *
    * @param <T> specifies the type of the stored value
    */
@@ -45,51 +85,37 @@ public class Session {
   }
 
   /**
-   * Builder for Session
+   * Builder for Session.
    */
   public static class Builder {
 
+    /**
+     * A map of all session key and value.
+     */
     private final Map<Key<?>, Object> map = new HashMap<>();
 
     /**
-     * Adds a session variable into store
+     * Adds a session variable into store.
      *
      * @param key   an unique name of the session variable
      * @param value the value of the session variable
      * @param <T>   the type of the value of the session variable
      * @return an instance of Builder
      */
-    public <T> Builder put(@NotNull Key<T> key, @Nullable T value) {
+    public final <T> Builder put(final @NotNull Key<T> key, final @Nullable T value) {
       map.put(key, value);
       return this;
     }
 
-    public Session build() {
+    /**
+     * Create a new instance of session.
+     *
+     * @return A new instance of session.
+     */
+    public final Session build() {
       return new Session(this);
     }
 
-  }
-
-  private final Map<Key<?>, ?> map;
-
-  private Session() {
-    this.map = Collections.emptyMap();
-  }
-
-  private Session(@NotNull Builder builder) {
-    this.map = ImmutableMap.copyOf(builder.map);
-  }
-
-  /**
-   * Returns the session variable from the store
-   *
-   * @param key the name of the session variable to retrieve
-   * @param <T> the type of the value of the session variable being retrieved
-   * @return the value of the session variable stored
-   */
-  @SuppressWarnings("unchecked")
-  public <T> T get(@NotNull Key<T> key) {
-    return (T) map.get(key);
   }
 
 }

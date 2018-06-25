@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 public interface WorkerManager extends AutoCloseable {
 
   /**
-   * Get the result collector in use
+   * Get the result collector in use.
    *
    * @return an instance of Worker
    */

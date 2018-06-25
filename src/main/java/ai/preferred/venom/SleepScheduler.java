@@ -7,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed max in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -25,40 +25,69 @@ import java.util.Random;
  */
 public class SleepScheduler {
 
+  /**
+   * The seed to generate random number.
+   */
   private final Random random;
-  private final long from;
-  private final long to;
 
-  public SleepScheduler(long sleepTime) {
+  /**
+   * The minimum sleep time.
+   */
+  private final long min;
+
+  /**
+   * The maximum sleep time.
+   */
+  private final long max;
+
+  /**
+   * Constructs a sleep scheduler with fix sleep time.
+   *
+   * @param sleepTime Sleep time
+   */
+  public SleepScheduler(final long sleepTime) {
     this(sleepTime, sleepTime, null);
   }
 
-  public SleepScheduler(long from, long to) {
-    this(from, to, new Random(System.currentTimeMillis() * 13));
+  /**
+   * Constructs a sleep scheduler with range of sleep time.
+   *
+   * @param min Minimum sleep time
+   * @param max Maximum sleep time
+   */
+  public SleepScheduler(final long min, final long max) {
+    this(min, max, new Random(System.currentTimeMillis() * 13));
   }
 
-  private SleepScheduler(long from, long to, @NotNull Random random) {
-    if (from < 0) {
+  /**
+   * Constructs a sleep scheduler with fix sleep time with a random seed.
+   *
+   * @param min    Minimum sleep time
+   * @param max    Maximum sleep time
+   * @param random Random seed
+   */
+  private SleepScheduler(final long min, final long max, final @NotNull Random random) {
+    if (min < 0) {
       throw new IllegalArgumentException("Sleep time cannot be less than 0.");
     }
-    this.from = from;
-    if (from > to) {
-      throw new IllegalArgumentException("Sleep time in \"from\" cannot be greater less than \"to\".");
+    this.min = min;
+    if (min > max) {
+      throw new IllegalArgumentException("Sleep time in \"min\" cannot be greater less than \"max\".");
     }
-    this.to = to;
+    this.max = max;
     this.random = random;
   }
 
   /**
-   * Get the amount of time to wait specified in this class
+   * Get the amount of time to wait specified in this class.
    *
    * @return interval required
    */
-  public long getSleepTime() {
-    if (from == to) {
-      return from;
+  public final long getSleepTime() {
+    if (min == max) {
+      return min;
     } else {
-      return random.nextInt((int) (to - from)) + from;
+      return random.nextInt((int) (max - min)) + min;
     }
   }
 

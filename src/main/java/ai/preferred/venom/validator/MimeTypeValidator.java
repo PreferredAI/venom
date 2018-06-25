@@ -24,25 +24,47 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Pattern;
 
 /**
+ * This class determines the validity of a response by its mime type.
+ * <p>
+ * A mime type that matches the pattern should return {@code Status.INVALID_CONTENT},
+ * or {@code Status.VALID} otherwise.
+ * </p>
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class MimeTypeValidator implements Validator {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeValidator.class);
 
+  /**
+   * The pattern the mime type should match.
+   */
   private final Pattern regex;
 
-  public MimeTypeValidator(String regex) {
+  /**
+   * Constructs mime type validator.
+   *
+   * @param regex A regex string to match valid mime type
+   */
+  public MimeTypeValidator(final String regex) {
     this(Pattern.compile(regex));
   }
 
-  public MimeTypeValidator(Pattern regex) {
+  /**
+   * Constructs mime type validator.
+   *
+   * @param regex A regex pattern to match valid mime type
+   */
+  public MimeTypeValidator(final Pattern regex) {
     this.regex = regex;
   }
 
   @Override
-  public Status isValid(Request request, Response response) {
+  public final Status isValid(final Request request, final Response response) {
     if (regex.matcher(response.getContentType().getMimeType()).matches()) {
       return Status.VALID;
     }

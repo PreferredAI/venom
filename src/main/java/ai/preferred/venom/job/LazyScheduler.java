@@ -28,47 +28,86 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * This class provides and implementation of scheduler with a priority
+ * sensitive queue and polls from iterator when queue is empty.
+ * <p>
+ * Jobs in queue will be processed first in order of higher priority,
+ * followed by requests in the iterator.
+ * </p>
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class LazyScheduler extends AbstractQueueScheduler {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyScheduler.class);
 
+  /**
+   * The queue used for this scheduler.
+   */
   private final PriorityBlockingQueue<Job> queue = new PriorityBlockingQueue<>();
 
+  /**
+   * An object to synchronise upon.
+   */
   private final Object lock = new Object();
 
+  /**
+   * The iterator to draw requests from.
+   */
   private final Iterator<Request> requests;
+
+  /**
+   * The default handler for this scheduler.
+   */
   private final Handler handler;
 
-  public LazyScheduler(Iterator<Request> requests, Handler handler) {
+  /**
+   * Constructs an instance of lazy scheduler with a default handler.
+   *
+   * @param requests An iterator to obtain requests
+   * @param handler  The default handler to use
+   */
+  public LazyScheduler(final Iterator<Request> requests, final Handler handler) {
     this.requests = requests;
     this.handler = handler;
   }
 
-  public LazyScheduler(Iterator<Request> requests) {
+  /**
+   * Constructs an instance of lazy scheduler without a default handler.
+   *
+   * @param requests An iterator to obtain requests
+   */
+  public LazyScheduler(final Iterator<Request> requests) {
     this(requests, null);
   }
 
   @Override
-  PriorityBlockingQueue<Job> getQueue() {
+  final PriorityBlockingQueue<Job> getQueue() {
     return queue;
   }
 
   @Override
-  public void add(Request r, Handleable h, Priority p, Priority pf) {
+  public final void add(final Request r, final Handleable h, final Priority p, final Priority pf) {
     Job job = new BasicJob(r, h, p, pf, queue);
     getQueue().add(job);
     LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
   }
 
+  /**
+   * Poll request from the iterator.
+   *
+   * @return An new job instance
+   */
   private Job pollLazyRequest() {
-    return new BasicJob(requests.next(), handler, Priority.LOW, Priority.FLOOR, getQueue());
+    return new BasicJob(requests.next(), handler, Priority.DEFAULT, Priority.FLOOR, getQueue());
   }
 
   @Override
-  public Job poll() {
+  public final Job poll() {
     synchronized (lock) {
       if (getQueue().isEmpty() && requests.hasNext()) {
         return pollLazyRequest();
@@ -78,17 +117,17 @@ public class LazyScheduler extends AbstractQueueScheduler {
   }
 
   @Override
-  public void put(@Nonnull Job job) {
+  public final void put(final @Nonnull Job job) {
     getQueue().put(job);
   }
 
   @Override
-  public boolean offer(Job job, long timeout, @Nonnull TimeUnit unit) {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) {
     return getQueue().offer(job, timeout, unit);
   }
 
   @Override
-  public Job poll(long time, @Nonnull TimeUnit unit) throws InterruptedException {
+  public final Job poll(final long time, final @Nonnull TimeUnit unit) throws InterruptedException {
     synchronized (lock) {
       if (getQueue().isEmpty() && requests.hasNext()) {
         return pollLazyRequest();
@@ -98,7 +137,7 @@ public class LazyScheduler extends AbstractQueueScheduler {
   }
 
   @Override
-  public boolean isEmpty() {
+  public final boolean isEmpty() {
     synchronized (lock) {
       return getQueue().isEmpty() && !requests.hasNext();
     }

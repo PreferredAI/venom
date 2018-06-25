@@ -19,14 +19,14 @@ package ai.preferred.venom.response;
 import javax.validation.constraints.NotNull;
 
 /**
- * This interface represents that the response can be unwrapped
+ * This interface represents that the response can be unwrapped.
  *
  * @author Ween Jiann Lee
  */
 public interface Unwrappable extends Response {
 
   /**
-   * Returns the unwrapped version of this request
+   * Returns the unwrapped version of this request.
    *
    * @return an instance of request
    */

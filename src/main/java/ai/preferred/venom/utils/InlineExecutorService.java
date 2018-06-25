@@ -35,27 +35,27 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
 
   @Nonnull
   @Override
-  public List<Runnable> shutdownNow() {
+  public final List<Runnable> shutdownNow() {
     return Collections.emptyList();
   }
 
   @Override
-  public boolean isShutdown() {
+  public final boolean isShutdown() {
     return true;
   }
 
   @Override
-  public boolean isTerminated() {
+  public final boolean isTerminated() {
     return true;
   }
 
   @Override
-  public boolean awaitTermination(long timeout, @Nonnull TimeUnit unit) {
+  public final boolean awaitTermination(final long timeout, final @Nonnull TimeUnit unit) {
     return true;
   }
 
   @Override
-  public void execute(@Nonnull Runnable command) {
+  public final void execute(final @Nonnull Runnable command) {
     command.run();
   }
 }

@@ -24,45 +24,88 @@ import ai.preferred.venom.validator.Validator;
  */
 public class ValidationException extends Exception {
 
+  /**
+   * The validation status of the response.
+   */
   private final Validator.Status status;
 
+  /**
+   * The response.
+   */
   private final Response response;
 
-  public ValidationException(Validator.Status status, Response response, String message) {
+  /**
+   * Constructs a validation exception with a message.
+   *
+   * @param status   The validation status of the response.
+   * @param response The response validated
+   * @param message  A message about the exception
+   */
+  public ValidationException(final Validator.Status status, final Response response, final String message) {
     super(message);
     this.status = status;
     this.response = response;
   }
 
-  public ValidationException(Validator.Status status, Response response, String message, Throwable cause) {
+  /**
+   * @param status   The validation status of the response.
+   * @param response The response validated
+   * @param message  A message about the exception
+   * @param cause    The cause of the exception
+   */
+  public ValidationException(final Validator.Status status, final Response response, final String message,
+                             final Throwable cause) {
     super(message, cause);
     this.status = status;
     this.response = response;
   }
 
-  public ValidationException(Validator.Status status, Response response, Throwable cause) {
+  /**
+   * @param status   The validation status of the response.
+   * @param response The response validated
+   * @param cause    The cause of the exception
+   */
+  public ValidationException(final Validator.Status status, final Response response, final Throwable cause) {
     super(cause);
     this.status = status;
     this.response = response;
   }
 
-  public ValidationException(Validator.Status status, Response response, String message, Throwable cause,
-                             boolean enableSuppression, boolean writableStackTrace) {
+  /**
+   * @param status             The validation status of the response.
+   * @param response           The response validated
+   * @param message            A message about the exception
+   * @param cause              The cause of the exception
+   * @param enableSuppression  Enable suppression.
+   * @param writableStackTrace Enable writable stack trace.
+   */
+  public ValidationException(final Validator.Status status, final Response response, final String message,
+                             final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
     this.status = status;
     this.response = response;
   }
 
-  public Validator.Status getStatus() {
+  /**
+   * Get the validation status of the response.
+   *
+   * @return Validation status of the response
+   */
+  public final Validator.Status getStatus() {
     return status;
   }
 
-  public Response getResponse() {
+  /**
+   * Get the response validated.
+   *
+   * @return Response validated
+   */
+  public final Response getResponse() {
     return response;
   }
 
   @Override
-  public Throwable fillInStackTrace() {
+  public final Throwable fillInStackTrace() {
     return this;
   }
 }

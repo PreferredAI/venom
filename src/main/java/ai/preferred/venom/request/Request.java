@@ -31,19 +31,7 @@ import java.util.Map;
 public interface Request {
 
   /**
-   * The method of the request to be made
-   */
-  enum Method {
-    GET,
-    POST,
-    HEAD,
-    PUT,
-    DELETE,
-    OPTIONS
-  }
-
-  /**
-   * Returns the method type of the request
+   * Returns the method type of the request.
    *
    * @return method type
    */
@@ -51,7 +39,7 @@ public interface Request {
   Method getMethod();
 
   /**
-   * Returns the request body of the request or null if none specified
+   * Returns the request body of the request or null if none specified.
    *
    * @return request body
    */
@@ -59,7 +47,7 @@ public interface Request {
   String getBody();
 
   /**
-   * Returns the url of the request
+   * Returns the url of the request.
    *
    * @return url
    */
@@ -67,7 +55,7 @@ public interface Request {
   String getUrl();
 
   /**
-   * Returns the headers set for the request
+   * Returns the headers set for the request.
    *
    * @return a map of the headers set
    */
@@ -76,7 +64,7 @@ public interface Request {
 
   /**
    * Returns the proxy set to be used for the request or default to
-   * fetcher if none specified
+   * fetcher if none specified.
    *
    * @return proxy
    */
@@ -85,11 +73,47 @@ public interface Request {
 
   /**
    * Returns information about the amount of sleep before this request
-   * is made
+   * is made.
    *
    * @return an instance of SleepScheduler
    */
   @Nullable
   SleepScheduler getSleepScheduler();
+
+  /**
+   * The method of the request to be made.
+   */
+  enum Method {
+
+    /**
+     * GET method.
+     */
+    GET,
+
+    /**
+     * POST method.
+     */
+    POST,
+
+    /**
+     * HEAD method.
+     */
+    HEAD,
+
+    /**
+     * PUT method.
+     */
+    PUT,
+
+    /**
+     * DELETE method.
+     */
+    DELETE,
+
+    /**
+     * OPTIONS method.
+     */
+    OPTIONS
+  }
 
 }

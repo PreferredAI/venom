@@ -16,7 +16,6 @@
 
 package ai.preferred.venom.response;
 
-import ai.preferred.venom.utils.UrlUtils;
 import ai.preferred.venom.validator.Validator;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -34,111 +33,104 @@ import java.nio.charset.StandardCharsets;
  */
 public class VResponse implements Response, Unwrappable {
 
+  /**
+   * The default charset to be used to decode response.
+   */
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
+  /**
+   * An instance of underlying response.
+   */
   private final Response innerResponse;
 
-  public VResponse(Response response) {
+  /**
+   * Constructs a VResponse.
+   *
+   * @param response An instance of response
+   */
+  public VResponse(final Response response) {
     this.innerResponse = response;
   }
 
   @Override
-  public int getStatusCode() {
+  public final int getStatusCode() {
     return getInner().getStatusCode();
   }
 
-  public byte[] getContent() {
+  @Override
+  public final byte[] getContent() {
     return getInner().getContent();
   }
 
   @Override
-  public ContentType getContentType() {
+  public final ContentType getContentType() {
     return getInner().getContentType();
   }
 
   @Override
-  public Header[] getHeaders() {
+  public final Header[] getHeaders() {
     return getInner().getHeaders();
   }
 
   @Override
-  public String getBaseUrl() {
+  public final String getBaseUrl() {
     return getInner().getBaseUrl();
   }
 
   @Override
-  public HttpHost getProxy() {
+  public final HttpHost getProxy() {
     return getInner().getProxy();
   }
 
   @Override
-  public Validator getValidator() {
+  public final Validator getValidator() {
     return getInner().getValidator();
   }
 
   /**
-   * Returns the html in string format with all relative
-   * urls resolved to absolute urls
+   * Returns the html in string format.
    *
    * @return string of html response
    */
-  public String getResolvedHtml() {
-    return UrlUtils.resolveUrls(getHtml(), getBaseUrl());
-  }
-
-  /**
-   * Returns the html in string format with all relative
-   * urls resolved to absolute urls
-   *
-   * @param charset use specified charset for this html document
-   * @return string of html response
-   */
-  public String getResolvedHtml(Charset charset) {
-    return UrlUtils.resolveUrls(getHtml(charset), getBaseUrl());
-  }
-
-  /**
-   * Returns the html in string format
-   *
-   * @return string of html response
-   */
-  public String getHtml() {
+  public final String getHtml() {
     final Charset charset = getContentType().getCharset();
-    if (charset == null) return getHtml(DEFAULT_CHARSET);
+    if (charset == null) {
+      return getHtml(DEFAULT_CHARSET);
+    }
     return getHtml(charset);
   }
 
   /**
-   * Returns the html in string format
+   * Returns the html in string format.
    *
    * @param charset use specified charset for this html document
    * @return string of html response
    */
-  public String getHtml(Charset charset) {
+  public final String getHtml(final Charset charset) {
     return new String(getContent(), charset);
   }
 
   /**
-   * Returns a Jsoup document of this response
+   * Returns a Jsoup document of this response.
    *
    * @return Jsoup document of response
    */
-  public Document getJsoup() {
+  public final Document getJsoup() {
     return Jsoup.parse(getHtml(), getBaseUrl());
   }
 
   /**
-   * Returns a Jsoup document of this response
+   * Returns a Jsoup document of this response.
    *
    * @param charset use specified charset for this html document
    * @return Jsoup document of response
    */
-  public Document getJsoup(Charset charset) {
+  public final Document getJsoup(final Charset charset) {
     return Jsoup.parse(getHtml(charset), getBaseUrl());
   }
 
   @Override
-  public Response getInner() {
+  public final Response getInner() {
     return innerResponse;
   }
 }

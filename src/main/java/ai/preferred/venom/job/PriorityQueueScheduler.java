@@ -26,34 +26,46 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * This class provides and implementation of scheduler with a priority
+ * sensitive queue.
+ * <p>
+ * Jobs with higher priority will be processed first.
+ * </p>
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class PriorityQueueScheduler extends AbstractQueueScheduler {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(PriorityQueueScheduler.class);
 
+  /**
+   * The queue used for this scheduler.
+   */
   private final PriorityBlockingQueue<Job> queue = new PriorityBlockingQueue<>();
 
   @Override
-  PriorityBlockingQueue<Job> getQueue() {
+  final PriorityBlockingQueue<Job> getQueue() {
     return queue;
   }
 
   @Override
-  public void add(Request r, Handleable h, Priority p, Priority pf) {
-    Job job = new BasicJob(r, h, p, pf, queue);
+  public final void add(final Request r, final Handleable h, final Priority p, final Priority pf) {
+    final Job job = new BasicJob(r, h, p, pf, queue);
     getQueue().add(job);
     LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
   }
 
   @Override
-  public void put(@Nonnull Job job) {
+  public final void put(final @Nonnull Job job) {
     getQueue().put(job);
   }
 
   @Override
-  public boolean offer(Job job, long timeout, @Nonnull TimeUnit unit) {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) {
     return getQueue().offer(job, timeout, unit);
   }
 

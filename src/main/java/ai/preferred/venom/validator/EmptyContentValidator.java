@@ -22,17 +22,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This class determines the validity of a response by its content length.
+ * <p>
+ * An empty content should return {@code Status.INVALID_CONTENT}, or
+ * {@code Status.VALID} otherwise.
+ * </p>
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class EmptyContentValidator implements Validator {
 
+  /**
+   * An instance of this validator.
+   */
+  public static final EmptyContentValidator INSTANCE = new EmptyContentValidator();
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(EmptyContentValidator.class);
 
-  public static final EmptyContentValidator INSTANCE = new EmptyContentValidator();
-
   @Override
-  public Status isValid(Request request, Response response) {
+  public final Status isValid(final Request request, final Response response) {
     if (response.getContent() != null && response.getContent().length > 0) {
       return Status.VALID;
     }

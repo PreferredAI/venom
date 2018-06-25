@@ -40,9 +40,9 @@ public class TestFetcher implements Fetcher {
     FAILED
   }
 
-  private AtomicInteger counter = new AtomicInteger();
+  private final AtomicInteger counter = new AtomicInteger();
 
-  private LinkedList<Status> statuses;
+  private final LinkedList<Status> statuses;
 
   public TestFetcher(LinkedList<Status> statuses) {
     this.statuses = statuses;
@@ -83,7 +83,7 @@ public class TestFetcher implements Fetcher {
   public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull FutureCallback<Response> callback) {
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    Future<Response> responseFuture = executor.submit(() -> {
+    return executor.submit(() -> {
       final int statusCode = 200;
       final String baseUrl = "https://venom.preferred.ai";
       final byte[] content = "IPSUM".getBytes();
@@ -103,8 +103,6 @@ public class TestFetcher implements Fetcher {
 
       return response;
     });
-
-    return responseFuture;
   }
 
   @Override

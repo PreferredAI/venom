@@ -30,6 +30,11 @@ public interface FileManager {
 
   /**
    * Get callback upon completion of request.
+   * <p>
+   * Please note that blocking callbacks will significantly reduce the rate
+   * at which request are processed. Please implement your own executors on
+   * I/O blocking callbacks.
+   * </p>
    *
    * @return Callback for FileManager
    */

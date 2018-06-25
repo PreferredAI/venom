@@ -27,31 +27,46 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class provides and implementation of scheduler with a first in
+ * first out queue.
+ * <p>
+ * Jobs in queue will be processed first in order of insertion.
+ * </p>
+ *
+ * @author Ween Jiann Lee
+ */
 public class FIFOScheduler extends AbstractQueueScheduler {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(FIFOScheduler.class);
 
+  /**
+   * The queue used for this scheduler.
+   */
   private final LinkedBlockingQueue<Job> queue = new LinkedBlockingQueue<>();
 
   @Override
-  BlockingQueue<Job> getQueue() {
+  final BlockingQueue<Job> getQueue() {
     return queue;
   }
 
   @Override
-  public void add(@NotNull Request r, @NotNull Handleable h, Priority p, Priority pf) {
+  public final void add(final @NotNull Request r, final @NotNull Handleable h, final Priority p, final Priority pf) {
     Job job = new BasicJob(r, h, p, pf, queue);
     getQueue().add(job);
     LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
   }
 
   @Override
-  public void put(@Nonnull Job job) throws InterruptedException {
+  public final void put(final @Nonnull Job job) throws InterruptedException {
     getQueue().put(job);
   }
 
   @Override
-  public boolean offer(Job job, long timeout, TimeUnit unit) throws InterruptedException {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
     return getQueue().offer(job, timeout, unit);
   }
 }

@@ -19,12 +19,14 @@ package ai.preferred.venom.uagent;
 import javax.annotation.Nullable;
 
 /**
+ * This interface allows the user to define a user agent string.
+ *
  * @author Maksim Tkachenko
  */
 public interface UserAgent {
 
   /**
-   * Gets the user agent for a request
+   * Gets the user agent for a request.
    *
    * @return user agent
    */

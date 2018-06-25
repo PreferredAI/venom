@@ -21,19 +21,44 @@ package ai.preferred.venom.storage;
  */
 public class StorageException extends Exception {
 
-  public StorageException(String message) {
+  /**
+   * Constructs a storage exception with a message.
+   *
+   * @param message A message about the exception
+   */
+  public StorageException(final String message) {
     super(message);
   }
 
-  public StorageException(String message, Throwable cause) {
+  /**
+   * Constructs a storage exception with a message and a cause.
+   *
+   * @param message A message about the exception
+   * @param cause   The cause of the exception
+   */
+  public StorageException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public StorageException(Throwable cause) {
+  /**
+   * Constructs a storage exception with a cause.
+   *
+   * @param cause The cause of the exception
+   */
+  public StorageException(final Throwable cause) {
     super(cause);
   }
 
-  public StorageException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+  /**
+   * Constructs a storage exception with a message and a cause.
+   *
+   * @param message            A message about the exception.
+   * @param cause              The cause of the exception
+   * @param enableSuppression  Enable suppression.
+   * @param writableStackTrace Enable writable stack trace.
+   */
+  public StorageException(final String message, final Throwable cause, final boolean enableSuppression,
+                          final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 }

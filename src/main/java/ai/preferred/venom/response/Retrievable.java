@@ -17,7 +17,7 @@
 package ai.preferred.venom.response;
 
 /**
- * This interface represents that the response can be/ has been stored
+ * This interface represents that the response can be/ has been stored.
  *
  * @author Ween Jiann Lee
  */
@@ -25,9 +25,11 @@ public interface Retrievable extends Response {
 
   /**
    * Returns the id of the row where an archive of this response
-   * has been insert into a persistent storage
-   * <p>This string should be null if no implementation of FileManager
-   * is specified during the initialisation of the fetcher</p>
+   * has been insert into a persistent storage.
+   * <p>
+   * This string should be null if no implementation of FileManager
+   * is specified during the initialisation of the fetcher.
+   * </p>
    *
    * @return unique id of where an archive has been saved
    */

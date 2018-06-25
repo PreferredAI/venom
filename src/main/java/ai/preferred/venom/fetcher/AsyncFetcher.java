@@ -66,16 +66,22 @@ import java.util.concurrent.ThreadFactory;
  */
 public class AsyncFetcher implements Fetcher {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFetcher.class);
 
+  /**
+   * An instance of empty callback.
+   */
   private static final FutureCallback<Response> EMPTY_CALLBACK = new FutureCallback<Response>() {
     @Override
-    public void completed(Response result) {
+    public void completed(final Response result) {
 
     }
 
     @Override
-    public void failed(Exception ex) {
+    public void failed(final Exception ex) {
 
     }
 
@@ -85,289 +91,80 @@ public class AsyncFetcher implements Fetcher {
     }
   };
 
-  public static AsyncFetcher buildDefault() {
-    return builder().build();
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private final List<Callback> callbacks;
-
-    private FileManager fileManager;
-
-    private Map<String, String> headers;
-
-    private int numIoThreads;
-
-    private ProxyProvider proxyProvider;
-
-    private Set<Integer> stopCodes;
-
-    private ThreadFactory threadFactory;
-
-    private UserAgent userAgent;
-
-    private Validator validator;
-
-    private ValidatorRouter router;
-
-    private int connectionRequestTimeout;
-
-    private int connectTimeout;
-
-    private int socketTimeout;
-
-    private int soTimeout;
-
-    private boolean compressed;
-
-    private Builder() {
-      callbacks = new ArrayList<>();
-      fileManager = null;
-      headers = Collections.emptyMap();
-      numIoThreads = Runtime.getRuntime().availableProcessors();
-      proxyProvider = null;
-      stopCodes = Collections.emptySet();
-      threadFactory = new ThreadFactoryBuilder().setNameFormat("I/O Dispatcher %d").build();
-      userAgent = new DefaultUserAgent();
-      validator = new PipelineValidator(
-          StatusOkValidator.INSTANCE,
-          EmptyContentValidator.INSTANCE
-      );
-      router = request -> Validator.ALWAYS_VALID;
-      connectionRequestTimeout = -1;
-      connectTimeout = -1;
-      socketTimeout = -1;
-      soTimeout = 0;
-      compressed = true;
-    }
-
-    /**
-     * Register any callbacks that will be called when a page has been fetched.
-     *
-     * @param callback A set of FetcherCallback.
-     * @return this.
-     */
-    public Builder register(@NotNull Callback callback) {
-      this.callbacks.add(callback);
-      return this;
-    }
-
-    /**
-     * Sets the FileManager to be used. Defaults to none.
-     * <p>
-     * If fileManager is set, all items fetched will be saved to storage.
-     * </p>
-     *
-     * @param fileManager file manager to be used.
-     * @return this.
-     */
-    public Builder fileManager(@NotNull FileManager fileManager) {
-      this.fileManager = fileManager;
-      return this;
-    }
-
-    /**
-     * Sets the headers to be used when fetching items. Defaults to none.
-     *
-     * @param headers a map to headers to be used.
-     * @return this.
-     */
-    public Builder headers(@NotNull Map<String, String> headers) {
-      this.headers = headers;
-      return this;
-    }
-
-    /**
-     * Number of httpclient dispatcher threads.
-     *
-     * @param numIoThreads number of threads.
-     * @return this.
-     */
-    public Builder numIoThreads(int numIoThreads) {
-      this.numIoThreads = numIoThreads;
-      return this;
-    }
-
-    /**
-     * Sets the ProxyProvider to be used. Defaults to none.
-     *
-     * @param proxyProvider proxy provider to be used
-     * @return this.
-     */
-    public Builder proxyProvider(@NotNull ProxyProvider proxyProvider) {
-      this.proxyProvider = proxyProvider;
-      return this;
-    }
-
-    public Builder stopCodes(int... codes) {
-      ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
-      for (int code : codes) {
-        builder.add(code);
-      }
-      stopCodes = builder.build();
-      return this;
-    }
-
-    /**
-     * Set the thread factory that creates the httpclient dispatcher
-     * threads.
-     *
-     * @param threadFactory an instance of ThreadFactory.
-     * @return this.
-     */
-    public Builder threadFactory(@NotNull ThreadFactory threadFactory) {
-      this.threadFactory = threadFactory;
-      return this;
-    }
-
-    /**
-     * Sets the UserAgent to be used, if not set, default will be chosen.
-     *
-     * @param userAgent user agent generator to be used.
-     * @return this.
-     */
-    public Builder userAgent(@NotNull UserAgent userAgent) {
-      this.userAgent = userAgent;
-      return this;
-    }
-
-    /**
-     * Sets the Validator to be used. Defaults to none.
-     * <p>
-     * This will validate the fetched page and retry if page is not
-     * consistent with the specification set by the validator.
-     * </p>
-     *
-     * @param validator validator to be used.
-     * @return this.
-     */
-    public Builder validator(@NotNull Validator validator) {
-      this.validator = validator;
-      return this;
-    }
-
-    /**
-     * Sets ValidatorRouter to be used. Defaults to none.
-     * Validator rules set in validator will always be used.
-     *
-     * @param router router validator router to be used.
-     * @return this.
-     */
-    public Builder router(@NotNull ValidatorRouter router) {
-      this.router = router;
-      return this;
-    }
-
-    /**
-     * The timeout in milliseconds used when requesting a connection
-     * from the connection manager. A timeout value of zero is interpreted
-     * as an infinite timeout.
-     *
-     * @param connectionRequestTimeout timeout.
-     * @return this.
-     */
-    public Builder connectionRequestTimeout(int connectionRequestTimeout) {
-      this.connectionRequestTimeout = connectionRequestTimeout;
-      return this;
-    }
-
-    /**
-     * Determines the timeout in milliseconds until a connection is established.
-     * A timeout value of zero is interpreted as an infinite timeout.
-     *
-     * @param connectTimeout timeout.
-     * @return this.
-     */
-    public Builder connectTimeout(int connectTimeout) {
-      this.connectTimeout = connectTimeout;
-      return this;
-    }
-
-    /**
-     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
-     * which is the timeout for waiting for data  or, put differently,
-     * a maximum period inactivity between two consecutive data packets).
-     *
-     * @param socketTimeout timeout.
-     * @return this.
-     */
-    public Builder socketTimeout(int socketTimeout) {
-      this.socketTimeout = socketTimeout;
-      return this;
-    }
-
-    /**
-     * Determines the default socket timeout value for non-blocking I/O operations.
-     *
-     * @param soTimeout timeout.
-     * @return this.
-     */
-    public Builder soTimeout(int soTimeout) {
-      this.soTimeout = soTimeout;
-      return this;
-    }
-
-    /**
-     * Set whether to request for compress pages and to decompress pages
-     * after it is fetched. Defaults to true.
-     *
-     * @param compressed should request for compress pages
-     * @return this.
-     */
-    public Builder compressed(boolean compressed) {
-      this.compressed = compressed;
-      return this;
-    }
-
-    /**
-     * Builds the fetcher with the options specified.
-     *
-     * @return an instance of Fetcher.
-     */
-    public AsyncFetcher build() {
-      return new AsyncFetcher(this);
-    }
-
-  }
-
+  /**
+   * A list of callbacks to execute upon response.
+   */
   @NotNull
   private final List<Callback> callbacks;
 
+  /**
+   * A list of headers to append to request.
+   */
   @NotNull
   private final Map<String, String> headers;
 
+  /**
+   * The HTTP client used for requests.
+   */
   @NotNull
   private final CloseableHttpAsyncClient httpClient;
 
+  /**
+   * The proxy provider for proxies.
+   */
   @Nullable
   private final ProxyProvider proxyProvider;
 
+  /**
+   * A list of status code to stop retry.
+   */
   @NotNull
   private final Set<Integer> stopCodes;
 
+  /**
+   * The user agent used for requests.
+   */
   @NotNull
   private final UserAgent userAgent;
 
+  /**
+   * The validator used.
+   */
   @NotNull
   private final Validator validator;
 
+  /**
+   * The validator router used.
+   */
   @Nullable
   private final ValidatorRouter router;
 
+  /**
+   * The timeout in milliseconds used when requesting a connection.
+   */
   private final int connectionRequestTimeout;
 
+  /**
+   * The timeout in milliseconds until a connection is established.
+   */
   private final int connectTimeout;
 
+  /**
+   * The socket timeout ({@code SO_TIMEOUT}) in milliseconds.
+   */
   private final int socketTimeout;
 
+  /**
+   * Determines whether compression is allowed.
+   */
   private final boolean compressed;
 
-  private AsyncFetcher(Builder builder) {
+  /**
+   * Constructs an instance of async fetcher.
+   *
+   * @param builder An instance of builder
+   */
+  private AsyncFetcher(final Builder builder) {
     ImmutableList.Builder<Callback> callbackListBuilder = new ImmutableList.Builder<>();
     if (builder.fileManager != null) {
       callbackListBuilder.add(builder.fileManager.getCallback());
@@ -403,12 +200,45 @@ public class AsyncFetcher implements Fetcher {
     httpClient = clientBuilder.build();
   }
 
-  private HttpFetcherRequest normalizeRequest(Request request) {
-    if (request instanceof HttpFetcherRequest) return (HttpFetcherRequest) request;
+  /**
+   * Create an instance of async fetcher with default options.
+   *
+   * @return A new instance of async fetcher
+   */
+  public static AsyncFetcher buildDefault() {
+    return builder().build();
+  }
+
+  /**
+   * Create an instance of builder.
+   *
+   * @return A new instance of builder
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * Check if request is an instance of http fetcher request and return it
+   * if true, otherwise wrap it with http fetcher request and return that.
+   *
+   * @param request An instance of request
+   * @return An instance of http fetcher request
+   */
+  private HttpFetcherRequest normalizeRequest(final Request request) {
+    if (request instanceof HttpFetcherRequest) {
+      return (HttpFetcherRequest) request;
+    }
     return new HttpFetcherRequest(request);
   }
 
-  private HttpFetcherRequest prepareFetcherRequest(Request request) {
+  /**
+   * Prepare fetcher request by prepending headers and set appropriate proxy.
+   *
+   * @param request An instance of request
+   * @return An instance of http fetcher request
+   */
+  private HttpFetcherRequest prepareFetcherRequest(final Request request) {
     HttpFetcherRequest httpFetcherRequest = normalizeRequest(request);
 
     if (!headers.isEmpty()) {
@@ -422,7 +252,13 @@ public class AsyncFetcher implements Fetcher {
     return httpFetcherRequest;
   }
 
-  private RequestBuilder createRequestBuilder(Request request) {
+  /**
+   * Create an instance of request builder.
+   *
+   * @param request An instance of request
+   * @return An instance of request builder
+   */
+  private RequestBuilder createRequestBuilder(final Request request) {
     switch (request.getMethod()) {
       case GET:
         return RequestBuilder.get();
@@ -441,7 +277,13 @@ public class AsyncFetcher implements Fetcher {
     }
   }
 
-  private HttpUriRequest prepareHttpRequest(HttpFetcherRequest request) {
+  /**
+   * Prepare http uri request to be used with http async client.
+   *
+   * @param request An instance of request
+   * @return An instance of http uri request
+   */
+  private HttpUriRequest prepareHttpRequest(final HttpFetcherRequest request) {
     final RequestConfig config = RequestConfig.custom()
         .setConnectionRequestTimeout(connectionRequestTimeout)
         .setConnectTimeout(connectTimeout)
@@ -463,7 +305,13 @@ public class AsyncFetcher implements Fetcher {
     return requestBuilder.build();
   }
 
-  private Validator prepareValidator(Validator routedValidator) {
+  /**
+   * Append routed validator if present for this request.
+   *
+   * @param routedValidator An instance of routed validator
+   * @return An instance of validator
+   */
+  private Validator prepareValidator(final Validator routedValidator) {
     if (routedValidator == null) {
       return validator;
     }
@@ -472,7 +320,7 @@ public class AsyncFetcher implements Fetcher {
   }
 
   /**
-   * Copied from {@link CloseableHttpAsyncClient}
+   * Copied from {@link CloseableHttpAsyncClient}.
    *
    * @param request request
    * @return target
@@ -495,24 +343,24 @@ public class AsyncFetcher implements Fetcher {
   }
 
   @Override
-  public Future<Response> fetch(Request request) {
+  public Future<Response> fetch(final Request request) {
     return fetch(request, EMPTY_CALLBACK);
   }
 
   @Override
-  public Future<Response> fetch(Request request, FutureCallback<Response> callback) {
+  public Future<Response> fetch(final Request request, final FutureCallback<Response> callback) {
     final HttpFetcherRequest httpFetcherRequest = prepareFetcherRequest(request);
 
     final FutureCallback<Response> futureCallback = new FutureCallback<Response>() {
       @Override
-      public void completed(Response response) {
+      public void completed(final Response response) {
         LOGGER.debug("Executing completion callback on {}.", request.getUrl());
         callbacks.forEach(callback -> callback.completed(httpFetcherRequest, response));
         callback.completed(response);
       }
 
       @Override
-      public void failed(Exception ex) {
+      public void failed(final Exception ex) {
         LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
         callbacks.forEach(callback -> callback.failed(httpFetcherRequest, ex));
         callback.failed(ex);
@@ -568,6 +416,310 @@ public class AsyncFetcher implements Fetcher {
     LOGGER.debug("Initialising fetcher shutdown...");
     httpClient.close();
     LOGGER.debug("Fetcher shutdown completed.");
+  }
+
+  /**
+   * A builder for async fetcher class.
+   */
+  public static class Builder {
+
+    /**
+     * A list of callbacks to execute upon response.
+     */
+    private final List<Callback> callbacks;
+
+    /**
+     * The file manager used to store raw responses.
+     */
+    private FileManager fileManager;
+
+    /**
+     * A list of headers to append to request.
+     */
+    private Map<String, String> headers;
+
+    /**
+     * The maximum number of I/O threads allowed.
+     */
+    private int numIoThreads;
+
+    /**
+     * The proxy provider for proxies.
+     */
+    private ProxyProvider proxyProvider;
+
+    /**
+     * A list of status code to stop retry.
+     */
+    private Set<Integer> stopCodes;
+
+    /**
+     * The threadFactory used for I/O dispatcher.
+     */
+    private ThreadFactory threadFactory;
+
+    /**
+     * The user agent used for requests.
+     */
+    private UserAgent userAgent;
+
+    /**
+     * The validator used.
+     */
+    private Validator validator;
+
+    /**
+     * The validator router used.
+     */
+    private ValidatorRouter router;
+
+    /**
+     * The timeout in milliseconds used when requesting a connection.
+     */
+    private int connectionRequestTimeout;
+
+    /**
+     * The timeout in milliseconds until a connection is established.
+     */
+    private int connectTimeout;
+
+    /**
+     * The socket timeout ({@code SO_TIMEOUT}) in milliseconds.
+     */
+    private int socketTimeout;
+
+    /**
+     * The socket timeout value for non-blocking I/O operations.
+     */
+    private int soTimeout;
+
+    /**
+     * Determines whether compression is allowed.
+     */
+    private boolean compressed;
+
+    /**
+     * Construct an instance of builder.
+     */
+    private Builder() {
+      callbacks = new ArrayList<>();
+      fileManager = null;
+      headers = Collections.emptyMap();
+      numIoThreads = Runtime.getRuntime().availableProcessors();
+      proxyProvider = null;
+      stopCodes = Collections.emptySet();
+      threadFactory = new ThreadFactoryBuilder().setNameFormat("I/O Dispatcher %d").build();
+      userAgent = new DefaultUserAgent();
+      validator = new PipelineValidator(
+          StatusOkValidator.INSTANCE,
+          EmptyContentValidator.INSTANCE
+      );
+      router = request -> Validator.ALWAYS_VALID;
+      connectionRequestTimeout = -1;
+      connectTimeout = -1;
+      socketTimeout = -1;
+      soTimeout = 0;
+      compressed = true;
+    }
+
+    /**
+     * Register any callbacks that will be called when a page has been fetched.
+     * <p>
+     * Please note that blocking callbacks will significantly reduce the rate
+     * at which request are processed. Please implement your own executors on
+     * I/O blocking callbacks.
+     * </p>
+     *
+     * @param callback A set of FetcherCallback.
+     * @return this
+     */
+    public Builder register(final @NotNull Callback callback) {
+      this.callbacks.add(callback);
+      return this;
+    }
+
+    /**
+     * Sets the FileManager to be used. Defaults to none.
+     * <p>
+     * If fileManager is set, all items fetched will be saved to storage.
+     * </p>
+     *
+     * @param fileManager file manager to be used.
+     * @return this
+     */
+    public Builder fileManager(final @NotNull FileManager fileManager) {
+      this.fileManager = fileManager;
+      return this;
+    }
+
+    /**
+     * Sets the headers to be used when fetching items. Defaults to none.
+     *
+     * @param headers a map to headers to be used.
+     * @return this
+     */
+    public Builder headers(final @NotNull Map<String, String> headers) {
+      this.headers = headers;
+      return this;
+    }
+
+    /**
+     * Number of httpclient dispatcher threads.
+     *
+     * @param numIoThreads number of threads.
+     * @return this
+     */
+    public Builder numIoThreads(final int numIoThreads) {
+      this.numIoThreads = numIoThreads;
+      return this;
+    }
+
+    /**
+     * Sets the ProxyProvider to be used. Defaults to none.
+     *
+     * @param proxyProvider proxy provider to be used
+     * @return this
+     */
+    public Builder proxyProvider(final @NotNull ProxyProvider proxyProvider) {
+      this.proxyProvider = proxyProvider;
+      return this;
+    }
+
+    /**
+     * Set a list of stop code that will interrupt crawling.
+     *
+     * @param codes A list of stop codes
+     * @return this
+     */
+    public Builder stopCodes(final int... codes) {
+      ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
+      for (int code : codes) {
+        builder.add(code);
+      }
+      stopCodes = builder.build();
+      return this;
+    }
+
+    /**
+     * Set the thread factory that creates the httpclient dispatcher
+     * threads.
+     *
+     * @param threadFactory an instance of ThreadFactory.
+     * @return this
+     */
+    public Builder threadFactory(final @NotNull ThreadFactory threadFactory) {
+      this.threadFactory = threadFactory;
+      return this;
+    }
+
+    /**
+     * Sets the UserAgent to be used, if not set, default will be chosen.
+     *
+     * @param userAgent user agent generator to be used.
+     * @return this
+     */
+    public Builder userAgent(final @NotNull UserAgent userAgent) {
+      this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets the Validator to be used. Defaults to none.
+     * <p>
+     * This will validate the fetched page and retry if page is not
+     * consistent with the specification set by the validator.
+     * </p>
+     *
+     * @param validator validator to be used.
+     * @return this
+     */
+    public Builder validator(final @NotNull Validator validator) {
+      this.validator = validator;
+      return this;
+    }
+
+    /**
+     * Sets ValidatorRouter to be used. Defaults to none.
+     * Validator rules set in validator will always be used.
+     *
+     * @param router router validator router to be used.
+     * @return this
+     */
+    public Builder router(final @NotNull ValidatorRouter router) {
+      this.router = router;
+      return this;
+    }
+
+    /**
+     * The timeout in milliseconds used when requesting a connection
+     * from the connection manager. A timeout value of zero is interpreted
+     * as an infinite timeout.
+     *
+     * @param connectionRequestTimeout timeout.
+     * @return this
+     */
+    public Builder connectionRequestTimeout(final int connectionRequestTimeout) {
+      this.connectionRequestTimeout = connectionRequestTimeout;
+      return this;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * A timeout value of zero is interpreted as an infinite timeout.
+     *
+     * @param connectTimeout timeout.
+     * @return this
+     */
+    public Builder connectTimeout(final int connectTimeout) {
+      this.connectTimeout = connectTimeout;
+      return this;
+    }
+
+    /**
+     * Defines the socket timeout ({@code SO_TIMEOUT}) in milliseconds,
+     * which is the timeout for waiting for data  or, put differently,
+     * a maximum period inactivity between two consecutive data packets).
+     *
+     * @param socketTimeout timeout.
+     * @return this
+     */
+    public Builder socketTimeout(final int socketTimeout) {
+      this.socketTimeout = socketTimeout;
+      return this;
+    }
+
+    /**
+     * Determines the default socket timeout value for non-blocking I/O operations.
+     *
+     * @param soTimeout timeout.
+     * @return this
+     */
+    public Builder soTimeout(final int soTimeout) {
+      this.soTimeout = soTimeout;
+      return this;
+    }
+
+    /**
+     * Set whether to request for compress pages and to decompress pages
+     * after it is fetched. Defaults to true.
+     *
+     * @param compressed should request for compress pages
+     * @return this
+     */
+    public Builder compressed(final boolean compressed) {
+      this.compressed = compressed;
+      return this;
+    }
+
+    /**
+     * Builds the fetcher with the options specified.
+     *
+     * @return an instance of Fetcher.
+     */
+    public AsyncFetcher build() {
+      return new AsyncFetcher(this);
+    }
+
   }
 
 }

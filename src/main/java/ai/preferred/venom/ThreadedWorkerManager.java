@@ -26,62 +26,91 @@ import java.util.concurrent.*;
  */
 public class ThreadedWorkerManager implements WorkerManager, Interruptible {
 
+  /**
+   * Logger.
+   */
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ThreadedWorkerManager.class);
-
-  private static class InnerCollector implements Worker {
-
-    private final ExecutorService executor;
-
-    public InnerCollector(ExecutorService executor) {
-      this.executor = executor;
-    }
-
-    @Override
-    public @NotNull <T> Future<T> submit(@NotNull Callable<T> task) {
-      return executor.submit(task);
-    }
-
-    @Override
-    public @NotNull <T> Future<T> submit(@NotNull Runnable task, T result) {
-      return executor.submit(task, result);
-    }
-
-    @Override
-    public @NotNull Future<?> submit(@NotNull Runnable task) {
-      return executor.submit(task);
-    }
-  }
-
+  /**
+   * The executor used to submit tasks.
+   */
   private final ExecutorService executor;
-  private final Worker collector;
+  /**
+   * The worker to expose executor methods.
+   */
+  private final Worker worker;
 
-  public ThreadedWorkerManager(int numThreads) {
+  /**
+   * Constructs a fix thread worker with a specified number of threads.
+   *
+   * @param numThreads Number of threads
+   */
+  public ThreadedWorkerManager(final int numThreads) {
     this(Executors.newFixedThreadPool(numThreads));
   }
 
-  public ThreadedWorkerManager(ExecutorService executor) {
+  /**
+   * Constructs a threaded worker manager with a specified executor.
+   *
+   * @param executor An executor service
+   */
+  public ThreadedWorkerManager(final ExecutorService executor) {
     this.executor = executor;
-    this.collector = new InnerCollector(executor);
+    this.worker = new InnerWorker(executor);
   }
 
   @Override
-  public Worker getWorker() {
-    return collector;
+  public final Worker getWorker() {
+    return worker;
   }
 
   @Override
-  public void interruptAndClose() throws InterruptedException {
+  public final void interruptAndClose() throws InterruptedException {
     executor.shutdownNow();
     close();
   }
 
   @Override
-  public void close() throws InterruptedException {
+  public final void close() throws InterruptedException {
     LOGGER.debug("Initialising processor shutdown, waiting for threads to join...");
     executor.shutdown();
     executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     LOGGER.debug("Processor thread pool joined.");
     LOGGER.debug("Processor shutdown completed.");
+  }
+
+  /**
+   * This class exposes the methods to allow submitting tasks for multithreading.
+   */
+  private static class InnerWorker implements Worker {
+
+    /**
+     * The executor used to submit tasks.
+     */
+    private final ExecutorService executor;
+
+    /**
+     * Constructs inner worker with a specified executor service.
+     *
+     * @param executor An instance of executor service
+     */
+    InnerWorker(final ExecutorService executor) {
+      this.executor = executor;
+    }
+
+    @Override
+    public @NotNull <T> Future<T> submit(final @NotNull Callable<T> task) {
+      return executor.submit(task);
+    }
+
+    @Override
+    public @NotNull <T> Future<T> submit(final @NotNull Runnable task, final T result) {
+      return executor.submit(task, result);
+    }
+
+    @Override
+    public @NotNull Future<?> submit(final @NotNull Runnable task) {
+      return executor.submit(task);
+    }
   }
 
 }

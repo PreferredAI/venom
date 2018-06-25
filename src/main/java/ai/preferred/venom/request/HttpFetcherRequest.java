@@ -30,64 +30,97 @@ import java.util.Map;
  */
 public class HttpFetcherRequest implements Request, Unwrappable {
 
+  /**
+   * An instance of underlying request.
+   */
   private final Request innerRequest;
 
+  /**
+   * The headers to append to global headers.
+   */
   private final Map<String, String> headers;
 
+  /**
+   * The proxy to be used for this request.
+   */
   private final HttpHost proxy;
 
-  public HttpFetcherRequest(Request request) {
-    this(request, new HashMap<>(request.getHeaders()), request.getProxy());
+  /**
+   * Constructs an instance of http fetcher request.
+   *
+   * @param innerRequest An instance of underlying request
+   */
+  public HttpFetcherRequest(final Request innerRequest) {
+    this(innerRequest, new HashMap<>(innerRequest.getHeaders()), innerRequest.getProxy());
   }
 
-  private HttpFetcherRequest(Request innerRequest, Map<String, String> headers, HttpHost proxy) {
+  /**
+   * Constructs an instance of http fetcher request.
+   *
+   * @param innerRequest An instance of underlying request
+   * @param headers      Headers to append to global headers
+   * @param proxy        Proxy to be used for this request
+   */
+  private HttpFetcherRequest(final Request innerRequest, final Map<String, String> headers, final HttpHost proxy) {
     this.innerRequest = innerRequest;
     this.headers = headers;
     this.proxy = proxy;
   }
 
-  public HttpFetcherRequest setProxy(HttpHost proxy) {
-    return new HttpFetcherRequest(innerRequest, headers, proxy);
-  }
-
-  public HttpFetcherRequest prependHeaders(Map<String, String> preHeaders) {
+  /**
+   * Prepend headers to the current headers.
+   *
+   * @param preHeaders Headers to be prepended
+   * @return A new instance of http fetcher request
+   */
+  public final HttpFetcherRequest prependHeaders(final Map<String, String> preHeaders) {
     final Map<String, String> newHeaders = new HashMap<>(headers);
     preHeaders.forEach(newHeaders::putIfAbsent);
     return new HttpFetcherRequest(innerRequest, newHeaders, proxy);
   }
 
   @Override
-  public Method getMethod() {
+  public final Method getMethod() {
     return innerRequest.getMethod();
   }
 
   @Override
-  public String getBody() {
+  public final String getBody() {
     return innerRequest.getBody();
   }
 
   @Override
-  public String getUrl() {
+  public final String getUrl() {
     return innerRequest.getUrl();
   }
 
   @Override
-  public Map<String, String> getHeaders() {
+  public final Map<String, String> getHeaders() {
     return Collections.unmodifiableMap(headers);
   }
 
   @Override
-  public HttpHost getProxy() {
+  public final HttpHost getProxy() {
     return proxy;
   }
 
+  /**
+   * Sets proxy to be used for this request.
+   *
+   * @param proxy Proxy to be used for this request
+   * @return A new instance of http fetcher request
+   */
+  public final HttpFetcherRequest setProxy(final HttpHost proxy) {
+    return new HttpFetcherRequest(innerRequest, headers, proxy);
+  }
+
   @Override
-  public SleepScheduler getSleepScheduler() {
+  public final SleepScheduler getSleepScheduler() {
     return innerRequest.getSleepScheduler();
   }
 
   @Override
-  public Request getInner() {
+  public final Request getInner() {
     return innerRequest;
   }
 }

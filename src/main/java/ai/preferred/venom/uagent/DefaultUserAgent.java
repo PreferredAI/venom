@@ -23,7 +23,7 @@ package ai.preferred.venom.uagent;
 public class DefaultUserAgent implements UserAgent {
 
   @Override
-  public String get() {
+  public final String get() {
     return "Venom/4.0.1 ("
         + System.getProperty("os.name") + "; "
         + System.getProperty("os.version") + "; "

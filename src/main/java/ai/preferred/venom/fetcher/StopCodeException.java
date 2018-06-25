@@ -21,31 +21,63 @@ package ai.preferred.venom.fetcher;
  */
 public class StopCodeException extends Exception {
 
+  /**
+   * The status code from the response.
+   */
   private final int statusCode;
 
-  public StopCodeException(int statusCode, String message) {
+  /**
+   * Constructs a stop code exception with a message.
+   *
+   * @param statusCode The status code received from the response
+   * @param message    A message about the exception
+   */
+  public StopCodeException(final int statusCode, final String message) {
     super(message);
     this.statusCode = statusCode;
   }
 
-  public StopCodeException(int statusCode, String message, Throwable cause) {
+  /**
+   * Constructs a stop code exception with a message and a cause.
+   *
+   * @param statusCode The status code received from the response
+   * @param message    A message about the exception
+   * @param cause      The cause of the exception
+   */
+  public StopCodeException(final int statusCode, final String message, final Throwable cause) {
     super(message, cause);
     this.statusCode = statusCode;
   }
 
-  public StopCodeException(int statusCode, Throwable cause) {
+  /**
+   * Constructs a stop code exception with a cause.
+   *
+   * @param statusCode The status code received from the response
+   * @param cause      The cause of the exception
+   */
+  public StopCodeException(final int statusCode, final Throwable cause) {
     super(cause);
     this.statusCode = statusCode;
   }
 
-  public StopCodeException(int statusCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+  /**
+   * Constructs a stop code exception with a message and a cause.
+   *
+   * @param statusCode         The status code received from the response
+   * @param message            A message about the exception
+   * @param cause              The cause of the exception
+   * @param enableSuppression  Enable suppression.
+   * @param writableStackTrace Enable writable stack trace.
+   */
+  public StopCodeException(final int statusCode, final String message, final Throwable cause,
+                           final boolean enableSuppression, final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
     this.statusCode = statusCode;
   }
 
 
   @Override
-  public Throwable fillInStackTrace() {
+  public final Throwable fillInStackTrace() {
     return this;
   }
 }

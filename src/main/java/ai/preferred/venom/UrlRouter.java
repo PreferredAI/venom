@@ -32,18 +32,35 @@ import java.util.regex.Pattern;
  */
 public class UrlRouter implements HandlerRouter, ValidatorRouter {
 
+  /**
+   * The default handler used if pattern does not match any rules.
+   */
   private final Handler defaultHandler;
 
+  /**
+   * A list of handler rules.
+   */
   private final Map<Pattern, Handler> handlerRules = new LinkedHashMap<>();
 
+  /**
+   * A list of validator rules.
+   */
   private final Map<Pattern, Validator> validatorRules = new LinkedHashMap<>();
 
-  public UrlRouter(Handler defaultHandler) {
-    this.defaultHandler = defaultHandler;
+  /**
+   * Constructs a url router without default handler.
+   */
+  public UrlRouter() {
+    this(null);
   }
 
-  public UrlRouter() {
-    defaultHandler = null;
+  /**
+   * Constructs a url router with default handler.
+   *
+   * @param defaultHandler default handler
+   */
+  public UrlRouter(final Handler defaultHandler) {
+    this.defaultHandler = defaultHandler;
   }
 
   /**
@@ -56,7 +73,7 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * @param handler    handler to which the fetched page should use.
    * @return this.
    */
-  public UrlRouter register(Pattern urlPattern, Handler handler) {
+  public final UrlRouter register(final Pattern urlPattern, final Handler handler) {
     handlerRules.put(urlPattern, handler);
     return this;
   }
@@ -71,7 +88,7 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * @param validator  validator to which the fetched page should use.
    * @return this.
    */
-  public UrlRouter register(Pattern urlPattern, Validator validator) {
+  public final UrlRouter register(final Pattern urlPattern, final Validator validator) {
     validatorRules.put(urlPattern, validator);
     return this;
   }
@@ -87,14 +104,14 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * @param validator  validator to which the fetched page should use.
    * @return this.
    */
-  public UrlRouter register(Pattern urlPattern, Handler handler, Validator validator) {
+  public final UrlRouter register(final Pattern urlPattern, final Handler handler, final Validator validator) {
     register(urlPattern, handler);
     register(urlPattern, validator);
     return this;
   }
 
   @Override
-  public Handler getHandler(Request request) {
+  public final Handler getHandler(final Request request) {
     for (final Map.Entry<Pattern, Handler> rule : handlerRules.entrySet()) {
       if (rule.getKey().matcher(request.getUrl()).matches()) {
         return rule.getValue();
@@ -109,7 +126,7 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
   }
 
   @Override
-  public Validator getValidator(Request request) {
+  public final Validator getValidator(final Request request) {
     for (final Map.Entry<Pattern, Validator> rule : validatorRules.entrySet()) {
       if (rule.getKey().matcher(request.getUrl()).matches()) {
         return rule.getValue();

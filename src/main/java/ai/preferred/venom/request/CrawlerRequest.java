@@ -22,56 +22,73 @@ import org.apache.http.HttpHost;
 import java.util.Map;
 
 /**
+ * This class allows the removal of proxy from request.
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class CrawlerRequest implements Request, Unwrappable {
 
+  /**
+   * An instance of underlying request.
+   */
   private final Request inner;
 
+  /**
+   * The proxy to be used for this request.
+   */
   private HttpHost proxy;
 
-  public CrawlerRequest(Request request) {
+  /**
+   * Constructs an instance of crawler request with an underlying
+   * request.
+   *
+   * @param request An instance of the underlying request
+   */
+  public CrawlerRequest(final Request request) {
     this.inner = request;
     this.proxy = request.getProxy();
   }
 
   @Override
-  public Method getMethod() {
+  public final Method getMethod() {
     return inner.getMethod();
   }
 
   @Override
-  public String getBody() {
+  public final String getBody() {
     return inner.getBody();
   }
 
   @Override
-  public String getUrl() {
+  public final String getUrl() {
     return inner.getUrl();
   }
 
   @Override
-  public Map<String, String> getHeaders() {
+  public final Map<String, String> getHeaders() {
     return inner.getHeaders();
   }
 
   @Override
-  public HttpHost getProxy() {
+  public final HttpHost getProxy() {
     return proxy;
   }
 
-  public void removeProxy() {
+  /**
+   * Remove the proxy from this request.
+   */
+  public final void removeProxy() {
     proxy = null;
   }
 
   @Override
-  public SleepScheduler getSleepScheduler() {
+  public final SleepScheduler getSleepScheduler() {
     return inner.getSleepScheduler();
   }
 
   @Override
-  public Request getInner() {
+  public final Request getInner() {
     return inner;
   }
 }

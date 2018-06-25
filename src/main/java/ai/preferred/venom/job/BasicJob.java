@@ -28,25 +28,62 @@ import java.util.Queue;
  */
 public class BasicJob implements Job {
 
+  /**
+   * Logger.
+   */
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BasicJob.class);
 
+  /**
+   * The request of this job.
+   */
   private final Request request;
 
+  /**
+   * The handler of this job.
+   */
   private final Handleable handler;
 
+  /**
+   * The priority floor of this job.
+   */
   private final Priority priorityFloor;
 
+  /**
+   * The queue for this job.
+   */
   private final Queue<Job> queue;
 
+  /**
+   * Determines whether the job is cancelled.
+   */
   private boolean cancelled = false;
 
+  /**
+   * Determines whether the job is done.
+   */
   private boolean done = false;
 
+  /**
+   * The priority  of this job.
+   */
   private Priority priority;
 
+  /**
+   * The current try of this job.
+   */
   private int tryCount = 1;
 
-  public BasicJob(Request request, Handleable handler, Priority priority, Priority priorityFloor, Queue<Job> queue) {
+  /**
+   * Constructs a basic job.
+   *
+   * @param request       The request of this job.
+   * @param handler       The handler of this job.
+   * @param priority      The priority of this job.
+   * @param priorityFloor The priority floor of this job.
+   * @param queue         The queue for this job.
+   */
+  public BasicJob(final Request request, final Handleable handler, final Priority priority,
+                  final Priority priorityFloor, final Queue<Job> queue) {
     this.request = request;
     this.handler = handler;
     this.priority = priority;
@@ -54,26 +91,29 @@ public class BasicJob implements Job {
     this.queue = queue;
   }
 
+  /**
+   * Interrupt the future.
+   */
   private synchronized void interrupt() {
   }
 
   @Override
-  public Request getRequest() {
+  public final Request getRequest() {
     return request;
   }
 
   @Override
-  public Handleable getHandler() {
+  public final Handleable getHandler() {
     return handler;
   }
 
   @Override
-  public Priority getPriority() {
+  public final Priority getPriority() {
     return priority;
   }
 
   @Override
-  public void reQueue() {
+  public final void reQueue() {
     if (cancelled) {
       LOGGER.debug("Job {} - {} is cancelled, will not be re-queued.", this.toString(), request.getUrl());
       return;
@@ -91,17 +131,17 @@ public class BasicJob implements Job {
   }
 
   @Override
-  public int getTryCount() {
+  public final int getTryCount() {
     return tryCount;
   }
 
   @Override
-  public int compareTo(@Nonnull Job o) {
-    return priority.compareTo(o.getPriority());
+  public final int compareTo(final @Nonnull Job job) {
+    return priority.compareTo(job.getPriority());
   }
 
   @Override
-  public synchronized boolean cancel(boolean mayInterruptIfRunning) {
+  public final synchronized boolean cancel(final boolean mayInterruptIfRunning) {
     if (cancelled) {
       LOGGER.debug("Job {} - {} cannot be cancelled, already cancelled.", this.toString(), request.getUrl());
       return false;
@@ -110,27 +150,29 @@ public class BasicJob implements Job {
       return false;
     }
 
-    if (!queue.remove(this) && mayInterruptIfRunning) {
+    final boolean removed = queue.remove(this);
+    if (!removed && mayInterruptIfRunning) {
       interrupt();
     }
 
     LOGGER.debug("Job {} - {} cancelled.", this.toString(), getRequest().getUrl());
     done = true;
-    return cancelled = true;
-  }
-
-  @Override
-  public synchronized boolean isCancelled() {
+    cancelled = true;
     return cancelled;
   }
 
   @Override
-  public boolean isDone() {
+  public final synchronized boolean isCancelled() {
+    return cancelled;
+  }
+
+  @Override
+  public final boolean isDone() {
     return done;
   }
 
   @Override
-  public void done() {
+  public final void done() {
     done = true;
     interrupt();
   }

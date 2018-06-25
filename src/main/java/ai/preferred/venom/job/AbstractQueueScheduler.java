@@ -36,27 +36,27 @@ public abstract class AbstractQueueScheduler
   abstract BlockingQueue<Job> getQueue();
 
   @Override
-  public void add(Request r, Handleable h, Priority p) {
+  public void add(final Request r, final Handleable h, final Priority p) {
     add(r, h, p, Priority.FLOOR);
   }
 
   @Override
-  public void add(Request r, Handleable h) {
+  public void add(final Request r, final Handleable h) {
     add(r, h, Priority.DEFAULT);
   }
 
   @Override
-  public void add(Request r, Priority p, Priority pf) {
+  public void add(final Request r, final Priority p, final Priority pf) {
     add(r, null, p, pf);
   }
 
   @Override
-  public void add(Request r, Priority p) {
+  public void add(final Request r, final Priority p) {
     add(r, null, p, Priority.FLOOR);
   }
 
   @Override
-  public void add(Request r) {
+  public void add(final Request r) {
     add(r, null, Priority.DEFAULT, Priority.FLOOR);
   }
 
@@ -78,7 +78,7 @@ public abstract class AbstractQueueScheduler
   }
 
   @Override
-  public Job poll(long timeout, @Nonnull TimeUnit unit) throws InterruptedException {
+  public Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
     return getQueue().poll(timeout, unit);
   }
 
@@ -88,17 +88,17 @@ public abstract class AbstractQueueScheduler
   }
 
   @Override
-  public int drainTo(@Nonnull Collection<? super Job> c) {
+  public int drainTo(final @Nonnull Collection<? super Job> c) {
     return getQueue().drainTo(c);
   }
 
   @Override
-  public int drainTo(@Nonnull Collection<? super Job> c, int maxElements) {
+  public int drainTo(final @Nonnull Collection<? super Job> c, final int maxElements) {
     return getQueue().drainTo(c, maxElements);
   }
 
   @Override
-  public boolean offer(@Nonnull Job job) {
+  public boolean offer(final @Nonnull Job job) {
     return getQueue().offer(job);
   }
 

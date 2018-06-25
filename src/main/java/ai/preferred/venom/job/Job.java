@@ -114,7 +114,7 @@ public interface Job extends Comparable<Job> {
   boolean isDone();
 
   /**
-   * Set done to true and interrupts all the threads
+   * Set done to true and interrupts all the threads.
    */
   void done();
 

@@ -31,20 +31,36 @@ import java.util.List;
  */
 public class PipelineValidator implements Validator {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(PipelineValidator.class);
 
+  /**
+   * The list of validator to validate against.
+   */
   private final List<Validator> validators;
 
-  public PipelineValidator(Validator... validators) {
+  /**
+   * Constructs pipeline validator.
+   *
+   * @param validators A list of validators
+   */
+  public PipelineValidator(final Validator... validators) {
     this.validators = new LinkedList<>(Arrays.asList(validators));
   }
 
-  public PipelineValidator(List<Validator> validators) {
+  /**
+   * Constructs pipeline validator.
+   *
+   * @param validators A list of validators
+   */
+  public PipelineValidator(final List<Validator> validators) {
     this.validators = new LinkedList<>(validators);
   }
 
   @Override
-  public Status isValid(Request request, Response response) {
+  public final Status isValid(final Request request, final Response response) {
     for (final Validator v : validators) {
       if (v != null) {
         final Status status = v.isValid(request, response);

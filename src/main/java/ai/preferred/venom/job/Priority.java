@@ -18,35 +18,78 @@ package ai.preferred.venom.job;
 
 /**
  * Job priorities, list in descending order of priority:
- * <p>
- * HIGHEST, HIGH, NORMAL, LOW, LOWEST;
+ * HIGHEST, HIGH, NORMAL, LOW, LOWEST.
  *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public enum Priority {
+
+  /**
+   * Highest priority.
+   */
   HIGHEST,
+
+  /**
+   * High priority.
+   */
   HIGH,
+
+  /**
+   * Normal priority.
+   */
   NORMAL,
+
+  /**
+   * Low priority.
+   */
   LOW,
+
+  /**
+   * Lowest priority.
+   */
   LOWEST;
 
+  /**
+   * The default starting priority for a job.
+   */
   public static final Priority DEFAULT = NORMAL;
+
+  /**
+   * The default lowest priority for a job.
+   */
   public static final Priority FLOOR = LOW;
 
+  /**
+   * Get the current priority level.
+   *
+   * @return An integer specifying current priority
+   */
   public int getPriority() {
     return ordinal();
   }
 
-  public Priority downgrade(Priority floor) {
-    if (this.equals(floor)) return this;
-    if (this.equals(LOWEST)) return this;
+  /**
+   * Returns the priority one level below the current
+   * priority if priority is higher than the specified floor or the
+   * lowest available priority. Otherwise return itself.
+   *
+   * @param floor Priority floor
+   * @return Priority after downgrade.
+   */
+  public Priority downgrade(final Priority floor) {
+    if (this.equals(floor)) {
+      return this;
+    }
+    if (this.equals(LOWEST)) {
+      return this;
+    }
     return values()[ordinal() + 1];
   }
 
   /**
    * Returns the priority one level below the current
-   * priority, if priority is higher than the default floor or the
+   * priority if priority is higher than the default floor or the
    * lowest available priority. Otherwise return itself.
    *
    * @return Priority after downgrade.

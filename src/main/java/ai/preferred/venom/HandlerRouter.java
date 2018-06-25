@@ -22,16 +22,16 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
- * This interface allows the user to map request to handleable
+ * This interface allows the user to map request to handleable.
  *
  * @author Maksim Tkachenko
  */
 public interface HandlerRouter {
 
   /**
-   * Returns the handler to be used for a specified request
+   * Returns the handler to be used for a specified request.
    * <p>
-   * This will only be used if a handler is not specified in when added to scheduler
+   * This will only be used if a handler is not specified in when added to scheduler.
    * </p>
    *
    * @param request request made

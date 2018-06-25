@@ -28,25 +28,40 @@ import javax.validation.constraints.NotNull;
  */
 public interface Validator {
 
+  /**
+   * A validator that always return valid.
+   */
   Validator ALWAYS_VALID = (request, response) -> Status.VALID;
 
   /**
-   * The allowed return status of validation
-   */
-  enum Status {
-    VALID,
-    INVALID_CONTENT,
-    INVALID_BLOCKED,
-    INVALID_STATUS_CODE
-  }
-
-  /**
-   * Method will be called when a response need validation
+   * Method will be called when a response need validation.
    *
    * @param request  request sent to fetch a response
    * @param response response fetched
    * @return the status of validation
    */
   Status isValid(@NotNull Request request, @NotNull Response response);
+
+  /**
+   * The allowed return status of validation.
+   */
+  enum Status {
+    /**
+     * The response is valid.
+     */
+    VALID,
+    /**
+     * The response has invalid content.
+     */
+    INVALID_CONTENT,
+    /**
+     * The response is invalid as it is blocked.
+     */
+    INVALID_BLOCKED,
+    /**
+     * The response is invalid due to the status code.
+     */
+    INVALID_STATUS_CODE
+  }
 
 }

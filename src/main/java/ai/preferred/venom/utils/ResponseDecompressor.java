@@ -30,17 +30,30 @@ import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Modified from: org.apache.http.client.protocol.ResponseContentEncoding
+ * Modified from: org.apache.http.client.protocol.ResponseContentEncoding.
  *
  * @author Maksim Tkachenko
  */
 public class ResponseDecompressor {
 
-  private final static InputStreamFactory DEFLATE = DeflateInputStream::new;
-  private final static InputStreamFactory GZIP = GZIPInputStream::new;
+  /**
+   * An instance of deflate input stream.
+   */
+  private static final InputStreamFactory DEFLATE = DeflateInputStream::new;
 
+  /**
+   * An instance of gzip input stream.
+   */
+  private static final InputStreamFactory GZIP = GZIPInputStream::new;
+
+  /**
+   * A lookup of decoders.
+   */
   private final Lookup<InputStreamFactory> decoderRegistry;
 
+  /**
+   * Constructs a decompressor.
+   */
   public ResponseDecompressor() {
     this.decoderRegistry = RegistryBuilder.<InputStreamFactory>create()
         .register("gzip", GZIP)
@@ -49,7 +62,12 @@ public class ResponseDecompressor {
         .build();
   }
 
-  public void decompress(final HttpResponse response) {
+  /**
+   * Decompress http response.
+   *
+   * @param response An instance of http response
+   */
+  public final void decompress(final HttpResponse response) {
     final HttpEntity entity = response.getEntity();
     if (entity != null && entity.getContentLength() != 0) {
       final Header ceheader = entity.getContentEncoding();

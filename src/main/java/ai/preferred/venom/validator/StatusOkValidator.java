@@ -22,17 +22,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This class determines the validity of a response by its status code.
+ * <p>
+ * A code 200 should return {@code Status.VALID}, or {@code Status.INVALID_CONTENT}
+ * otherwise.
+ * </p>
+ *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class StatusOkValidator implements Validator {
 
+  /**
+   * An instance of this validator.
+   */
+  public static final StatusOkValidator INSTANCE = new StatusOkValidator();
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(StatusOkValidator.class);
 
-  public static final StatusOkValidator INSTANCE = new StatusOkValidator();
-
   @Override
-  public Status isValid(Request request, Response response) {
+  public final Status isValid(final Request request, final Response response) {
     if (response.getStatusCode() != 200) {
       LOGGER.warn("Status code {} received for {}", response.getStatusCode(), request.getUrl());
       return Status.INVALID_STATUS_CODE;

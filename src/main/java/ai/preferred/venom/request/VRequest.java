@@ -32,14 +32,168 @@ import java.util.Map;
  */
 public class VRequest implements Request {
 
-  public static Builder build(Method method, String url) {
-    return new Builder(method, url);
+  /**
+   * The method of this request.
+   */
+  private final Method method;
+  /**
+   * The url for this request.
+   */
+  private final String url;
+  /**
+   * The headers to append to global headers.
+   */
+  private final Map<String, String> headers;
+  /**
+   * The body of this request.
+   */
+  private final String body;
+  /**
+   * The proxy to be used for this request.
+   */
+  private final HttpHost proxy;
+  /**
+   * The sleep scheduler to be used for this request.
+   */
+  private final SleepScheduler sleepScheduler;
+
+  /**
+   * Constructs an instance of venom request.
+   *
+   * @param url The url for this request.
+   */
+  public VRequest(final String url) {
+    this(url, Collections.emptyMap());
   }
 
   /**
-   * A builder for VRequest class
+   * Constructs an instance of venom request.
+   *
+   * @param url     The url for this request
+   * @param headers The headers to append for this request
+   */
+  public VRequest(final String url, final Map<String, String> headers) {
+    this(Method.GET, url, new HashMap<>(headers), null, null, null);
+  }
+
+  /**
+   * Constructs an instance of venom request.
+   *
+   * @param builder An instance of builder
+   */
+  protected VRequest(final Builder<?> builder) {
+    this(builder.method == null ? Method.GET : builder.method,
+        builder.url,
+        new HashMap<>(builder.headers),
+        builder.body,
+        builder.scheduler,
+        builder.proxy
+    );
+  }
+
+  /**
+   * Constructs an instance of venom request.
+   *
+   * @param method         The method for this request
+   * @param url            The url for this request
+   * @param headers        The headers to append for this request
+   * @param body           The body for this request
+   * @param sleepScheduler The sleep scheduler to use
+   * @param proxy          The proxy to use
+   */
+  private VRequest(final Method method, final String url, final Map<String, String> headers, final String body,
+                   final SleepScheduler sleepScheduler, final HttpHost proxy) {
+    this.method = method;
+    this.url = url;
+    this.headers = headers;
+    this.body = body;
+    this.sleepScheduler = sleepScheduler;
+    this.proxy = proxy;
+  }
+
+  /**
+   * Create a new instance of builder with a method and url.
+   *
+   * @param method Request method
+   * @param url    Request url
+   * @return A new instance of builder
+   */
+  public static Builder build(final Method method, final String url) {
+    return new Builder(method, url);
+  }
+
+  @Override
+  public final Method getMethod() {
+    return method;
+  }
+
+  @Override
+  public final String getBody() {
+    return body;
+  }
+
+  @Override
+  public final String getUrl() {
+    return url;
+  }
+
+  @Override
+  public final Map<String, String> getHeaders() {
+    return Collections.unmodifiableMap(headers);
+  }
+
+  @Override
+  public final HttpHost getProxy() {
+    return proxy;
+  }
+
+  @Override
+  public final SleepScheduler getSleepScheduler() {
+    return sleepScheduler;
+  }
+
+  /**
+   * A builder for VRequest class.
+   *
+   * @param <T> An class that extends builder
    */
   public static class Builder<T extends Builder<T>> {
+
+    /**
+     * The headers to append to global headers.
+     */
+    private final Map<String, String> headers = new HashMap<>();
+    /**
+     * The method of this request.
+     */
+    private final Method method;
+    /**
+     * The body of this request.
+     */
+    private String body;
+    /**
+     * The url for this request.
+     */
+    private String url;
+    /**
+     * The proxy to be used for this request.
+     */
+    private HttpHost proxy;
+    /**
+     * The sleep scheduler to be used for this request.
+     */
+    private SleepScheduler scheduler;
+
+    /**
+     * Constructs an instance of builder.
+     *
+     * @param method The method for this request
+     * @param url    The url for this request
+     */
+    protected Builder(final Method method, final String url) {
+      this.method = method;
+      this.url = url;
+    }
 
     /**
      * Creates a new instance of builder with method type get.
@@ -47,7 +201,7 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder get(String url) {
+    public static Builder get(final String url) {
       return new Builder(Method.GET, url);
     }
 
@@ -57,7 +211,7 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder post(String url) {
+    public static Builder post(final String url) {
       return new Builder(Method.POST, url);
     }
 
@@ -67,7 +221,7 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder head(String url) {
+    public static Builder head(final String url) {
       return new Builder(Method.HEAD, url);
     }
 
@@ -77,7 +231,7 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder put(String url) {
+    public static Builder put(final String url) {
       return new Builder(Method.PUT, url);
     }
 
@@ -87,7 +241,7 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder delete(String url) {
+    public static Builder delete(final String url) {
       return new Builder(Method.DELETE, url);
     }
 
@@ -97,35 +251,18 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder options(String url) {
+    public static Builder options(final String url) {
       return new Builder(Method.OPTIONS, url);
-    }
-
-    private final Map<String, String> headers = new HashMap<>();
-
-    private final Method method;
-
-    private String body;
-
-    private String url;
-
-    private HttpHost proxy;
-
-    private SleepScheduler scheduler;
-
-    protected Builder(Method method, String url) {
-      this.method = method;
-      this.url = url;
     }
 
     /**
      * Sets the request body to be used.
      *
      * @param body request body
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T setBody(String body) {
+    public final T setBody(final String body) {
       this.body = body;
       return (T) this;
     }
@@ -136,10 +273,10 @@ public class VRequest implements Request {
      * to none.
      *
      * @param scheduler sleep scheduler to be used.
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T setSleepScheduler(SleepScheduler scheduler) {
+    public final T setSleepScheduler(final SleepScheduler scheduler) {
       this.scheduler = scheduler;
       return (T) this;
     }
@@ -150,22 +287,33 @@ public class VRequest implements Request {
      * to none.
      *
      * @param proxy proxy to be used.
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T setProxy(HttpHost proxy) {
+    public final T setProxy(final HttpHost proxy) {
       this.proxy = proxy;
       return (T) this;
     }
 
+    /**
+     * Remove a header from this request.
+     *
+     * @param name The key of the header to remove
+     * @return this
+     */
     @SuppressWarnings("unchecked")
-    public T removeHeader(String name) {
+    public final T removeHeader(final String name) {
       headers.remove(name);
       return (T) this;
     }
 
+    /**
+     * Remove all headers from this request.
+     *
+     * @return this
+     */
     @SuppressWarnings("unchecked")
-    public T removeHeaders() {
+    public final T removeHeaders() {
       headers.clear();
       return (T) this;
     }
@@ -179,10 +327,10 @@ public class VRequest implements Request {
      * </p>
      *
      * @param headers request headers
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T addHeaders(Map<String, String> headers) {
+    public final T addHeaders(final Map<String, String> headers) {
       this.headers.putAll(headers);
       return (T) this;
     }
@@ -197,10 +345,10 @@ public class VRequest implements Request {
      *
      * @param name  name/key of the header
      * @param value value of the header
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T addHeader(String name, String value) {
+    public final T addHeader(final String name, final String value) {
       headers.put(name, value);
       return (T) this;
     }
@@ -209,10 +357,10 @@ public class VRequest implements Request {
      * Sets the url to be fetched.
      *
      * @param url url to fetch.
-     * @return this.
+     * @return this
      */
     @SuppressWarnings("unchecked")
-    public T setUrl(String url) {
+    public final T setUrl(final String url) {
       this.url = url;
       return (T) this;
     }
@@ -222,75 +370,10 @@ public class VRequest implements Request {
      *
      * @return an instance of Request.
      */
-    public VRequest build() {
+    public final VRequest build() {
       return new VRequest(this);
     }
 
-  }
-
-  private final Method method;
-  private final String url;
-  private final Map<String, String> headers;
-  private final String body;
-  private final SleepScheduler sleepScheduler;
-  private final HttpHost proxy;
-
-  public VRequest(String url) {
-    this(url, Collections.emptyMap());
-  }
-
-  public VRequest(String url, Map<String, String> headers) {
-    this(Method.GET, url, new HashMap<>(headers), null, null, null);
-  }
-
-  protected VRequest(Builder<?> builder) {
-    this(builder.method == null ? Method.GET : builder.method,
-        builder.url,
-        new HashMap<>(builder.headers),
-        builder.body,
-        builder.scheduler,
-        builder.proxy
-    );
-  }
-
-  private VRequest(Method method, String url, Map<String, String> headers, String body,
-                   SleepScheduler sleepScheduler, HttpHost proxy) {
-    this.method = method;
-    this.url = url;
-    this.headers = headers;
-    this.body = body;
-    this.sleepScheduler = sleepScheduler;
-    this.proxy = proxy;
-  }
-
-  @Override
-  public Method getMethod() {
-    return method;
-  }
-
-  @Override
-  public String getBody() {
-    return body;
-  }
-
-  @Override
-  public String getUrl() {
-    return url;
-  }
-
-  @Override
-  public Map<String, String> getHeaders() {
-    return Collections.unmodifiableMap(headers);
-  }
-
-  @Override
-  public HttpHost getProxy() {
-    return proxy;
-  }
-
-  @Override
-  public SleepScheduler getSleepScheduler() {
-    return sleepScheduler;
   }
 
 }

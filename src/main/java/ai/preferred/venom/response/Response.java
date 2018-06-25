@@ -32,23 +32,25 @@ import javax.validation.constraints.NotNull;
 public interface Response {
 
   /**
-   * Returns status code of the response
+   * Returns status code of the response.
    *
    * @return int code
    */
   int getStatusCode();
 
   /**
-   * Returns raw content of the response
+   * Returns raw content of the response.
    *
    * @return byte[] content
    */
   byte[] getContent();
 
   /**
-   * Returns the content type of the content fetched
-   * <p>This is provided by the server or guessed by the server or an
-   * amalgamation of both</p>
+   * Returns the content type of the content fetched.
+   * <p>
+   * This is provided by the server or guessed by the server or an
+   * amalgamation of both.
+   * </p>
    *
    * @return an instance of ContentType
    */
@@ -56,7 +58,7 @@ public interface Response {
   ContentType getContentType();
 
   /**
-   * Returns the headers that were used to trigger this response
+   * Returns the headers that were used to trigger this response.
    *
    * @return an array of headers
    */
@@ -64,7 +66,7 @@ public interface Response {
   Header[] getHeaders();
 
   /**
-   * Returns the base form of the url used in this request
+   * Returns the base form of the url used in this request.
    *
    * @return stripped down version of requested url
    */
@@ -72,7 +74,7 @@ public interface Response {
   String getBaseUrl();
 
   /**
-   * Returns the proxy that was used to trigger this response
+   * Returns the proxy that was used to trigger this response.
    *
    * @return proxy used
    */
@@ -80,7 +82,7 @@ public interface Response {
   HttpHost getProxy();
 
   /**
-   * Returns the instance of validator used to validate this response
+   * Returns the instance of validator used to validate this response.
    *
    * @return an instance of validator
    */

@@ -26,12 +26,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * This interface allows the user to define proxies to be used for requests.
+ *
  * @author Truong Quoc Tuan
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public interface ProxyProvider {
 
+  /**
+   * An instance of proxy provider without any proxies.
+   */
   ProxyProvider EMPTY_PROXY_PROVIDER = new ProxyProvider() {
     @Override
     public List<HttpHost> getProxyList() {
@@ -39,28 +44,28 @@ public interface ProxyProvider {
     }
 
     @Override
-    public void add(HttpHost proxy) {
+    public void add(final HttpHost proxy) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addAll(Collection<HttpHost> proxies) {
+    public void addAll(final Collection<HttpHost> proxies) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void remove(HttpHost proxy) {
+    public void remove(final HttpHost proxy) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public HttpHost get(Request request) {
+    public HttpHost get(final Request request) {
       return null;
     }
   };
 
   /**
-   * Returns a list of all proxies
+   * Returns a list of all proxies.
    *
    * @return list of proxies
    */
@@ -68,28 +73,28 @@ public interface ProxyProvider {
   List<HttpHost> getProxyList();
 
   /**
-   * Add a proxy to the list
+   * Add a proxy to the list.
    *
    * @param proxy the proxy to be added
    */
   void add(@NotNull HttpHost proxy);
 
   /**
-   * Add a list of proxies to the list
+   * Add a list of proxies to the list.
    *
    * @param proxies the list of proxies to be added
    */
   void addAll(@NotNull Collection<HttpHost> proxies);
 
   /**
-   * Remove a proxy from the list
+   * Remove a proxy from the list.
    *
    * @param proxy the proxy to be removed
    */
   void remove(@NotNull HttpHost proxy);
 
   /**
-   * Returns the get proxy from the list
+   * Returns the get proxy from the list.
    *
    * @param request the request to be made
    * @return the proxy to use

@@ -56,33 +56,75 @@ import java.util.Set;
  */
 public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Response> {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncResponseConsumer.class);
 
+  /**
+   * Decompressor used to decompress responses.
+   */
   private static final ResponseDecompressor RESPONSE_DECOMPRESSOR = new ResponseDecompressor();
 
+  /**
+   * Default content type of response if not given.
+   */
   private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_OCTET_STREAM;
 
+  /**
+   * The validator to be use to validate this response.
+   */
   private final Validator validator;
 
+  /**
+   * A set of stop codes to interrupt crawling.
+   */
   private final Set<Integer> stopCodes;
 
+  /**
+   * Determines whether responses might be compressed.
+   */
   private final boolean compressed;
 
+  /**
+   * The request leading to this response.
+   */
   private final Request request;
 
+  /**
+   * An instance of http response.
+   */
   private volatile HttpResponse httpResponse;
 
+  /**
+   * A buffer for the content.
+   */
   private volatile SimpleInputBuffer buf;
 
-  public AsyncResponseConsumer(Validator validator, Set<Integer> stopCodes, boolean compressed,
-                               HttpFetcherRequest request) {
+  /**
+   * Constructs an instance of async response consumer.
+   *
+   * @param validator  The instance of validator to be used
+   * @param stopCodes  A set of stop code to interrupt crawling
+   * @param compressed Determines whether responses might be compressed
+   * @param request    The request leading to this response
+   */
+  AsyncResponseConsumer(final Validator validator, final Set<Integer> stopCodes, final boolean compressed,
+                        final HttpFetcherRequest request) {
     this.validator = validator;
     this.stopCodes = stopCodes;
     this.compressed = compressed;
     this.request = request;
   }
 
-  private BaseResponse createVenomResponse(boolean compressed) throws IOException {
+  /**
+   * Create an instance of venom response.
+   *
+   * @param compressed Determines whether responses might be compressed
+   * @return An instance of base response
+   * @throws IOException Reading http response
+   */
+  private BaseResponse createVenomResponse(final boolean compressed) throws IOException {
     if (compressed) {
       RESPONSE_DECOMPRESSOR.decompress(httpResponse);
     }
@@ -93,7 +135,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
 
     String baseUrl = "";
     try {
-      URL url = new URL(request.getUrl());
+      final URL url = new URL(request.getUrl());
       baseUrl = url.getProtocol() + "://" + url.getHost();
     } catch (MalformedURLException e) {
       LOGGER.warn("Could not parse base URL: " + request.getUrl());
@@ -108,7 +150,13 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
         request.getProxy());
   }
 
-  private ContentType parseContentType(byte[] content) {
+  /**
+   * Get or guess the content type of the content.
+   *
+   * @param content Response content
+   * @return An instance of content type
+   */
+  private ContentType parseContentType(final byte[] content) {
     try {
       ContentType type = ContentType.get(httpResponse.getEntity());
       if (type == null) {
@@ -138,19 +186,19 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   }
 
   @Override
-  protected void onResponseReceived(final HttpResponse httpResponse) {
+  protected final void onResponseReceived(final HttpResponse httpResponse) {
     this.httpResponse = httpResponse;
   }
 
   @Override
-  protected void onContentReceived(
+  protected final void onContentReceived(
       final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
     Asserts.notNull(this.buf, "Content buffer");
     this.buf.consumeContent(decoder);
   }
 
   @Override
-  protected void onEntityEnclosed(
+  protected final void onEntityEnclosed(
       final HttpEntity entity, final ContentType contentType) throws IOException {
     long len = entity.getContentLength();
     if (len > Integer.MAX_VALUE) {
@@ -164,7 +212,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   }
 
   @Override
-  protected BaseResponse buildResult(HttpContext context) throws Exception {
+  protected final BaseResponse buildResult(final HttpContext context) throws Exception {
     final int statusCode = httpResponse.getStatusLine().getStatusCode();
     if (stopCodes.contains(statusCode)) {
       EntityUtils.consumeQuietly(httpResponse.getEntity());
@@ -181,15 +229,15 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
         throw new ValidationException(status, response, "Invalid response.");
       }
     } catch (Exception e) {
-      throw new ValidationException(Validator.Status.INVALID_CONTENT, response, "Validator threw an exception, " +
-          "please check your code for bugs.", e);
+      throw new ValidationException(Validator.Status.INVALID_CONTENT, response, "Validator threw an exception, "
+          + "please check your code for bugs.", e);
     }
 
     return response;
   }
 
   @Override
-  protected void releaseResources() {
+  protected final void releaseResources() {
     this.httpResponse = null;
     this.buf = null;
   }
