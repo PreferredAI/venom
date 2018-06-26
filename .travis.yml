@@ -15,6 +15,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: mvn clean deploy -s .mvn.xml -DskipTests=true -B -U -P ossrh
+  script: mvn clean deploy -s .mvn.xml -DskipTests=true -B -U -P release
+  skip_cleanup: true
   on:
     tags: true

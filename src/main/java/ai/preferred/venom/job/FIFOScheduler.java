@@ -66,7 +66,8 @@ public class FIFOScheduler extends AbstractQueueScheduler {
   }
 
   @Override
-  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
+      throws InterruptedException {
     return getQueue().offer(job, timeout, unit);
   }
 }
