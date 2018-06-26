@@ -17,9 +17,14 @@
 package ai.preferred.venom;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class SleepSchedulerTest {
+
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
   private void checkFixedResult(SleepScheduler sleepScheduler, int result) {
     for (int i = 0; i < 10; i++) {
@@ -56,6 +61,27 @@ public class SleepSchedulerTest {
   public void testVariableSleepTime() {
     checkVariableResult(new SleepScheduler(0, 10), 0, 10);
     checkVariableResult(new SleepScheduler(0, 100), 5, 100);
+  }
+
+  @Test
+  public void testSleepTimeLessThanZero() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Sleep time cannot be less than 0.");
+    new SleepScheduler(-1);
+  }
+
+  @Test
+  public void testSleepTimeMaxGTMin() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Sleep time in \"min\" cannot be greater less than \"max\".");
+    new SleepScheduler(50, 10);
+  }
+
+  @Test
+  public void testSleepTimeMaxGTMinLTZerio() {
+    exception.expect(IllegalArgumentException.class);
+    exception.expectMessage("Sleep time in \"min\" cannot be greater less than \"max\".");
+    new SleepScheduler(50, -10);
   }
 
 }

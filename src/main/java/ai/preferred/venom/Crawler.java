@@ -235,7 +235,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
     long lastRequestTime = 0;
     while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown()) {
       try {
-        final Job job = scheduler.poll(5, TimeUnit.SECONDS);
+        final Job job = scheduler.poll(3, TimeUnit.SECONDS);
         if (job == null) {
           if (uncompletedFutures.size() == 0 && exitWhenDone.get()) {
             break;

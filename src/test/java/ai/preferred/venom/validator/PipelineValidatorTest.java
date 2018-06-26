@@ -27,6 +27,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PipelineValidatorTest {
 
@@ -49,11 +51,39 @@ public class PipelineValidatorTest {
   }
 
   @Test
+  public void testValidPipelineList() {
+    final int statusCode = 200;
+    final byte[] content = "IPSUM".getBytes();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final List<Validator> validators = new LinkedList<>();
+    validators.add(StatusOkValidator.INSTANCE);
+    validators.add(EmptyContentValidator.INSTANCE);
+    final Validator.Status status = new PipelineValidator(validators)
+        .isValid(request, response);
+
+    Assert.assertEquals(Validator.Status.VALID, status);
+  }
+
+  @Test
   public void testFirstInvalidPipeline() {
     final int statusCode = 400;
     final byte[] content = "IPSUM".getBytes();
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
+        .isValid(request, response);
+
+    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+  }
+
+  @Test
+  public void testFirstInvalidPipelineList() {
+    final int statusCode = 400;
+    final byte[] content = "IPSUM".getBytes();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final List<Validator> validators = new LinkedList<>();
+    validators.add(StatusOkValidator.INSTANCE);
+    validators.add(EmptyContentValidator.INSTANCE);
+    final Validator.Status status = new PipelineValidator(validators)
         .isValid(request, response);
 
     Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
@@ -71,11 +101,50 @@ public class PipelineValidatorTest {
   }
 
   @Test
+  public void testSecondInvalidPipelineList() {
+    final int statusCode = 200;
+    final byte[] content = "".getBytes();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final List<Validator> validators = new LinkedList<>();
+    validators.add(StatusOkValidator.INSTANCE);
+    validators.add(EmptyContentValidator.INSTANCE);
+    final Validator.Status status = new PipelineValidator(validators)
+        .isValid(request, response);
+
+    Assert.assertEquals(Validator.Status.INVALID_CONTENT, status);
+  }
+
+  @Test
   public void testMultiInvalidPipeline() {
     final int statusCode = 400;
     final byte[] content = "".getBytes();
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
+        .isValid(request, response);
+
+    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+  }
+
+  @Test
+  public void testMultiInvalidPipelineList() {
+    final int statusCode = 400;
+    final byte[] content = "".getBytes();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final List<Validator> validators = new LinkedList<>();
+    validators.add(StatusOkValidator.INSTANCE);
+    validators.add(EmptyContentValidator.INSTANCE);
+    final Validator.Status status = new PipelineValidator(validators)
+        .isValid(request, response);
+
+    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+  }
+
+  @Test
+  public void testNullInPipeline() {
+    final int statusCode = 400;
+    final byte[] content = "".getBytes();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, null)
         .isValid(request, response);
 
     Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);

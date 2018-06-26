@@ -81,15 +81,15 @@ public class TestFetcher implements Fetcher {
 
   @Override
   public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull FutureCallback<Response> callback) {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     return executor.submit(() -> {
       final int statusCode = 200;
-      final String baseUrl = "https://venom.preferred.ai";
+      final String baseUrl = request.getUrl();
       final byte[] content = "IPSUM".getBytes();
       final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
       final Header[] headers = {};
-      final HttpHost proxy = null;
+      final HttpHost proxy = request.getProxy();
 
       final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
 
