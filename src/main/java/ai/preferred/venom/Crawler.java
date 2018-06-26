@@ -604,6 +604,8 @@ public final class Crawler implements Interruptible, AutoCloseable {
       } else {
         if (job.getTryCount() < crawler.maxTries) {
           job.reQueue();
+        } else {
+          LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
         }
       }
     }
