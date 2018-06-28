@@ -223,14 +223,16 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     final BaseResponse response = createVenomResponse(compressed);
     releaseResources();
 
+    final Validator.Status status;
     try {
-      final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
-      if (status != Validator.Status.VALID) {
-        throw new ValidationException(status, response, "Invalid response.");
-      }
+      status = validator.isValid(Unwrappable.unwrapRequest(request), response);
     } catch (Exception e) {
       throw new ValidationException(Validator.Status.INVALID_CONTENT, response, "Validator threw an exception, "
           + "please check your code for bugs.", e);
+    }
+
+    if (status != Validator.Status.VALID) {
+      throw new ValidationException(status, response, "Invalid response.");
     }
 
     return response;
