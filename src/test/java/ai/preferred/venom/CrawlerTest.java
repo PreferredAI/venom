@@ -41,6 +41,7 @@ public class CrawlerTest {
     final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
     statuses.add(TestFetcher.Status.COMPLETE);
     statuses.add(TestFetcher.Status.COMPLETE);
+    statuses.add(TestFetcher.Status.COMPLETE);
 
     final TestFetcher fetcher = new TestFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
@@ -58,9 +59,11 @@ public class CrawlerTest {
         .start()) {
 
       crawler.getScheduler().add(vRequest, assertHandler);
+      crawler.getScheduler().add(vRequest, assertHandler);
+      crawler.getScheduler().add(vRequest, assertHandler);
     }
 
-    Assert.assertEquals(1, fetcher.getCounter());
+    Assert.assertEquals(3, fetcher.getCounter());
   }
 
   @Test

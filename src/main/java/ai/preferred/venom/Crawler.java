@@ -235,10 +235,13 @@ public final class Crawler implements Interruptible, AutoCloseable {
     long lastRequestTime = 0;
     while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown()) {
       try {
-        final Job job = scheduler.poll(3, TimeUnit.SECONDS);
+        final Job job = scheduler.poll(5, TimeUnit.SECONDS);
         if (job == null) {
-          if (uncompletedFutures.size() == 0 && exitWhenDone.get()) {
-            break;
+          synchronized (uncompletedFutures) {
+            LOGGER.debug("({}) Checking for exit conditions.", crawlerThread.getName());
+            if (scheduler.peek() == null && uncompletedFutures.size() == 0 && exitWhenDone.get()) {
+              break;
+            }
           }
           continue;
         }
@@ -252,7 +255,10 @@ public final class Crawler implements Interruptible, AutoCloseable {
           final CrawlerRequest crawlerRequest = prepareRequest(job.getRequest(), job.getTryCount());
           final Future<Response> responseFuture = fetcher.fetch(crawlerRequest,
               new AsyncCrawlerCallbackProcessor(this, job));
-          uncompletedFutures.put(job, responseFuture);
+          synchronized (job) {
+            uncompletedFutures.put(job, responseFuture);
+            job.notifyAll();
+          }
         });
       } catch (InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
@@ -576,44 +582,76 @@ public final class Crawler implements Interruptible, AutoCloseable {
       this.job = job;
     }
 
-    @Override
-    public void completed(final Response response) {
-      cancelled();
-      crawler.threadPool.execute(() -> {
-        if (job.getHandler() != null) {
-          job.getHandler().handle(job.getRequest(), response, crawler.scheduler, crawler.session,
-              crawler.workerManager.getWorker());
-          return;
-        } else if (crawler.router != null) {
-          final Handleable routedHandler = crawler.router.getHandler(job.getRequest());
-          if (routedHandler != null) {
-            routedHandler.handle(job.getRequest(), response, crawler.scheduler, crawler.session,
-                crawler.workerManager.getWorker());
-            return;
+    /**
+     * Wait for job to be added to uncompleted futures then remove it.
+     * <p>
+     * This synchronisation is for safety.
+     * </p>
+     */
+    private void removeJob() {
+      synchronized (job) {
+        while (!crawler.uncompletedFutures.containsKey(job)) {
+          try {
+            job.wait();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
           }
         }
-        LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
+      }
+
+      synchronized (crawler.uncompletedFutures) {
+        crawler.uncompletedFutures.remove(job);
+      }
+    }
+
+    @Override
+    public void completed(final Response response) {
+      crawler.connections.release();
+      crawler.threadPool.execute(() -> {
+        try {
+          if (job.getHandler() != null) {
+            job.getHandler().handle(job.getRequest(), response, crawler.scheduler, crawler.session,
+                crawler.workerManager.getWorker());
+          } else if (crawler.router != null) {
+            final Handleable routedHandler = crawler.router.getHandler(job.getRequest());
+            if (routedHandler != null) {
+              routedHandler.handle(job.getRequest(), response, crawler.scheduler, crawler.session,
+                  crawler.workerManager.getWorker());
+            }
+          } else {
+            LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
+          }
+        } catch (Exception e) {
+          LOGGER.error("An exception occurred in handler.", e);
+        }
+        removeJob();
       });
     }
 
     @Override
     public void failed(final Exception ex) {
-      cancelled();
-      if (ex instanceof StopCodeException) {
-        job.cancel(true);
-      } else {
-        if (job.getTryCount() < crawler.maxTries) {
-          job.reQueue();
+      crawler.connections.release();
+      crawler.threadPool.execute(() -> {
+        if (ex instanceof StopCodeException) {
+          job.cancel(true);
+          removeJob();
         } else {
-          LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
+          synchronized (crawler.uncompletedFutures) {
+            removeJob();
+            if (job.getTryCount() < crawler.maxTries) {
+              job.reQueue();
+            } else {
+              LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
+            }
+          }
         }
-      }
+      });
     }
 
     @Override
     public void cancelled() {
       crawler.connections.release();
-      crawler.uncompletedFutures.remove(job);
+      removeJob();
     }
 
   }

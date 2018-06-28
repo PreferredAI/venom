@@ -24,16 +24,20 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestFetcher implements Fetcher {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestFetcher.class);
 
   public enum Status {
     COMPLETE,
@@ -81,28 +85,54 @@ public class TestFetcher implements Fetcher {
 
   @Override
   public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull FutureCallback<Response> callback) {
-    final ExecutorService executor = Executors.newSingleThreadExecutor();
+    final int statusCode = 200;
+    final String baseUrl = request.getUrl();
+    final byte[] content = "IPSUM".getBytes();
+    final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
+    final Header[] headers = {};
+    final HttpHost proxy = request.getProxy();
 
-    return executor.submit(() -> {
-      final int statusCode = 200;
-      final String baseUrl = request.getUrl();
-      final byte[] content = "IPSUM".getBytes();
-      final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
-      final Header[] headers = {};
-      final HttpHost proxy = request.getProxy();
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
 
-      final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Status status = statuses.poll();
+    counter.incrementAndGet();
 
-      final Status status = statuses.poll();
-      counter.incrementAndGet();
-      if (status == Status.COMPLETE) {
-        callback.completed(response);
-      } else {
-        callback.failed(new ValidationException(Validator.Status.INVALID_CONTENT, response, "Call to fail."));
+    LOGGER.debug("Fetching URL: {}", request.getUrl());
+    if (status == Status.COMPLETE) {
+      LOGGER.debug("Executing completion callback on {}.", request.getUrl());
+      callback.completed(response);
+    } else {
+      final Exception ex = new ValidationException(Validator.Status.INVALID_CONTENT, response, "Call to fail.");
+      LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
+      callback.failed(ex);
+    }
+
+    return new Future<Response>() {
+      @Override
+      public boolean cancel(boolean mayInterruptIfRunning) {
+        return false;
       }
 
-      return response;
-    });
+      @Override
+      public boolean isCancelled() {
+        return true;
+      }
+
+      @Override
+      public boolean isDone() {
+        return true;
+      }
+
+      @Override
+      public Response get() {
+        return response;
+      }
+
+      @Override
+      public Response get(long timeout, @Nonnull TimeUnit unit) {
+        return response;
+      }
+    };
   }
 
   @Override
