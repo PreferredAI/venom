@@ -370,7 +370,7 @@ public class VRequest implements Request {
      *
      * @return an instance of Request.
      */
-    public final VRequest build() {
+    public VRequest build() {
       return new VRequest(this);
     }
 

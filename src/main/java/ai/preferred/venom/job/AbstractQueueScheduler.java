@@ -33,6 +33,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractQueueScheduler
     extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job>, AutoCloseable {
 
+  /**
+   * Get the queue this instance is using.
+   *
+   * @return An instance of blocking queue
+   */
   abstract BlockingQueue<Job> getQueue();
 
   @Override

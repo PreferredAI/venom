@@ -30,6 +30,7 @@ import java.util.Map;
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
+@SuppressWarnings("RedundantThrows")
 public interface Record {
 
   /**
