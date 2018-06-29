@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @author Maksim Tkachenko
  */
 public abstract class AbstractQueueScheduler
-    extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job>, AutoCloseable {
+    extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job> {
 
   /**
    * Get the queue this instance is using.
@@ -115,10 +115,5 @@ public abstract class AbstractQueueScheduler
   @Override
   public Job peek() {
     return getQueue().peek();
-  }
-
-  @Override
-  public void close() {
-    getQueue().iterator().forEachRemaining(job -> job.cancel(true));
   }
 }

@@ -102,6 +102,16 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   private volatile SimpleInputBuffer buf;
 
   /**
+   * Lazy loaded byte[] content of http entity.
+   */
+  private byte[] byteContent;
+
+  /**
+   * Lazy loaded content type of http entity.
+   */
+  private ContentType contentType;
+
+  /**
    * Constructs an instance of async response consumer.
    *
    * @param validator  The instance of validator to be used
@@ -118,6 +128,20 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   }
 
   /**
+   * Get byte[] content of the http entity.
+   *
+   * @param entity An instance of http entity
+   * @return Byte array of http entity
+   * @throws IOException If unable to get byte array
+   */
+  private synchronized byte[] getByteContent(final HttpEntity entity) throws IOException {
+    if (this.byteContent == null) {
+      this.byteContent = EntityUtils.toByteArray(entity);
+    }
+    return this.byteContent;
+  }
+
+  /**
    * Create an instance of venom response.
    *
    * @param compressed Determines whether responses might be compressed
@@ -129,9 +153,10 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
       RESPONSE_DECOMPRESSOR.decompress(httpResponse);
     }
 
-    final byte[] content = EntityUtils.toByteArray(httpResponse.getEntity());
+    final HttpEntity entity = httpResponse.getEntity();
+    final byte[] content = getByteContent(entity);
+    final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
-    final ContentType contentType = parseContentType(content);
 
     String baseUrl = "";
     try {
@@ -150,39 +175,39 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
         request.getProxy());
   }
 
-  /**
-   * Get or guess the content type of the content.
-   *
-   * @param content Response content
-   * @return An instance of content type
-   */
-  private ContentType parseContentType(final byte[] content) {
-    try {
-      ContentType type = ContentType.get(httpResponse.getEntity());
-      if (type == null) {
-        TikaInputStream stream = TikaInputStream.get(new ByteArrayInputStream(content));
-        Tika tika = new Tika();
-        String fileType = tika.detect(stream);
-        type = ContentType.create(fileType);
-      }
-      if (type.getCharset() == null) {
-        CharsetMatch match = new CharsetDetector()
-            .setText(new ByteArrayInputStream(content))
-            .detect();
-
-        if (match != null && match.getConfidence() > 50) {
-          type = type.withCharset(match.getName());
+  @Override
+  protected final synchronized ContentType getContentType(final HttpEntity entity) {
+    if (this.contentType == null) {
+      try {
+        ContentType contentType = ContentType.get(entity);
+        if (contentType == null) {
+          final Tika tika = new Tika();
+          final TikaInputStream stream = TikaInputStream.get(
+              new ByteArrayInputStream(getByteContent(entity))
+          );
+          final String fileType = tika.detect(stream);
+          contentType = ContentType.create(fileType);
         }
+        if (contentType.getCharset() == null) {
+          final CharsetMatch match = new CharsetDetector()
+              .setText(entity.getContent())
+              .detect();
+
+          if (match != null && match.getConfidence() > 50) {
+            contentType = contentType.withCharset(match.getName());
+          }
+        }
+        this.contentType = contentType;
+      } catch (ParseException e) {
+        LOGGER.warn("Could not parse content type", e);
+      } catch (UnsupportedCharsetException e) {
+        LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
+      } catch (IOException e) {
+        LOGGER.warn("Cannot get content to determine media type", e);
       }
-      return type;
-    } catch (ParseException e) {
-      LOGGER.warn("Could not parse content type", e);
-    } catch (UnsupportedCharsetException e) {
-      LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
-    } catch (IOException e) {
-      LOGGER.warn("Cannot get content to determine media type", e);
+      this.contentType = DEFAULT_CONTENT_TYPE;
     }
-    return DEFAULT_CONTENT_TYPE;
+    return this.contentType;
   }
 
   @Override
@@ -191,15 +216,13 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   }
 
   @Override
-  protected final void onContentReceived(
-      final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+  protected final void onContentReceived(final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
     Asserts.notNull(this.buf, "Content buffer");
     this.buf.consumeContent(decoder);
   }
 
   @Override
-  protected final void onEntityEnclosed(
-      final HttpEntity entity, final ContentType contentType) throws IOException {
+  protected final void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) throws IOException {
     long len = entity.getContentLength();
     if (len > Integer.MAX_VALUE) {
       throw new ContentTooLongException("Entity content is too long: " + len);

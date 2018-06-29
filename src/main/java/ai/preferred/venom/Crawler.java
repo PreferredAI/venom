@@ -323,7 +323,6 @@ public final class Crawler implements Interruptible, AutoCloseable {
       LOGGER.debug("{} producer thread joined.", crawlerThread.getName());
       threadPool.shutdown();
 
-      scheduler.close();
       threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
       LOGGER.debug("{} thread pool joined.", crawlerThread.getName());
       LOGGER.debug("{} shutdown completed.", crawlerThread.getName());
@@ -583,7 +582,9 @@ public final class Crawler implements Interruptible, AutoCloseable {
     }
 
     /**
-     * Wait for job to be added to uncompleted futures then remove it.
+     * Wait for job to be added to uncompleted futures then remove it, this
+     * block of code should only run in a new thread and should only be ran
+     * after all logic has completed.
      * <p>
      * This synchronisation is for safety.
      * </p>
@@ -594,7 +595,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
           try {
             job.wait();
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOGGER.error("Waiting to remove job is interrupted.", e);
           }
         }
       }
@@ -633,7 +634,6 @@ public final class Crawler implements Interruptible, AutoCloseable {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         if (ex instanceof StopCodeException) {
-          job.cancel(true);
           removeJob();
         } else {
           synchronized (crawler.uncompletedFutures) {

@@ -115,7 +115,7 @@ public class TestFetcher implements Fetcher {
 
       @Override
       public boolean isCancelled() {
-        return true;
+        return false;
       }
 
       @Override
