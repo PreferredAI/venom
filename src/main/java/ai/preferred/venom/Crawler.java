@@ -125,7 +125,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
    * A list of pending futures.
    */
   @NotNull
-  private final Map<Job, Future> uncompletedFutures;
+  private final Map<Job, Future> pendingJobs;
 
   /**
    * Constructs a new instance of crawler.
@@ -153,7 +153,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
         true
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
-    uncompletedFutures = new ConcurrentHashMap<>();
+    pendingJobs = new ConcurrentHashMap<>();
   }
 
   /**
@@ -237,9 +237,9 @@ public final class Crawler implements Interruptible, AutoCloseable {
       try {
         final Job job = scheduler.poll(5, TimeUnit.SECONDS);
         if (job == null) {
-          synchronized (uncompletedFutures) {
+          synchronized (pendingJobs) {
             LOGGER.debug("({}) Checking for exit conditions.", crawlerThread.getName());
-            if (scheduler.peek() == null && uncompletedFutures.size() == 0 && exitWhenDone.get()) {
+            if (scheduler.peek() == null && pendingJobs.size() == 0 && exitWhenDone.get()) {
               break;
             }
           }
@@ -256,7 +256,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
           final Future<Response> responseFuture = fetcher.fetch(crawlerRequest,
               new AsyncCrawlerCallbackProcessor(this, job));
           synchronized (job) {
-            uncompletedFutures.put(job, responseFuture);
+            pendingJobs.put(job, responseFuture);
             job.notifyAll();
           }
         });
@@ -304,7 +304,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
   @Override
   public void interruptAndClose() throws Exception {
     crawlerThread.interrupt();
-    uncompletedFutures.values().forEach(future -> future.cancel(true));
+    pendingJobs.values().forEach(future -> future.cancel(true));
 
     threadPool.shutdownNow();
 
@@ -591,7 +591,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
      */
     private void removeJob() {
       synchronized (job) {
-        while (!crawler.uncompletedFutures.containsKey(job)) {
+        while (!crawler.pendingJobs.containsKey(job)) {
           try {
             job.wait();
           } catch (InterruptedException e) {
@@ -600,8 +600,8 @@ public final class Crawler implements Interruptible, AutoCloseable {
         }
       }
 
-      synchronized (crawler.uncompletedFutures) {
-        crawler.uncompletedFutures.remove(job);
+      synchronized (crawler.pendingJobs) {
+        crawler.pendingJobs.remove(job);
       }
     }
 
@@ -636,7 +636,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
         if (ex instanceof StopCodeException) {
           removeJob();
         } else {
-          synchronized (crawler.uncompletedFutures) {
+          synchronized (crawler.pendingJobs) {
             removeJob();
             if (job.getTryCount() < crawler.maxTries) {
               job.reQueue();
@@ -651,7 +651,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
     @Override
     public void cancelled() {
       crawler.connections.release();
-      removeJob();
+      crawler.threadPool.execute(this::removeJob);
     }
 
   }

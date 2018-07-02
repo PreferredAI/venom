@@ -10,7 +10,7 @@
 
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
-    <version>4.0.4-SNAPSHOT</version>
+    <version>4.0.4</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -214,17 +214,17 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>[59.0,60.0)</version>
+            <version>[62.0,63.0)</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>23.0</version>
+            <version>25.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>[3.6,3.7)</version>
+            <version>[3.6,4.0)</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -239,7 +239,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>[4.0,)</version>
+            <version>[4.0,5.0)</version>
             <scope>test</scope>
         </dependency>
         <dependency>
