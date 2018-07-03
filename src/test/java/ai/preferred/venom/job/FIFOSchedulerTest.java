@@ -18,15 +18,10 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.VRequest;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class FIFOSchedulerTest {
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testAddRequest() {
@@ -37,10 +32,10 @@ public class FIFOSchedulerTest {
 
     scheduler.add(vRequest);
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -56,10 +51,10 @@ public class FIFOSchedulerTest {
 
     scheduler.add(vRequest, handler);
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertEquals(handler, job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertEquals(handler, job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -76,10 +71,10 @@ public class FIFOSchedulerTest {
     scheduler.add(vRequestNeg, Priority.LOW);
 
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.HIGH, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.HIGH, job.getPriority());
   }
 
 }

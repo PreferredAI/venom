@@ -18,15 +18,10 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.VRequest;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PriorityQueueSchedulerTest {
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testAddRequest() {
@@ -37,10 +32,10 @@ public class PriorityQueueSchedulerTest {
 
     scheduler.add(vRequest);
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -56,10 +51,10 @@ public class PriorityQueueSchedulerTest {
 
     scheduler.add(vRequest, handler);
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertEquals(handler, job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertEquals(handler, job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -76,10 +71,10 @@ public class PriorityQueueSchedulerTest {
     scheduler.add(vRequestNeg, Priority.LOW);
 
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.HIGHEST, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.HIGHEST, job.getPriority());
   }
 
   @Test
@@ -92,24 +87,24 @@ public class PriorityQueueSchedulerTest {
     scheduler.add(vRequest, Priority.HIGH, Priority.NORMAL);
 
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.HIGH, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.HIGH, job.getPriority());
 
     job.reQueue();
     final Job jobRQ = scheduler.poll();
-    Assert.assertNotNull(jobRQ);
-    Assert.assertEquals(vRequest, jobRQ.getRequest());
-    Assert.assertNull(jobRQ.getHandler());
-    Assert.assertEquals(Priority.NORMAL, jobRQ.getPriority());
+    Assertions.assertNotNull(jobRQ);
+    Assertions.assertEquals(vRequest, jobRQ.getRequest());
+    Assertions.assertNull(jobRQ.getHandler());
+    Assertions.assertEquals(Priority.NORMAL, jobRQ.getPriority());
 
     job.reQueue();
     final Job jobRQRQ = scheduler.poll();
-    Assert.assertNotNull(jobRQRQ);
-    Assert.assertEquals(vRequest, jobRQRQ.getRequest());
-    Assert.assertNull(jobRQRQ.getHandler());
-    Assert.assertEquals(Priority.NORMAL, jobRQRQ.getPriority());
+    Assertions.assertNotNull(jobRQRQ);
+    Assertions.assertEquals(vRequest, jobRQRQ.getRequest());
+    Assertions.assertNull(jobRQRQ.getHandler());
+    Assertions.assertEquals(Priority.NORMAL, jobRQRQ.getPriority());
   }
 
 }

@@ -16,26 +16,21 @@
 
 package ai.preferred.venom;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SleepSchedulerTest {
 
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
-
   private void checkFixedResult(SleepScheduler sleepScheduler, int result) {
     for (int i = 0; i < 10; i++) {
-      Assert.assertEquals(result, sleepScheduler.getSleepTime());
+      Assertions.assertEquals(result, sleepScheduler.getSleepTime());
     }
   }
 
   private void checkResultWithinBound(SleepScheduler sleepScheduler, int min, int max) {
     final long sleep = sleepScheduler.getSleepTime();
     for (int i = 0; i < 100; i++) {
-      Assert.assertTrue(sleep >= min && sleep <= max);
+      Assertions.assertTrue(sleep >= min && sleep <= max);
     }
   }
 
@@ -65,23 +60,17 @@ public class SleepSchedulerTest {
 
   @Test
   public void testSleepTimeLessThanZero() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Sleep time cannot be less than 0.");
-    new SleepScheduler(-1);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new SleepScheduler(-1));
   }
 
   @Test
   public void testSleepTimeMaxGTMin() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Sleep time in \"min\" cannot be greater less than \"max\".");
-    new SleepScheduler(50, 10);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new SleepScheduler(50, 10));
   }
 
   @Test
   public void testSleepTimeMaxGTMinLTZerio() {
-    exception.expect(IllegalArgumentException.class);
-    exception.expectMessage("Sleep time in \"min\" cannot be greater less than \"max\".");
-    new SleepScheduler(50, -10);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> new SleepScheduler(50, -10));
   }
 
 }

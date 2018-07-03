@@ -23,8 +23,8 @@ import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
@@ -42,7 +42,7 @@ public class MimeTypeValidatorTest {
   public void testValidMimeTypePattern() {
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.VALID,
+    Assertions.assertEquals(Validator.Status.VALID,
         new MimeTypeValidator(Pattern.compile("^text.*")).isValid(request, response));
   }
 
@@ -50,7 +50,7 @@ public class MimeTypeValidatorTest {
   public void testInvalidMimeTypePattern() {
     final ContentType contentType = ContentType.create("text/json", StandardCharsets.UTF_8);
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.INVALID_CONTENT,
+    Assertions.assertEquals(Validator.Status.INVALID_CONTENT,
         new MimeTypeValidator(Pattern.compile("^image.*")).isValid(request, response));
   }
 
@@ -58,7 +58,7 @@ public class MimeTypeValidatorTest {
   public void testValidMimeTypeString() {
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.VALID,
+    Assertions.assertEquals(Validator.Status.VALID,
         new MimeTypeValidator("^text.*").isValid(request, response));
   }
 
@@ -66,7 +66,7 @@ public class MimeTypeValidatorTest {
   public void testInvalidMimeTypeString() {
     final ContentType contentType = ContentType.create("text/json", StandardCharsets.UTF_8);
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.INVALID_CONTENT,
+    Assertions.assertEquals(Validator.Status.INVALID_CONTENT,
         new MimeTypeValidator("^image.*").isValid(request, response));
   }
 

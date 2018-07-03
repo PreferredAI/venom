@@ -23,8 +23,8 @@ import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -47,7 +47,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.VALID, status);
+    Assertions.assertEquals(Validator.Status.VALID, status);
   }
 
   @Test
@@ -61,7 +61,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(validators)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.VALID, status);
+    Assertions.assertEquals(Validator.Status.VALID, status);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
   }
 
   @Test
@@ -86,7 +86,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(validators)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_CONTENT, status);
+    Assertions.assertEquals(Validator.Status.INVALID_CONTENT, status);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(validators)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_CONTENT, status);
+    Assertions.assertEquals(Validator.Status.INVALID_CONTENT, status);
   }
 
   @Test
@@ -122,7 +122,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, EmptyContentValidator.INSTANCE)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
   }
 
   @Test
@@ -136,7 +136,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(validators)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class PipelineValidatorTest {
     final Validator.Status status = new PipelineValidator(StatusOkValidator.INSTANCE, null)
         .isValid(request, response);
 
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, status);
   }
 
 }

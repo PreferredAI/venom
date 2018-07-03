@@ -19,8 +19,8 @@ package ai.preferred.venom.job;
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +47,10 @@ public class LazySchedulerTest {
     final LazyScheduler scheduler = new LazyScheduler(requests.iterator(), handler);
 
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertEquals(handler, job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertEquals(handler, job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -75,10 +75,10 @@ public class LazySchedulerTest {
     scheduler.add(vRequest);
 
     final Job job = scheduler.poll();
-    Assert.assertNotNull(job);
-    Assert.assertEquals(vRequest, job.getRequest());
-    Assert.assertNull(job.getHandler());
-    Assert.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertNotNull(job);
+    Assertions.assertEquals(vRequest, job.getRequest());
+    Assertions.assertNull(job.getHandler());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
 }

@@ -16,8 +16,9 @@
 
 package ai.preferred.venom;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SessionTest {
 
@@ -30,8 +31,8 @@ public class SessionTest {
         .put(TEST_OBJECT_KEY, testObject)
         .build();
 
-    Assert.assertEquals(testObject, session.get(TEST_OBJECT_KEY));
-    Assert.assertNull(session.get(FAKE_OBJECT_KEY));
+    Assertions.assertEquals(testObject, session.get(TEST_OBJECT_KEY));
+    Assertions.assertNull(session.get(FAKE_OBJECT_KEY));
   }
 
 }

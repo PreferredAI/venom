@@ -25,6 +25,7 @@ import ai.preferred.venom.utils.ResponseDecompressor;
 import ai.preferred.venom.validator.Validator;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
@@ -38,13 +39,11 @@ import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.io.TikaInputStream;
+import org.apache.xml.utils.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Set;
 
@@ -102,14 +101,12 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   private volatile SimpleInputBuffer buf;
 
   /**
-   * Lazy loaded byte[] content of http entity.
+   * Lazy loaded content.
+   * <p>
+   * Use getContent() to retrieve.
+   * </p>
    */
-  private byte[] byteContent;
-
-  /**
-   * Lazy loaded content type of http entity.
-   */
-  private ContentType contentType;
+  private byte[] content;
 
   /**
    * Constructs an instance of async response consumer.
@@ -128,17 +125,17 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   }
 
   /**
-   * Get byte[] content of the http entity.
+   * Lazy loading of content.
    *
-   * @param entity An instance of http entity
-   * @return Byte array of http entity
-   * @throws IOException If unable to get byte array
+   * @param entity An instance of http entity.
+   * @return byte array of the entity
+   * @throws IOException If entity has no content or failed
    */
-  private synchronized byte[] getByteContent(final HttpEntity entity) throws IOException {
-    if (this.byteContent == null) {
-      this.byteContent = EntityUtils.toByteArray(entity);
+  private byte[] getContent(final HttpEntity entity) throws IOException {
+    if (content == null) {
+      content = IOUtils.toByteArray(entity.getContent());
     }
-    return this.byteContent;
+    return content;
   }
 
   /**
@@ -154,15 +151,16 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     }
 
     final HttpEntity entity = httpResponse.getEntity();
-    final byte[] content = getByteContent(entity);
+    final byte[] content = getContent(entity);
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
     String baseUrl = "";
     try {
-      final URL url = new URL(request.getUrl());
-      baseUrl = url.getProtocol() + "://" + url.getHost();
-    } catch (MalformedURLException e) {
+      final URI uri = new URI(request.getUrl());
+      final URI baseUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), null, null, null);
+      baseUrl = baseUri.toString();
+    } catch (URI.MalformedURIException e) {
       LOGGER.warn("Could not parse base URL: " + request.getUrl());
     }
 
@@ -177,37 +175,45 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
 
   @Override
   protected final synchronized ContentType getContentType(final HttpEntity entity) {
-    if (this.contentType == null) {
-      try {
-        ContentType contentType = ContentType.get(entity);
-        if (contentType == null) {
-          final Tika tika = new Tika();
-          final TikaInputStream stream = TikaInputStream.get(
-              new ByteArrayInputStream(getByteContent(entity))
-          );
-          final String fileType = tika.detect(stream);
-          contentType = ContentType.create(fileType);
+    try {
+      ContentType contentType = ContentType.get(entity);
+      if (contentType == null || contentType.getCharset() == null) {
+        final byte[] bytes;
+        try {
+          bytes = getContent(entity);
+        } catch (IllegalStateException e) {
+          return contentType;
         }
-        if (contentType.getCharset() == null) {
-          final CharsetMatch match = new CharsetDetector()
-              .setText(entity.getContent())
-              .detect();
 
-          if (match != null && match.getConfidence() > 50) {
-            contentType = contentType.withCharset(match.getName());
+        if (contentType == null) {
+          try (final TikaInputStream stream = TikaInputStream.get(bytes)) {
+            final Tika tika = new Tika();
+            final String fileType = tika.detect(stream);
+            contentType = ContentType.create(fileType);
           }
         }
-        this.contentType = contentType;
-      } catch (ParseException e) {
-        LOGGER.warn("Could not parse content type", e);
-      } catch (UnsupportedCharsetException e) {
-        LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
-      } catch (IOException e) {
-        LOGGER.warn("Cannot get content to determine media type", e);
+
+        if (contentType.getCharset() == null) {
+          try (final TikaInputStream stream = TikaInputStream.get(bytes)) {
+            final CharsetMatch match = new CharsetDetector()
+                .setText(stream)
+                .detect();
+
+            if (match != null && match.getConfidence() > 50) {
+              contentType = contentType.withCharset(match.getName());
+            }
+          }
+        }
       }
-      this.contentType = DEFAULT_CONTENT_TYPE;
+      return contentType;
+    } catch (ParseException e) {
+      LOGGER.warn("Could not parse content type", e);
+    } catch (UnsupportedCharsetException e) {
+      LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
+    } catch (IOException e) {
+      LOGGER.warn("Cannot get content to determine media type", e);
     }
-    return this.contentType;
+    return DEFAULT_CONTENT_TYPE;
   }
 
   @Override

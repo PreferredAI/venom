@@ -23,8 +23,8 @@ import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
@@ -39,7 +39,7 @@ public class StatusOkValidatorTest {
 
   private void assertInvalid(int statusCode) {
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.INVALID_STATUS_CODE, StatusOkValidator.INSTANCE.isValid(request, response));
+    Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 
   @Test
@@ -52,7 +52,7 @@ public class StatusOkValidatorTest {
   public void testValidStatusCode() {
     final int statusCode = 200;
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.VALID, StatusOkValidator.INSTANCE.isValid(request, response));
+    Assertions.assertEquals(Validator.Status.VALID, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 
 }

@@ -18,8 +18,8 @@ package ai.preferred.venom.request;
 
 import ai.preferred.venom.SleepScheduler;
 import org.apache.http.HttpHost;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
@@ -30,12 +30,12 @@ public class VRequestTest {
   public void testGetRequest() {
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
-    Assert.assertEquals(Request.Method.GET, vRequest.getMethod());
-    Assert.assertEquals(url, vRequest.getUrl());
-    Assert.assertTrue(vRequest.getHeaders().isEmpty());
-    Assert.assertNull(vRequest.getBody());
-    Assert.assertNull(vRequest.getProxy());
-    Assert.assertNull(vRequest.getSleepScheduler());
+    Assertions.assertEquals(Request.Method.GET, vRequest.getMethod());
+    Assertions.assertEquals(url, vRequest.getUrl());
+    Assertions.assertTrue(vRequest.getHeaders().isEmpty());
+    Assertions.assertNull(vRequest.getBody());
+    Assertions.assertNull(vRequest.getProxy());
+    Assertions.assertNull(vRequest.getSleepScheduler());
   }
 
   @Test
@@ -43,8 +43,8 @@ public class VRequestTest {
     final Request.Method method = Request.Method.DELETE;
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = VRequest.build(method, url).build();
-    Assert.assertEquals(method, vRequest.getMethod());
-    Assert.assertEquals(url, vRequest.getUrl());
+    Assertions.assertEquals(method, vRequest.getMethod());
+    Assertions.assertEquals(url, vRequest.getUrl());
   }
 
   @Test
@@ -70,21 +70,21 @@ public class VRequestTest {
         .setSleepScheduler(sleepScheduler)
         .build();
 
-    Assert.assertEquals(Request.Method.POST, vRequest.getMethod());
-    Assert.assertEquals(url, vRequest.getUrl());
+    Assertions.assertEquals(Request.Method.POST, vRequest.getMethod());
+    Assertions.assertEquals(url, vRequest.getUrl());
 
-    Assert.assertTrue(vRequest.getHeaders().containsKey(headerKey1));
-    Assert.assertEquals(headerValue1, vRequest.getHeaders().get(headerKey1));
+    Assertions.assertTrue(vRequest.getHeaders().containsKey(headerKey1));
+    Assertions.assertEquals(headerValue1, vRequest.getHeaders().get(headerKey1));
 
-    Assert.assertTrue(vRequest.getHeaders().containsKey(headerKey2));
-    Assert.assertEquals(headerValue2, vRequest.getHeaders().get(headerKey2));
+    Assertions.assertTrue(vRequest.getHeaders().containsKey(headerKey2));
+    Assertions.assertEquals(headerValue2, vRequest.getHeaders().get(headerKey2));
 
-    Assert.assertTrue(vRequest.getHeaders().containsKey(headerKey1));
-    Assert.assertEquals(headerValue1, vRequest.getHeaders().get(headerKey1));
+    Assertions.assertTrue(vRequest.getHeaders().containsKey(headerKey1));
+    Assertions.assertEquals(headerValue1, vRequest.getHeaders().get(headerKey1));
 
-    Assert.assertEquals(body, vRequest.getBody());
-    Assert.assertEquals(proxy, vRequest.getProxy());
-    Assert.assertEquals(sleepScheduler, vRequest.getSleepScheduler());
+    Assertions.assertEquals(body, vRequest.getBody());
+    Assertions.assertEquals(proxy, vRequest.getProxy());
+    Assertions.assertEquals(sleepScheduler, vRequest.getSleepScheduler());
   }
 
 }

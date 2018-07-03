@@ -16,14 +16,14 @@
 
 package ai.preferred.venom;
 
-import ai.preferred.venom.fetcher.TestFetcher;
+import ai.preferred.venom.fetcher.FakeFetcher;
 import ai.preferred.venom.job.FIFOScheduler;
 import ai.preferred.venom.job.LazyScheduler;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import org.apache.http.HttpHost;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -38,15 +38,15 @@ public class CrawlerTest {
 
   @Test
   public void testCrawler() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
 
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assert.assertEquals(url, request.getUrl());
-      Assert.assertNull(request.getProxy());
+      Assertions.assertEquals(url, request.getUrl());
+      Assertions.assertNull(request.getProxy());
     };
 
     try (final Crawler crawler = Crawler.builder()
@@ -63,19 +63,19 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequest, assertHandler);
     }
 
-    Assert.assertEquals(3, fetcher.getCounter());
+    Assertions.assertEquals(3, fetcher.getCounter());
   }
 
   @Test
   public void testRetry() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
 
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
 
     try (final Crawler crawler = Crawler.builder()
         .fetcher(fetcher)
@@ -89,21 +89,21 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequest, handler);
     }
 
-    Assert.assertEquals(3, fetcher.getCounter());
+    Assertions.assertEquals(3, fetcher.getCounter());
   }
 
   @Test
   public void testMaxTries() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.FAILED);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.FAILED);
 
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
 
     try (final Crawler crawler = Crawler.builder()
         .fetcher(fetcher)
@@ -117,20 +117,20 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequest, handler);
     }
 
-    Assert.assertEquals(5, fetcher.getCounter());
+    Assertions.assertEquals(5, fetcher.getCounter());
   }
 
   @Test
   public void testProxyProportionRemoved() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.FAILED);
-    statuses.add(TestFetcher.Status.COMPLETE);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.FAILED);
+    statuses.add(FakeFetcher.Status.COMPLETE);
 
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assert.assertEquals(url, request.getUrl());
-      Assert.assertNull(response.getProxy());
+      Assertions.assertEquals(url, request.getUrl());
+      Assertions.assertNull(response.getProxy());
     };
 
     try (final Crawler crawler = Crawler.builder()
@@ -147,19 +147,19 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequestProxied, assertHandler);
     }
 
-    Assert.assertEquals(2, fetcher.getCounter());
+    Assertions.assertEquals(2, fetcher.getCounter());
   }
 
   @Test
   public void testProxyProportionRetained() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.COMPLETE);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
 
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assert.assertEquals(url, request.getUrl());
-      Assert.assertEquals(proxy, response.getProxy());
+      Assertions.assertEquals(url, request.getUrl());
+      Assertions.assertEquals(proxy, response.getProxy());
     };
 
     try (final Crawler crawler = Crawler.builder()
@@ -176,18 +176,18 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequestProxied, assertHandler);
     }
 
-    Assert.assertEquals(1, fetcher.getCounter());
+    Assertions.assertEquals(1, fetcher.getCounter());
   }
 
   @Test
   public void testLazySchedulerIntegration() throws Exception {
-    final LinkedList<TestFetcher.Status> statuses = new LinkedList<>();
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
-    statuses.add(TestFetcher.Status.COMPLETE);
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
 
-    final TestFetcher fetcher = new TestFetcher(statuses);
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
 
     final List<Request> requests = new LinkedList<>();
     requests.add(vRequest);
@@ -208,7 +208,7 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequestProxied, handler);
     }
 
-    Assert.assertEquals(4, fetcher.getCounter());
+    Assertions.assertEquals(4, fetcher.getCounter());
   }
 
 

@@ -35,27 +35,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestFetcher implements Fetcher {
+public class FakeFetcher implements Fetcher {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestFetcher.class);
-
-  public enum Status {
-    COMPLETE,
-    FAILED
-  }
-
-  private final AtomicInteger counter = new AtomicInteger();
-
-  private final LinkedList<Status> statuses;
-
-  public TestFetcher(LinkedList<Status> statuses) {
-    this.statuses = statuses;
-  }
-
-  public int getCounter() {
-    return counter.get();
-  }
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(FakeFetcher.class);
   private static final FutureCallback<Response> EMPTY_CALLBACK = new FutureCallback<Response>() {
     @Override
     public void completed(Response result) {
@@ -72,6 +54,17 @@ public class TestFetcher implements Fetcher {
 
     }
   };
+  private final AtomicInteger counter = new AtomicInteger();
+
+  private final LinkedList<Status> statuses;
+
+  public FakeFetcher(LinkedList<Status> statuses) {
+    this.statuses = statuses;
+  }
+
+  public int getCounter() {
+    return counter.get();
+  }
 
   @Override
   public void start() {
@@ -138,5 +131,10 @@ public class TestFetcher implements Fetcher {
   @Override
   public void close() {
 
+  }
+
+  public enum Status {
+    COMPLETE,
+    FAILED
   }
 }

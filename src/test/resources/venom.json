@@ -1,0 +1,25 @@
+﻿{
+  "venom": true,
+  "data": {
+    "about": "Venom is an open source focused crawler for the deep web.",
+    "urls": {
+      "home": "https://venom.preferred.ai",
+      "git": "https://github.com/PreferredAI/Venom",
+      "docs": "https://venom.preferred.ai/docs"
+    }
+  },
+  "attributes": [
+    {
+      "Blazing Fast": "Venom is designed a around synchronous, event driven I/O model, and can send and process massive number of requests. The time-consuming jobs like data parsing or indexing can be run in separate thread thereby maximizing network throughput. Venom uses all available resources to process each request as fast as possible."
+    },
+    {
+      "Customizable": "Venom combines high-level API with low-level fine tuning, managing throughput and processing resources. Event-driven request-handler scheme enables page-specific content analysis, minimizing unnecessary processing."
+    },
+    {
+      "Robust": "Venom handles network and content provider issues gracefully. Failed requests fit into request-handler scheme and are rescheduled if necessary. Incoming pages can be passed through validators to ensure expected data content."
+    },
+    {
+      "Simple and Handy": "Venom defines default crawling parameters and seamlessly integrates content parsing. It is easy to use for prototyping and production. One can write a full-fledged crawler in a few lines of code!"
+    }
+  ]
+}

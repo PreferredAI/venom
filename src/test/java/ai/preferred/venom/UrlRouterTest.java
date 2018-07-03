@@ -18,17 +18,12 @@ package ai.preferred.venom;
 
 import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.validator.Validator;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
 public class UrlRouterTest {
-
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testUrlRouterNoDefault() {
@@ -41,13 +36,12 @@ public class UrlRouterTest {
     urlRouter.register(Pattern.compile("pass"), handler);
     urlRouter.register(Pattern.compile("pass"), validator);
 
-    Assert.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
-    Assert.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+    Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
+    Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
 
-    Assert.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
-    exception.expect(RuntimeException.class);
-    exception.expectMessage("Default handler is not set");
-    urlRouter.getHandler(new VRequest("fail"));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+    Assertions.assertThrows(RuntimeException.class, () -> urlRouter.getHandler(new VRequest("fail")));
+
   }
 
   @Test
@@ -63,11 +57,11 @@ public class UrlRouterTest {
     urlRouter.register(Pattern.compile("pass"), handler);
     urlRouter.register(Pattern.compile("pass"), validator);
 
-    Assert.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
-    Assert.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+    Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
+    Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
 
-    Assert.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
-    Assert.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+    Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
   }
 
 }

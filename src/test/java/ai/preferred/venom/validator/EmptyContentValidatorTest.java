@@ -23,8 +23,8 @@ import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
@@ -41,14 +41,14 @@ public class EmptyContentValidatorTest {
   public void testEmptyContent() {
     final byte[] content = "".getBytes();
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.INVALID_CONTENT, EmptyContentValidator.INSTANCE.isValid(request, response));
+    Assertions.assertEquals(Validator.Status.INVALID_CONTENT, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 
   @Test
   public void testValidContent() {
     final byte[] content = "IPSUM".getBytes();
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
-    Assert.assertEquals(Validator.Status.VALID, EmptyContentValidator.INSTANCE.isValid(request, response));
+    Assertions.assertEquals(Validator.Status.VALID, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 
 }
