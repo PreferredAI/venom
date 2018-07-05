@@ -61,7 +61,11 @@ public interface Validator {
     /**
      * The response is invalid due to the status code.
      */
-    INVALID_STATUS_CODE
+    INVALID_STATUS_CODE,
+    /**
+     * Stop processing this job.
+     */
+    STOP
   }
 
 }
