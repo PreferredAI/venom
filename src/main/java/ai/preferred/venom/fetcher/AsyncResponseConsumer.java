@@ -39,11 +39,12 @@ import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.io.TikaInputStream;
-import org.apache.xml.utils.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Set;
 
@@ -155,12 +156,12 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
-    String baseUrl = "";
+    String baseUrl = request.getUrl();
     try {
       final URI uri = new URI(request.getUrl());
-      final URI baseUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), null, null, null);
+      final URI baseUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null);
       baseUrl = baseUri.toString();
-    } catch (URI.MalformedURIException e) {
+    } catch (URISyntaxException e) {
       LOGGER.warn("Could not parse base URL: " + request.getUrl());
     }
 
@@ -260,7 +261,9 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
           + "please check your code for bugs.", e);
     }
 
-    if (status != Validator.Status.VALID) {
+    if (status == Validator.Status.STOP) {
+      throw new StopCodeException(statusCode, "Validator stopped the request.");
+    } else if (status != Validator.Status.VALID) {
       throw new ValidationException(status, response, "Invalid response.");
     }
 

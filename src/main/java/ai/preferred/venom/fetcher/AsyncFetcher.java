@@ -165,7 +165,7 @@ public class AsyncFetcher implements Fetcher {
    * @param builder An instance of builder
    */
   private AsyncFetcher(final Builder builder) {
-    ImmutableList.Builder<Callback> callbackListBuilder = new ImmutableList.Builder<>();
+    final ImmutableList.Builder<Callback> callbackListBuilder = new ImmutableList.Builder<>();
     if (builder.fileManager != null) {
       callbackListBuilder.add(builder.fileManager.getCallback());
     }
