@@ -22,27 +22,16 @@ import org.junit.jupiter.api.Test;
 public class SleepSchedulerTest {
 
   private void checkFixedResult(SleepScheduler sleepScheduler, int result) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
       Assertions.assertEquals(result, sleepScheduler.getSleepTime());
     }
   }
 
   private void checkResultWithinBound(SleepScheduler sleepScheduler, int min, int max) {
-    final long sleep = sleepScheduler.getSleepTime();
     for (int i = 0; i < 100; i++) {
+      final long sleep = sleepScheduler.getSleepTime();
       Assertions.assertTrue(sleep >= min && sleep <= max);
     }
-  }
-
-  private void checkVariableResult(SleepScheduler sleepScheduler, int min, int max) {
-    checkResultWithinBound(sleepScheduler, min, max);
-    final long sleep = sleepScheduler.getSleepTime();
-    for (int i = 0; i < 100; i++) {
-      if (sleep != sleepScheduler.getSleepTime()) {
-        return;
-      }
-    }
-    throw new RuntimeException("Sleep time not random.");
   }
 
   @Test
@@ -54,8 +43,8 @@ public class SleepSchedulerTest {
 
   @Test
   public void testVariableSleepTime() {
-    checkVariableResult(new SleepScheduler(0, 10), 0, 10);
-    checkVariableResult(new SleepScheduler(0, 100), 5, 100);
+    checkResultWithinBound(new SleepScheduler(0, 10), 0, 10);
+    checkResultWithinBound(new SleepScheduler(5, 100), 5, 100);
   }
 
   @Test
