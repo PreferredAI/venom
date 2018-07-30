@@ -27,6 +27,7 @@ import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import org.apache.http.concurrent.FutureCallback;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
   /**
    * Logger.
    */
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
   /**
    * A new thread where the crawler would run.

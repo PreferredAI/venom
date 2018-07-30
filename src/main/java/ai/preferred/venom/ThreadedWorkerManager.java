@@ -16,6 +16,7 @@
 
 package ai.preferred.venom;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
@@ -29,11 +30,13 @@ public class ThreadedWorkerManager implements WorkerManager, Interruptible {
   /**
    * Logger.
    */
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ThreadedWorkerManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedWorkerManager.class);
+
   /**
    * The executor used to submit tasks.
    */
   private final ExecutorService executor;
+
   /**
    * The worker to expose executor methods.
    */

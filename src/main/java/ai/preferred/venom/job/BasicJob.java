@@ -18,6 +18,7 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handleable;
 import ai.preferred.venom.request.Request;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
@@ -31,7 +32,7 @@ public class BasicJob implements Job {
   /**
    * Logger.
    */
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BasicJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BasicJob.class);
 
   /**
    * The request of this job.
