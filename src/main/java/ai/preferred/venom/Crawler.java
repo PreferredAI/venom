@@ -398,7 +398,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
      */
     private Builder() {
       fetcher = AsyncFetcher.buildDefault();
-      maxConnections = Runtime.getRuntime().availableProcessors() * 10;
+      maxConnections = Runtime.getRuntime().availableProcessors() * 50;
       maxTries = 50;
       name = "Crawler";
       parallelism = Runtime.getRuntime().availableProcessors();
