@@ -145,16 +145,6 @@ public class AsyncFetcher implements Fetcher {
   private final int connectionRequestTimeout;
 
   /**
-   * The timeout in milliseconds until a connection is established.
-   */
-  private final int connectTimeout;
-
-  /**
-   * The socket timeout ({@code SO_TIMEOUT}) in milliseconds.
-   */
-  private final int socketTimeout;
-
-  /**
    * Determines whether compression is allowed.
    */
   private final boolean compressed;
@@ -178,15 +168,14 @@ public class AsyncFetcher implements Fetcher {
     validator = builder.validator;
     router = builder.router;
     connectionRequestTimeout = builder.connectionRequestTimeout;
-    socketTimeout = builder.socketTimeout;
-    connectTimeout = builder.connectTimeout;
     compressed = builder.compressed;
 
     final IOReactorConfig reactorConfig = IOReactorConfig.custom()
         .setIoThreadCount(builder.numIoThreads)
         .setSoKeepAlive(true)
         .setTcpNoDelay(true)
-        .setSoTimeout(builder.soTimeout)
+        .setConnectTimeout(builder.connectTimeout)
+        .setSoTimeout(builder.socketTimeout)
         .build();
 
     final HttpAsyncClientBuilder clientBuilder = HttpAsyncClientBuilder.create()
@@ -286,8 +275,6 @@ public class AsyncFetcher implements Fetcher {
   private HttpUriRequest prepareHttpRequest(final HttpFetcherRequest request) {
     final RequestConfig config = RequestConfig.custom()
         .setConnectionRequestTimeout(connectionRequestTimeout)
-        .setConnectTimeout(connectTimeout)
-        .setSocketTimeout(socketTimeout)
         .setProxy(request.getProxy())
         .build();
 
@@ -489,11 +476,6 @@ public class AsyncFetcher implements Fetcher {
     private int socketTimeout;
 
     /**
-     * The socket timeout value for non-blocking I/O operations.
-     */
-    private int soTimeout;
-
-    /**
      * Determines whether compression is allowed.
      */
     private boolean compressed;
@@ -518,7 +500,6 @@ public class AsyncFetcher implements Fetcher {
       connectionRequestTimeout = -1;
       connectTimeout = -1;
       socketTimeout = -1;
-      soTimeout = 0;
       compressed = true;
     }
 
@@ -685,17 +666,6 @@ public class AsyncFetcher implements Fetcher {
      */
     public Builder socketTimeout(final int socketTimeout) {
       this.socketTimeout = socketTimeout;
-      return this;
-    }
-
-    /**
-     * Determines the default socket timeout value for non-blocking I/O operations.
-     *
-     * @param soTimeout timeout.
-     * @return this
-     */
-    public Builder soTimeout(final int soTimeout) {
-      this.soTimeout = soTimeout;
       return this;
     }
 
