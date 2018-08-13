@@ -624,7 +624,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
             LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
           }
         } catch (Exception e) {
-          LOGGER.error("An exception occurred in handler.", e);
+          LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
         }
         removeJob();
       });
