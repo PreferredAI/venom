@@ -25,7 +25,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ## Getting started
 Getting started with Venom is quick and easy. There are two ways to get started. 
 #### Clone our starter pack
-If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack)
+If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack):
 ```
 git clone https://github.com/PreferredAI/Venom-Starter-Pack.git
 ```
