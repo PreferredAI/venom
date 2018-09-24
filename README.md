@@ -1,5 +1,5 @@
 # Venom
-An open source focused crawler for the Deep Web.
+Your preferred open source focused crawler for the Deep Web.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom)
 [![Build Status](https://travis-ci.org/PreferredAI/Venom.svg)](https://travis-ci.org/PreferredAI/Venom)
@@ -12,6 +12,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
 [API Reference](https://venom.preferred.ai/docs/) |
+[Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack) |
 [PreferredAI](https://preferred.ai/)
 
 ### Features
@@ -22,9 +23,15 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 - Proxy support
 
 ## Getting started
+Getting started with Venom is quick and easy. There are two ways to get started. 
+#### Clone our starter pack
+If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack)
+```
+git clone https://github.com/PreferredAI/Venom-Starter-Pack.git
+```
 
-### Install
-Add dependencies to your pom.xml:
+#### Add a dependency
+If you already have a project then just add Venom as a dependency to your pom.xml:
 ```xml
 <dependency>
     <!-- Venom: A focused crawler framework @ https://venom.preferred.ai/ -->
