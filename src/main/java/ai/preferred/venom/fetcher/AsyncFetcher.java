@@ -605,7 +605,8 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
-     * Sets the Validator to be used. Defaults to none.
+     * Sets the Validator to be used. Defaults to StatusOkValidator and
+     * EmptyContentValidator.
      * <p>
      * This will validate the fetched page and retry if page is not
      * consistent with the specification set by the validator.
@@ -616,6 +617,22 @@ public class AsyncFetcher implements Fetcher {
      */
     public Builder validator(final @NotNull Validator validator) {
       this.validator = validator;
+      return this;
+    }
+
+    /**
+     * Sets the multiple validators to be used. Defaults to StatusOkValidator
+     * and EmptyContentValidator.
+     * <p>
+     * This will validate the fetched page and retry if page is not
+     * consistent with the specification set by the validator.
+     * </p>
+     *
+     * @param validators validator to be used.
+     * @return this
+     */
+    public Builder validator(final @NotNull Validator... validators) {
+      this.validator = new PipelineValidator(validators);
       return this;
     }
 
