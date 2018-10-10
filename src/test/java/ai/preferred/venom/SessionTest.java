@@ -24,15 +24,23 @@ public class SessionTest {
 
   @Test
   public void testSession() {
-    final Session.Key<Object> TEST_OBJECT_KEY = new Session.Key<>();
-    final Session.Key<Object> FAKE_OBJECT_KEY = new Session.Key<>();
+    final Session.Key<Object> testObjectKey = new Session.Key<>();
+    final Session.Key<Object> fakeObjectKey = new Session.Key<>();
     final Object testObject = new Object();
     final Session session = Session.builder()
-        .put(TEST_OBJECT_KEY, testObject)
+        .put(testObjectKey, testObject)
         .build();
 
-    Assertions.assertEquals(testObject, session.get(TEST_OBJECT_KEY));
-    Assertions.assertNull(session.get(FAKE_OBJECT_KEY));
+    Assertions.assertEquals(testObject, session.get(testObjectKey));
+    Assertions.assertNull(session.get(fakeObjectKey));
+  }
+
+  @Test
+  public void testSingletonSession() {
+    final Session.Key<Object> key = new Session.Key<>();
+    final Object value = new Object();
+    final Session session = Session.singleton(key, value);
+    Assertions.assertEquals(value, session.get(key));
   }
 
 }
