@@ -26,6 +26,8 @@ public interface Interruptible extends AutoCloseable {
    *
    * @throws Exception Exception.
    */
-  void interruptAndClose() throws Exception;
+  default void interruptAndClose() throws Exception {
+    close();
+  }
 
 }

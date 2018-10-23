@@ -25,11 +25,8 @@ import java.util.concurrent.*;
 /**
  * @author Maksim Tkachenko
  */
-public class ThreadedWorkerManager implements WorkerManager, Interruptible {
+public class ThreadedWorkerManager implements WorkerManager {
 
-  /**
-   * Logger.
-   */
   private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedWorkerManager.class);
 
   /**
@@ -67,18 +64,33 @@ public class ThreadedWorkerManager implements WorkerManager, Interruptible {
   }
 
   @Override
-  public final void interruptAndClose() throws InterruptedException {
+  public final void interruptAndClose() {
+    LOGGER.debug("Forcefully shutting down the worker manager");
     executor.shutdownNow();
-    close();
+    try {
+      executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+      LOGGER.debug("The worker manager has been terminated");
+    } catch (final InterruptedException e) {
+      LOGGER.warn("Closing has been interrupted", e);
+      Thread.currentThread().interrupt();
+    }
   }
 
   @Override
-  public final void close() throws InterruptedException {
-    LOGGER.debug("Initialising processor shutdown, waiting for threads to join...");
+  public final void close() {
+    LOGGER.debug("Shutting down the worker manager");
     executor.shutdown();
-    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-    LOGGER.debug("Processor thread pool joined.");
-    LOGGER.debug("Processor shutdown completed.");
+    try {
+      if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
+        LOGGER.debug("The worker manager has been terminated");
+      } else {
+        executor.shutdownNow();
+      }
+    } catch (final InterruptedException e) {
+      LOGGER.warn("Closing has been interrupted, forcefully shutting down", e);
+      executor.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
   }
 
   /**

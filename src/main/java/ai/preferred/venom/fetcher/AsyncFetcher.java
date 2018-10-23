@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -380,6 +381,12 @@ public class AsyncFetcher implements Fetcher {
       routedValidator = null;
     }
 
+    if (!httpClient.isRunning()) {
+      final BasicFuture<Response> future = new BasicFuture<>(futureCallback);
+      future.cancel(true);
+      return future;
+    }
+
     return httpClient.execute(
         HttpAsyncMethods.create(target, httpReq),
         new AsyncResponseConsumer(
@@ -399,10 +406,10 @@ public class AsyncFetcher implements Fetcher {
   }
 
   @Override
-  public void close() throws Exception {
-    LOGGER.debug("Initialising fetcher shutdown...");
+  public void close() throws IOException {
+    LOGGER.debug("Shutting down the fetcher...");
     httpClient.close();
-    LOGGER.debug("Fetcher shutdown completed.");
+    LOGGER.debug("The fetcher shutdown completed.");
   }
 
   /**

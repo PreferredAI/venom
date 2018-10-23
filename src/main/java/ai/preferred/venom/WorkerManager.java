@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author Maksim Tkachenko
  */
-public interface WorkerManager extends AutoCloseable {
+public interface WorkerManager extends Interruptible {
 
   /**
    * Get the result collector in use.

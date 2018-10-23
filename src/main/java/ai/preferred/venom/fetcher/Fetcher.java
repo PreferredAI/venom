@@ -16,6 +16,7 @@
 
 package ai.preferred.venom.fetcher;
 
+import ai.preferred.venom.Interruptible;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import org.apache.http.concurrent.FutureCallback;
@@ -33,7 +34,7 @@ import java.util.concurrent.Future;
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public interface Fetcher extends AutoCloseable {
+public interface Fetcher extends Interruptible {
 
   /**
    * Fetcher starter.
