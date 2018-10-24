@@ -16,7 +16,8 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handleable;
+
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 
 import javax.validation.constraints.NotNull;
@@ -43,7 +44,7 @@ public interface Scheduler {
    * @param p  initial priority of the request
    * @param pf the minimum (floor) priority of this request
    */
-  void add(@NotNull Request r, @NotNull Handleable h, Priority p, Priority pf);
+  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
 
   /**
    * Adds a request to the queue.
@@ -56,7 +57,7 @@ public interface Scheduler {
    * @param h handler to be used to parse the request
    * @param p initial priority of the request
    */
-  void add(@NotNull Request r, @NotNull Handleable h, Priority p);
+  void add(@NotNull Request r, @NotNull Handler h, Priority p);
 
   /**
    * Adds a request to the queue.
@@ -69,7 +70,7 @@ public interface Scheduler {
    * @param r request to fetch when dequeued
    * @param h handler to be used to parse the request
    */
-  void add(@NotNull Request r, @NotNull Handleable h);
+  void add(@NotNull Request r, @NotNull Handler h);
 
   /**
    * Adds a request to the queue.

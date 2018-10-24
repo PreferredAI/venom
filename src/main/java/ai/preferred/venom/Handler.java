@@ -18,7 +18,6 @@ package ai.preferred.venom;
 
 import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.Request;
-import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
 
 /**
@@ -28,13 +27,7 @@ import ai.preferred.venom.response.VResponse;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface Handler extends Handleable {
-
-  @Override
-  default void handle(Request request, Response response, Scheduler scheduler, Session session,
-                      Worker worker) {
-    handle(request, new VResponse(response), scheduler, session, worker);
-  }
+public interface Handler {
 
   /**
    * This function is called when the request is fetched successfully.

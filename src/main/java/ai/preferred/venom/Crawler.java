@@ -26,6 +26,7 @@ import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
+import ai.preferred.venom.response.VResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -659,12 +660,12 @@ public final class Crawler implements Interruptible {
       crawler.threadPool.execute(() -> {
         try {
           if (job.getHandler() != null) {
-            job.getHandler().handle(job.getRequest(), response, crawler.scheduler, crawler.session,
+            job.getHandler().handle(job.getRequest(), new VResponse(response), crawler.scheduler, crawler.session,
                 crawler.workerManager.getWorker());
           } else if (crawler.router != null) {
-            final Handleable routedHandler = crawler.router.getHandler(job.getRequest());
+            final Handler routedHandler = crawler.router.getHandler(job.getRequest());
             if (routedHandler != null) {
-              routedHandler.handle(job.getRequest(), response, crawler.scheduler, crawler.session,
+              routedHandler.handle(job.getRequest(), new VResponse(response), crawler.scheduler, crawler.session,
                   crawler.workerManager.getWorker());
             }
           } else {

@@ -16,7 +16,7 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handleable;
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 
 import javax.annotation.Nullable;
@@ -49,7 +49,7 @@ public interface Job extends Comparable<Job> {
    * @return Handler for the response or null.
    */
   @Nullable
-  Handleable getHandler();
+  Handler getHandler();
 
   /**
    * Get the current priority set for this job.

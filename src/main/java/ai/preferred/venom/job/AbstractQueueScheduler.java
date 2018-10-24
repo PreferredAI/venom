@@ -16,7 +16,7 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handleable;
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 
 import javax.annotation.Nonnull;
@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Ween Jiann Lee
  * @author Maksim Tkachenko
  */
-public abstract class AbstractQueueScheduler
-    extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job> {
+public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job> {
 
   /**
    * Get the queue this instance is using.
@@ -41,12 +40,12 @@ public abstract class AbstractQueueScheduler
   abstract BlockingQueue<Job> getQueue();
 
   @Override
-  public void add(final Request r, final Handleable h, final Priority p) {
+  public void add(final Request r, final Handler h, final Priority p) {
     add(r, h, p, Priority.FLOOR);
   }
 
   @Override
-  public void add(final Request r, final Handleable h) {
+  public void add(final Request r, final Handler h) {
     add(r, h, Priority.DEFAULT);
   }
 

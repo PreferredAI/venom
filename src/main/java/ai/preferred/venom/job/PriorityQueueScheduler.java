@@ -16,7 +16,8 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handleable;
+
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class PriorityQueueScheduler extends AbstractQueueScheduler {
   }
 
   @Override
-  public final void add(final Request r, final Handleable h, final Priority p, final Priority pf) {
+  public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
     final Job job = new BasicJob(r, h, p, pf, queue);
     getQueue().add(job);
     LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());

@@ -38,6 +38,6 @@ public interface HandlerRouter {
    * @return the instance of handler to be used
    */
   @Nullable
-  Handleable getHandler(@NotNull Request request);
+  Handler getHandler(@NotNull Request request);
 
 }

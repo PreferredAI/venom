@@ -16,7 +16,7 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handleable;
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class BasicJob implements Job {
   /**
    * The handler of this job.
    */
-  private final Handleable handler;
+  private final Handler handler;
 
   /**
    * The priority floor of this job.
@@ -73,7 +73,7 @@ public class BasicJob implements Job {
    * @param priorityFloor The priority floor of this job.
    * @param queue         The queue for this job.
    */
-  public BasicJob(final Request request, final Handleable handler, final Priority priority,
+  public BasicJob(final Request request, final Handler handler, final Priority priority,
                   final Priority priorityFloor, final Queue<Job> queue) {
     this.request = request;
     this.handler = handler;
@@ -88,7 +88,7 @@ public class BasicJob implements Job {
   }
 
   @Override
-  public final Handleable getHandler() {
+  public final Handler getHandler() {
     return handler;
   }
 
