@@ -56,7 +56,7 @@ public final class Session {
    *
    * @param map the map to replace
    */
-  private Session(Map<Key<?>, ?> map) {
+  private Session(final Map<Key<?>, ?> map) {
     this.map = map;
   }
 
