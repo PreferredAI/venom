@@ -2,8 +2,8 @@
 Your preferred open source focused crawler for the Deep Web.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ai.preferred/venom)
-[![Build Status](https://travis-ci.org/PreferredAI/Venom.svg)](https://travis-ci.org/PreferredAI/Venom)
-[![Coverage Status](https://coveralls.io/repos/github/PreferredAI/Venom/badge.svg)](https://coveralls.io/github/PreferredAI/Venom)
+[![Build Status](https://travis-ci.org/PreferredAI/venom.svg)](https://travis-ci.org/PreferredAI/venom)
+[![Coverage Status](https://coveralls.io/repos/github/PreferredAI/venom/badge.svg)](https://coveralls.io/github/PreferredAI/venom)
 [![Javadocs](https://www.javadoc.io/badge/ai.preferred/venom.svg)](https://www.javadoc.io/doc/ai.preferred/venom)
 
 ## Overview
@@ -25,9 +25,9 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ## Getting started
 Getting started with Venom is quick and easy. There are two ways to get started. 
 #### Clone our starter pack
-If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack):
+If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/venom-tutorials):
 ```
-git clone https://github.com/PreferredAI/Venom-Starter-Pack.git
+git clone https://github.com/PreferredAI/venom-tutorials.git
 ```
 
 #### Add a dependency
@@ -43,8 +43,8 @@ If you already have a project then just add Venom as a dependency to your pom.xm
 
 ### Tutorial
 If you are new to Venom, we have created a set of exercises to get you up and sprinting.
-The exercises are bundled in our [Venom-Starter-Pack](https://github.com/PreferredAI/Venom-Starter-Pack).
-More information can be found on this [page](https://github.com/PreferredAI/Venom-Starter-Pack).
+The exercises are bundled in our [Venom-Starter-Pack](https://github.com/PreferredAI/venom-tutorials).
+More information can be found on this [page](https://github.com/PreferredAI/venom-tutorials).
 
 ### Example
 Think you are beyond exercises? Get started quickly with these few lines of code.
