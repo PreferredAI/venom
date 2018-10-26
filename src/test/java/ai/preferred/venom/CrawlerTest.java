@@ -17,6 +17,7 @@
 package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.FakeFetcher;
+import ai.preferred.venom.fetcher.Fetcher;
 import ai.preferred.venom.job.FIFOScheduler;
 import ai.preferred.venom.job.LazyScheduler;
 import ai.preferred.venom.request.Request;
@@ -25,6 +26,7 @@ import org.apache.http.HttpHost;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -209,6 +211,34 @@ public class CrawlerTest {
     }
 
     Assertions.assertEquals(4, fetcher.getCounter());
+  }
+
+  @Test
+  public void testFatalHandlerException() {
+    Assertions.assertThrows(FatalHandlerException.class, () -> {
+      final List<FakeFetcher.Status> statuses = Arrays.asList(FakeFetcher.Status.COMPLETE, FakeFetcher.Status.COMPLETE,
+          FakeFetcher.Status.COMPLETE);
+      final Fetcher fetcher = new FakeFetcher(new LinkedList<>(statuses));
+      try (final Crawler crawler = Crawler.builder()
+          .fetcher(fetcher)
+          .scheduler(new FIFOScheduler())
+          .sleepScheduler(new SleepScheduler(0))
+          .build()
+          .start()) {
+
+        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
+          // do nothing
+        });
+
+        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
+          throw new FatalHandlerException("FatalHandlerException #1");
+        });
+
+        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
+          throw new FatalHandlerException("FatalHandlerException #2");
+        });
+      }
+    });
   }
 
 

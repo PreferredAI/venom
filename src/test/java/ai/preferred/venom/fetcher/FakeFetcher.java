@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,9 +56,9 @@ public class FakeFetcher implements Fetcher {
   };
   private final AtomicInteger counter = new AtomicInteger();
 
-  private final LinkedList<Status> statuses;
+  private final Deque<Status> statuses;
 
-  public FakeFetcher(LinkedList<Status> statuses) {
+  public FakeFetcher(Deque<Status> statuses) {
     this.statuses = statuses;
   }
 

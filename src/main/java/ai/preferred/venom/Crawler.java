@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -130,6 +130,11 @@ public final class Crawler implements Interruptible {
   private final Map<Job, Future> pendingJobs;
 
   /**
+   * The list of fatal exceptions occurred during response handling.
+   */
+  private final List<FatalHandlerException> handlerExceptions;
+
+  /**
    * Constructs a new instance of crawler.
    *
    * @param builder An instance of builder
@@ -156,6 +161,7 @@ public final class Crawler implements Interruptible {
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
     pendingJobs = new ConcurrentHashMap<>();
+    handlerExceptions = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -235,7 +241,7 @@ public final class Crawler implements Interruptible {
   private void run() {
     fetcher.start();
     long lastRequestTime = 0;
-    while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown()) {
+    while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown() && handlerExceptions.isEmpty()) {
       try {
         final Job job = scheduler.poll(5, TimeUnit.SECONDS);
         if (job == null) {
@@ -269,6 +275,13 @@ public final class Crawler implements Interruptible {
       } catch (InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
         break;
+      }
+    }
+    if (!handlerExceptions.isEmpty()) {
+      try {
+        interrupt();
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
       }
     }
     LOGGER.debug("({}) will stop producing requests.", crawlerThread.getName());
@@ -309,6 +322,18 @@ public final class Crawler implements Interruptible {
 
   @Override
   public void interruptAndClose() throws Exception {
+    interrupt();
+
+    try {
+      crawlerThread.join();
+      threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+    } catch (final InterruptedException e) {
+      LOGGER.warn("The joining has been interrupted!", e);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void interrupt() throws Exception {
     exitWhenDone.set(true);
     crawlerThread.interrupt();
     threadPool.shutdownNow();
@@ -328,14 +353,6 @@ public final class Crawler implements Interruptible {
 
     if (cachedException != null) {
       throw cachedException;
-    }
-
-    try {
-      crawlerThread.join();
-      threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-    } catch (final InterruptedException e) {
-      LOGGER.warn("The joining has been interrupted!", e);
-      Thread.currentThread().interrupt();
     }
   }
 
@@ -373,6 +390,21 @@ public final class Crawler implements Interruptible {
             cachedException = e;
           }
         }
+      }
+
+      if (!handlerExceptions.isEmpty()) {
+        final FatalHandlerException mainHandlerException;
+        synchronized (handlerExceptions) {
+          final Iterator<FatalHandlerException> iterator = handlerExceptions.iterator();
+          mainHandlerException = iterator.next();
+          while (iterator.hasNext()) {
+            mainHandlerException.addSuppressed(iterator.next());
+          }
+          if (cachedException != null) {
+            mainHandlerException.addSuppressed(cachedException);
+          }
+        }
+        throw mainHandlerException;
       }
 
       if (cachedException != null) {
@@ -671,7 +703,11 @@ public final class Crawler implements Interruptible {
           } else {
             LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
           }
-        } catch (Exception e) {
+        } catch (final FatalHandlerException e) {
+          LOGGER.error("Fatal exception occurred in handler, when parsing response ({}), interrupting execution",
+              job.getRequest().getUrl(), e);
+          crawler.handlerExceptions.add(e);
+        } catch (final Exception e) {
           LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
         }
         removeJob();
