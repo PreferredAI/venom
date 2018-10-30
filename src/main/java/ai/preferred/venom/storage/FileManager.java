@@ -26,8 +26,7 @@ import javax.validation.constraints.NotNull;
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
  */
-@SuppressWarnings("RedundantThrows")
-public interface FileManager {
+public interface FileManager extends AutoCloseable {
 
   /**
    * Get callback upon completion of request.

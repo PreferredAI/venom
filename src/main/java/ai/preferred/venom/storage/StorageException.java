@@ -49,16 +49,4 @@ public class StorageException extends Exception {
     super(cause);
   }
 
-  /**
-   * Constructs a storage exception with a message and a cause.
-   *
-   * @param message            A message about the exception.
-   * @param cause              The cause of the exception
-   * @param enableSuppression  Enable suppression.
-   * @param writableStackTrace Enable writable stack trace.
-   */
-  public StorageException(final String message, final Throwable cause, final boolean enableSuppression,
-                          final boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
-  }
 }
