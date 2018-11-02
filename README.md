@@ -12,7 +12,8 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
 [API Reference](https://venom.preferred.ai/docs/) |
-[Starter Pack](https://github.com/PreferredAI/Venom-Starter-Pack) |
+[Examples](https://github.com/PreferredAI/venom-examples) |
+[Tutorial](https://github.com/PreferredAI/venom-tutorial) |
 [PreferredAI](https://preferred.ai/)
 
 ### Features
@@ -24,13 +25,17 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 
 ## Getting started
 Getting started with Venom is quick and easy. There are two ways to get started. 
-#### Clone our starter pack
-If you are starting out in a new project, you can consider cloning our [Starter Pack](https://github.com/PreferredAI/venom-tutorials):
+#### Clone our examples or tutorial
+If you are starting out in a new project, you can consider cloning our [Examples](https://github.com/PreferredAI/venom-examples):
 ```
-git clone https://github.com/PreferredAI/venom-tutorials.git
+git clone https://github.com/PreferredAI/venom-examples.git
+```
+or if you would like a more guided package, you can check out our [Tutotial](https://github.com/PreferredAI/venom-tutorial):
+```
+git clone https://github.com/PreferredAI/venom-tutorial.git
 ```
 
-#### Add a dependency
+(#### Add a dependency
 If you already have a project then just add Venom as a dependency to your pom.xml:
 ```xml
 <dependency>
