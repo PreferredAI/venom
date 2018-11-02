@@ -30,12 +30,13 @@ If you are starting out in a new project, you can consider cloning our [Examples
 ```
 git clone https://github.com/PreferredAI/venom-examples.git
 ```
-or if you would like a more guided package, you can check out our [Tutotial](https://github.com/PreferredAI/venom-tutorial):
+or, if you would like a more guided package, you can check out our [Tutotial](https://github.com/PreferredAI/venom-tutorial):
 ```
 git clone https://github.com/PreferredAI/venom-tutorial.git
 ```
 
-(#### Add a dependency
+
+#### Add a dependency
 If you already have a project then just add Venom as a dependency to your pom.xml:
 ```xml
 <dependency>
