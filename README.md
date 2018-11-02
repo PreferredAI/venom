@@ -49,7 +49,7 @@ If you already have a project then just add Venom as a dependency to your pom.xm
 
 ### Tutorial
 If you are new to Venom, we have created a set of exercises to get you up and sprinting.
-The exercises are bundled in our [Venom-Starter-Pack](https://github.com/PreferredAI/venom-tutorials).
+The exercises are bundled in our [venom-tutorial](https://github.com/PreferredAI/venom-tutorials).
 More information can be found on this [page](https://github.com/PreferredAI/venom-tutorials).
 
 ### Example
