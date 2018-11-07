@@ -27,6 +27,9 @@ import java.util.concurrent.*;
  */
 public class ThreadedWorkerManager implements WorkerManager {
 
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedWorkerManager.class);
 
   /**

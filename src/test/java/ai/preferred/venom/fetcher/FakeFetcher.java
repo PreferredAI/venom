@@ -22,7 +22,6 @@ import ai.preferred.venom.response.Response;
 import ai.preferred.venom.validator.Validator;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
-import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,22 +37,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FakeFetcher implements Fetcher {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FakeFetcher.class);
-  private static final FutureCallback<Response> EMPTY_CALLBACK = new FutureCallback<Response>() {
+
+  private static final Callback EMPTY_CALLBACK = new Callback() {
     @Override
-    public void completed(Response result) {
+    public void completed(@NotNull Request request, @NotNull Response response) {
 
     }
 
     @Override
-    public void failed(Exception ex) {
+    public void failed(@NotNull Request request, @NotNull Exception ex) {
 
     }
 
     @Override
-    public void cancelled() {
+    public void cancelled(@NotNull Request request) {
 
     }
   };
+
   private final AtomicInteger counter = new AtomicInteger();
 
   private final Deque<Status> statuses;
@@ -77,7 +78,7 @@ public class FakeFetcher implements Fetcher {
   }
 
   @Override
-  public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull FutureCallback<Response> callback) {
+  public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull Callback callback) {
     final int statusCode = 200;
     final String baseUrl = request.getUrl();
     final byte[] content = "IPSUM".getBytes();
@@ -93,11 +94,11 @@ public class FakeFetcher implements Fetcher {
     LOGGER.debug("Fetching URL: {}", request.getUrl());
     if (status == Status.COMPLETE) {
       LOGGER.debug("Executing completion callback on {}.", request.getUrl());
-      callback.completed(response);
+      callback.completed(request, response);
     } else {
       final Exception ex = new ValidationException(Validator.Status.INVALID_CONTENT, response, "Call to fail.");
       LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
-      callback.failed(ex);
+      callback.failed(request, ex);
     }
 
     return new Future<Response>() {

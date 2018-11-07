@@ -17,6 +17,7 @@
 package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.AsyncFetcher;
+import ai.preferred.venom.fetcher.Callback;
 import ai.preferred.venom.fetcher.Fetcher;
 import ai.preferred.venom.fetcher.StopCodeException;
 import ai.preferred.venom.job.AbstractQueueScheduler;
@@ -27,7 +28,6 @@ import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
-import org.apache.http.concurrent.FutureCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -639,7 +639,7 @@ public final class Crawler implements Interruptible {
   /**
    * This class methods is executed upon the completion of fetcher.
    */
-  public static final class AsyncCrawlerCallbackProcessor implements FutureCallback<Response> {
+  public static final class AsyncCrawlerCallbackProcessor implements Callback {
 
     /**
      * The instance of crawler used.
@@ -687,7 +687,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void completed(final Response response) {
+    public void completed(Request request, final Response response) {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         try {
@@ -715,7 +715,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void failed(final Exception ex) {
+    public void failed(Request request, final Exception ex) {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         if (ex instanceof StopCodeException) {
@@ -734,7 +734,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void cancelled() {
+    public void cancelled(Request request) {
       crawler.connections.release();
       crawler.threadPool.execute(this::removeJob);
     }

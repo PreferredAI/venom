@@ -19,7 +19,6 @@ package ai.preferred.venom.fetcher;
 import ai.preferred.venom.Interruptible;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
-import org.apache.http.concurrent.FutureCallback;
 
 import javax.validation.constraints.NotNull;
 import java.util.concurrent.Future;
@@ -59,6 +58,6 @@ public interface Fetcher extends Interruptible {
    * @return Response future
    */
   @NotNull
-  Future<Response> fetch(@NotNull Request request, @NotNull FutureCallback<Response> callback);
+  Future<Response> fetch(@NotNull Request request, @NotNull Callback callback);
 
 }

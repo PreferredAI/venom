@@ -75,19 +75,19 @@ public class AsyncFetcher implements Fetcher {
   /**
    * An instance of empty callback.
    */
-  private static final FutureCallback<Response> EMPTY_CALLBACK = new FutureCallback<Response>() {
+  private static final Callback EMPTY_CALLBACK = new Callback() {
     @Override
-    public void completed(final Response result) {
+    public void completed(@NotNull Request request, @NotNull Response response) {
 
     }
 
     @Override
-    public void failed(final Exception ex) {
+    public void failed(@NotNull Request request, @NotNull Exception ex) {
 
     }
 
     @Override
-    public void cancelled() {
+    public void cancelled(@NotNull Request request) {
 
     }
   };
@@ -336,7 +336,7 @@ public class AsyncFetcher implements Fetcher {
   }
 
   @Override
-  public Future<Response> fetch(final Request request, final FutureCallback<Response> callback) {
+  public Future<Response> fetch(final Request request, final Callback callback) {
     final HttpFetcherRequest httpFetcherRequest = prepareFetcherRequest(request);
 
     final FutureCallback<Response> futureCallback = new FutureCallback<Response>() {
@@ -344,21 +344,21 @@ public class AsyncFetcher implements Fetcher {
       public void completed(final Response response) {
         LOGGER.debug("Executing completion callback on {}.", request.getUrl());
         callbacks.forEach(callback -> callback.completed(httpFetcherRequest, response));
-        callback.completed(response);
+        callback.completed(httpFetcherRequest, response);
       }
 
       @Override
       public void failed(final Exception ex) {
         LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
         callbacks.forEach(callback -> callback.failed(httpFetcherRequest, ex));
-        callback.failed(ex);
+        callback.failed(httpFetcherRequest, ex);
       }
 
       @Override
       public void cancelled() {
         LOGGER.debug("Executing cancelled callback on {}.", request.getUrl());
         callbacks.forEach(callback -> callback.cancelled(httpFetcherRequest));
-        callback.cancelled();
+        callback.cancelled(httpFetcherRequest);
       }
     };
 
