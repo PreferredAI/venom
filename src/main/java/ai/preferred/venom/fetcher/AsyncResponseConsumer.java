@@ -17,7 +17,6 @@
 package ai.preferred.venom.fetcher;
 
 import ai.preferred.venom.request.HttpFetcherRequest;
-import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.Unwrappable;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
@@ -89,7 +88,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
   /**
    * The request leading to this response.
    */
-  private final Request request;
+  private final HttpFetcherRequest request;
 
   /**
    * An instance of http response.
@@ -123,6 +122,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     this.stopCodes = stopCodes;
     this.compressed = compressed;
     this.request = request;
+    request.getDiagnostics().setStart();
   }
 
   /**
@@ -153,6 +153,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
 
     final HttpEntity entity = httpResponse.getEntity();
     final byte[] content = getContent(entity);
+    request.getDiagnostics().setSize(content.length);
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
@@ -219,6 +220,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
 
   @Override
   protected final void onResponseReceived(final HttpResponse httpResponse) {
+    request.getDiagnostics().setAcknowledge();
     this.httpResponse = httpResponse;
   }
 
@@ -243,6 +245,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
 
   @Override
   protected final BaseResponse buildResult(final HttpContext context) throws Exception {
+    request.getDiagnostics().setComplete();
     final int statusCode = httpResponse.getStatusLine().getStatusCode();
     if (stopCodes.contains(statusCode)) {
       EntityUtils.consumeQuietly(httpResponse.getEntity());
