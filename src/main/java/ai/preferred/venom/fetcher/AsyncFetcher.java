@@ -615,7 +615,7 @@ public class AsyncFetcher implements Fetcher {
      * @param maxConnections the max allowable connections.
      * @return this
      */
-    public Builder setMaxConnections(int maxConnections) {
+    public Builder setMaxConnections(final int maxConnections) {
       this.maxConnections = maxConnections;
       return this;
     }
@@ -627,7 +627,7 @@ public class AsyncFetcher implements Fetcher {
      * @param maxRouteConnections the max allowable connections per route.
      * @return this
      */
-    public Builder setMaxRouteConnections(int maxRouteConnections) {
+    public Builder setMaxRouteConnections(final int maxRouteConnections) {
       this.maxRouteConnections = maxRouteConnections;
       return this;
     }
@@ -649,7 +649,7 @@ public class AsyncFetcher implements Fetcher {
      * @param sslContext SSLContext to be used.
      * @return this
      */
-    public Builder setSslContext(SSLContext sslContext) {
+    public Builder setSslContext(final SSLContext sslContext) {
       this.sslContext = sslContext;
       return this;
     }
@@ -730,7 +730,7 @@ public class AsyncFetcher implements Fetcher {
      * @param redirectStrategy redirection strategy to be used.
      * @return this
      */
-    public Builder setRedirectStrategy(RedirectStrategy redirectStrategy) {
+    public Builder setRedirectStrategy(final RedirectStrategy redirectStrategy) {
       this.redirectStrategy = redirectStrategy;
       return this;
     }
