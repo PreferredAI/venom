@@ -188,6 +188,12 @@ public class AsyncFetcher implements Fetcher {
         .setSSLContext(builder.sslContext)
         .setRedirectStrategy(builder.redirectStrategy);
 
+    if (builder.maxConnections < builder.maxRouteConnections) {
+      clientBuilder.setMaxConnTotal(builder.maxRouteConnections);
+      LOGGER.info("Maximum total connections will be set to {}, to match maximum route connection.",
+          builder.maxRouteConnections);
+    }
+
     if (builder.disableCookies) {
       clientBuilder.disableCookieManagement();
     }
@@ -529,8 +535,8 @@ public class AsyncFetcher implements Fetcher {
       disableCookies = false;
       fileManager = null;
       headers = Collections.emptyMap();
-      maxConnections = 0;
-      maxRouteConnections = 0;
+      maxConnections = 16;
+      maxRouteConnections = 8;
       numIoThreads = Runtime.getRuntime().availableProcessors();
       proxyProvider = null;
       stopCodes = Collections.emptySet();
