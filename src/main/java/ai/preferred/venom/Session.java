@@ -33,19 +33,6 @@ public final class Session {
    * An instance of an empty session.
    */
   public static final Session EMPTY_SESSION = new Session();
-
-  /**
-   * Constructs a singleton session.
-   *
-   * @param key   an unique identifier of the session variable
-   * @param value the value of the session variable
-   * @param <T>   the type of the value of the session variable
-   * @return An instance of session with single key-value pair
-   */
-  public static <T> Session singleton(final @NotNull Key<T> key, final @Nullable T value) {
-    return new Session(key, value);
-  }
-
   /**
    * A map of all session key and value.
    */
@@ -67,7 +54,6 @@ public final class Session {
     this(Collections.emptyMap());
   }
 
-
   /**
    * Constructs a singleton session.
    *
@@ -79,6 +65,7 @@ public final class Session {
     this(Collections.singletonMap(key, value));
   }
 
+
   /**
    * Constructs a session with builder variables.
    *
@@ -86,6 +73,18 @@ public final class Session {
    */
   private Session(final @NotNull Builder builder) {
     this(ImmutableMap.copyOf(builder.map));
+  }
+
+  /**
+   * Constructs a singleton session.
+   *
+   * @param key   an unique identifier of the session variable
+   * @param value the value of the session variable
+   * @param <T>   the type of the value of the session variable
+   * @return An instance of session with single key-value pair
+   */
+  public static <T> Session singleton(final @NotNull Key<T> key, final @Nullable T value) {
+    return new Session(key, value);
   }
 
   /**

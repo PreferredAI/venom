@@ -144,7 +144,7 @@ public class HttpFetcherRequest implements Request, Unwrappable {
    * This class contains the diagnostic information for this
    * request.
    */
-  public static class Diagnostics {
+  public static final class Diagnostics {
 
     /**
      * Start time of the request.
@@ -194,15 +194,6 @@ public class HttpFetcherRequest implements Request, Unwrappable {
     }
 
     /**
-     * Set the size of the response in bytes.
-     *
-     * @param size Size of the response.
-     */
-    public void setSize(int size) {
-      this.size = size;
-    }
-
-    /**
      * Get the start time of the request. Returns null
      * if the start time has not been set.
      *
@@ -244,6 +235,15 @@ public class HttpFetcherRequest implements Request, Unwrappable {
     @Nullable
     public Integer getSize() {
       return size;
+    }
+
+    /**
+     * Set the size of the response in bytes.
+     *
+     * @param size Size of the response.
+     */
+    public void setSize(final int size) {
+      this.size = size;
     }
 
     /**

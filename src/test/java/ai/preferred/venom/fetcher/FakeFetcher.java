@@ -96,7 +96,8 @@ public class FakeFetcher implements Fetcher {
       LOGGER.debug("Executing completion callback on {}.", request.getUrl());
       callback.completed(request, response);
     } else {
-      final Exception ex = new ValidationException(Validator.Status.INVALID_CONTENT, response, "Call to fail.");
+      final Exception ex = new ValidationException(Validator.Status.INVALID_CONTENT, response,
+          "Failure expected... Proceeding with tests.");
       LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
       callback.failed(request, ex);
     }

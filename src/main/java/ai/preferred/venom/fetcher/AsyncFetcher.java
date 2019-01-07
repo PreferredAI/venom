@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -50,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URI;
@@ -77,17 +79,17 @@ public class AsyncFetcher implements Fetcher {
    */
   private static final Callback EMPTY_CALLBACK = new Callback() {
     @Override
-    public void completed(@NotNull Request request, @NotNull Response response) {
+    public void completed(final @NotNull Request request, final @NotNull Response response) {
 
     }
 
     @Override
-    public void failed(@NotNull Request request, @NotNull Exception ex) {
+    public void failed(final @NotNull Request request, final @NotNull Exception ex) {
 
     }
 
     @Override
-    public void cancelled(@NotNull Request request) {
+    public void cancelled(final @NotNull Request request) {
 
     }
   };
@@ -174,14 +176,21 @@ public class AsyncFetcher implements Fetcher {
     final IOReactorConfig reactorConfig = IOReactorConfig.custom()
         .setIoThreadCount(builder.numIoThreads)
         .setSoKeepAlive(true)
-        .setTcpNoDelay(true)
         .setConnectTimeout(builder.connectTimeout)
         .setSoTimeout(builder.socketTimeout)
         .build();
 
     final HttpAsyncClientBuilder clientBuilder = HttpAsyncClientBuilder.create()
         .setDefaultIOReactorConfig(reactorConfig)
-        .setThreadFactory(builder.threadFactory);
+        .setThreadFactory(builder.threadFactory)
+        .setMaxConnPerRoute(builder.maxRouteConnections)
+        .setMaxConnTotal(builder.maxConnections)
+        .setSSLContext(builder.sslContext)
+        .setRedirectStrategy(builder.redirectStrategy);
+
+    if (builder.disableCookies) {
+      clientBuilder.disableCookieManagement();
+    }
 
     if (builder.compressed) {
       clientBuilder.addInterceptorLast(new RequestAcceptEncoding());
@@ -423,6 +432,11 @@ public class AsyncFetcher implements Fetcher {
     private final List<Callback> callbacks;
 
     /**
+     * Determines whether cookie storage is allowed.
+     */
+    private boolean disableCookies;
+
+    /**
      * The file manager used to store raw responses.
      */
     private FileManager fileManager;
@@ -438,9 +452,24 @@ public class AsyncFetcher implements Fetcher {
     private int numIoThreads;
 
     /**
+     * The maximum number of connections allowed.
+     */
+    private int maxConnections;
+
+    /**
+     * The maximum number of connections allowed per route.
+     */
+    private int maxRouteConnections;
+
+    /**
      * The proxy provider for proxies.
      */
     private ProxyProvider proxyProvider;
+
+    /**
+     * The SSL context for a response.
+     */
+    private SSLContext sslContext;
 
     /**
      * A list of status code to stop retry.
@@ -461,6 +490,11 @@ public class AsyncFetcher implements Fetcher {
      * The validator used.
      */
     private Validator validator;
+
+    /**
+     * The redirection strategy for a response.
+     */
+    private RedirectStrategy redirectStrategy;
 
     /**
      * The validator router used.
@@ -492,8 +526,11 @@ public class AsyncFetcher implements Fetcher {
      */
     private Builder() {
       callbacks = new ArrayList<>();
+      disableCookies = false;
       fileManager = null;
       headers = Collections.emptyMap();
+      maxConnections = 0;
+      maxRouteConnections = 0;
       numIoThreads = Runtime.getRuntime().availableProcessors();
       proxyProvider = null;
       stopCodes = Collections.emptySet();
@@ -503,7 +540,6 @@ public class AsyncFetcher implements Fetcher {
           StatusOkValidator.INSTANCE,
           EmptyContentValidator.INSTANCE
       );
-      router = request -> Validator.ALWAYS_VALID;
       connectionRequestTimeout = -1;
       connectTimeout = -1;
       socketTimeout = -1;
@@ -527,6 +563,16 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
+     * Disables cookie storage.
+     *
+     * @return this
+     */
+    public Builder disableCookies() {
+      this.disableCookies = true;
+      return this;
+    }
+
+    /**
      * Sets the FileManager to be used. Defaults to none.
      * <p>
      * If fileManager is set, all items fetched will be saved to storage.
@@ -535,7 +581,7 @@ public class AsyncFetcher implements Fetcher {
      * @param fileManager file manager to be used.
      * @return this
      */
-    public Builder fileManager(final @NotNull FileManager fileManager) {
+    public Builder setFileManager(final @NotNull FileManager fileManager) {
       this.fileManager = fileManager;
       return this;
     }
@@ -546,7 +592,7 @@ public class AsyncFetcher implements Fetcher {
      * @param headers a map to headers to be used.
      * @return this
      */
-    public Builder headers(final @NotNull Map<String, String> headers) {
+    public Builder setHeaders(final @NotNull Map<String, String> headers) {
       this.headers = headers;
       return this;
     }
@@ -557,29 +603,63 @@ public class AsyncFetcher implements Fetcher {
      * @param numIoThreads number of threads.
      * @return this
      */
-    public Builder numIoThreads(final int numIoThreads) {
+    public Builder setNumIoThreads(final int numIoThreads) {
       this.numIoThreads = numIoThreads;
+      return this;
+    }
+
+    /**
+     * Sets the maximum allowable connections at an instance.
+     *
+     * @param maxConnections the max allowable connections.
+     * @return this
+     */
+    public Builder setMaxConnections(final int maxConnections) {
+      this.maxConnections = maxConnections;
+      return this;
+    }
+
+    /**
+     * Sets the maximum allowable connections at an instance for
+     * a particular route (host).
+     *
+     * @param maxRouteConnections the max allowable connections per route.
+     * @return this
+     */
+    public Builder setMaxRouteConnections(final int maxRouteConnections) {
+      this.maxRouteConnections = maxRouteConnections;
       return this;
     }
 
     /**
      * Sets the ProxyProvider to be used. Defaults to none.
      *
-     * @param proxyProvider proxy provider to be used
+     * @param proxyProvider proxy provider to be used.
      * @return this
      */
-    public Builder proxyProvider(final @NotNull ProxyProvider proxyProvider) {
+    public Builder setProxyProvider(final @NotNull ProxyProvider proxyProvider) {
       this.proxyProvider = proxyProvider;
+      return this;
+    }
+
+    /**
+     * Sets the ssl context for an encrypted response.
+     *
+     * @param sslContext SSLContext to be used.
+     * @return this
+     */
+    public Builder setSslContext(final SSLContext sslContext) {
+      this.sslContext = sslContext;
       return this;
     }
 
     /**
      * Set a list of stop code that will interrupt crawling.
      *
-     * @param codes A list of stop codes
+     * @param codes A list of stop codes.
      * @return this
      */
-    public Builder stopCodes(final int... codes) {
+    public Builder setStopCodes(final int... codes) {
       ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
       for (int code : codes) {
         builder.add(code);
@@ -595,7 +675,7 @@ public class AsyncFetcher implements Fetcher {
      * @param threadFactory an instance of ThreadFactory.
      * @return this
      */
-    public Builder threadFactory(final @NotNull ThreadFactory threadFactory) {
+    public Builder setThreadFactory(final @NotNull ThreadFactory threadFactory) {
       this.threadFactory = threadFactory;
       return this;
     }
@@ -606,7 +686,7 @@ public class AsyncFetcher implements Fetcher {
      * @param userAgent user agent generator to be used.
      * @return this
      */
-    public Builder userAgent(final @NotNull UserAgent userAgent) {
+    public Builder setUserAgent(final @NotNull UserAgent userAgent) {
       this.userAgent = userAgent;
       return this;
     }
@@ -622,7 +702,7 @@ public class AsyncFetcher implements Fetcher {
      * @param validator validator to be used.
      * @return this
      */
-    public Builder validator(final @NotNull Validator validator) {
+    public Builder setValidator(final @NotNull Validator validator) {
       this.validator = validator;
       return this;
     }
@@ -638,8 +718,19 @@ public class AsyncFetcher implements Fetcher {
      * @param validators validator to be used.
      * @return this
      */
-    public Builder validator(final @NotNull Validator... validators) {
+    public Builder setValidator(final @NotNull Validator... validators) {
       this.validator = new PipelineValidator(validators);
+      return this;
+    }
+
+    /**
+     * Sets the redirection strategy for a response received by the fetcher.
+     *
+     * @param redirectStrategy redirection strategy to be used.
+     * @return this
+     */
+    public Builder setRedirectStrategy(final RedirectStrategy redirectStrategy) {
+      this.redirectStrategy = redirectStrategy;
       return this;
     }
 
@@ -647,10 +738,10 @@ public class AsyncFetcher implements Fetcher {
      * Sets ValidatorRouter to be used. Defaults to none.
      * Validator rules set in validator will always be used.
      *
-     * @param router router validator router to be used.
+     * @param router router validator setValidatorRouter to be used.
      * @return this
      */
-    public Builder router(final @NotNull ValidatorRouter router) {
+    public Builder setValidatorRouter(final @NotNull ValidatorRouter router) {
       this.router = router;
       return this;
     }
@@ -663,7 +754,7 @@ public class AsyncFetcher implements Fetcher {
      * @param connectionRequestTimeout timeout.
      * @return this
      */
-    public Builder connectionRequestTimeout(final int connectionRequestTimeout) {
+    public Builder setConnectionRequestTimeout(final int connectionRequestTimeout) {
       this.connectionRequestTimeout = connectionRequestTimeout;
       return this;
     }
@@ -675,7 +766,7 @@ public class AsyncFetcher implements Fetcher {
      * @param connectTimeout timeout.
      * @return this
      */
-    public Builder connectTimeout(final int connectTimeout) {
+    public Builder setConnectTimeout(final int connectTimeout) {
       this.connectTimeout = connectTimeout;
       return this;
     }
@@ -688,20 +779,19 @@ public class AsyncFetcher implements Fetcher {
      * @param socketTimeout timeout.
      * @return this
      */
-    public Builder socketTimeout(final int socketTimeout) {
+    public Builder setSocketTimeout(final int socketTimeout) {
       this.socketTimeout = socketTimeout;
       return this;
     }
 
     /**
-     * Set whether to request for compress pages and to decompress pages
+     * Disables request for compress pages and to decompress pages
      * after it is fetched. Defaults to true.
      *
-     * @param compressed should request for compress pages
      * @return this
      */
-    public Builder compressed(final boolean compressed) {
-      this.compressed = compressed;
+    public Builder disableCompression() {
+      this.compressed = false;
       return this;
     }
 
