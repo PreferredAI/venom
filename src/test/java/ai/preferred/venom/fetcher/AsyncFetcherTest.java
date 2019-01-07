@@ -71,7 +71,7 @@ public class AsyncFetcherTest {
   }
 
   @Test
-  public void testFetch() throws ExecutionException, InterruptedException {
+  public void testGet() throws ExecutionException, InterruptedException {
     final int port = wireMockServer.port();
     configureFor("localhost", port);
     final String path = "/test-fetch";
@@ -81,8 +81,122 @@ public class AsyncFetcherTest {
             .withHeader("Content-Type", "text/html; charset=utf-8")
             .withBody(content)));
 
-
     final Request request = new VRequest("http://127.0.0.1:" + port + path);
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+  }
+
+  @Test
+  public void testPost() throws ExecutionException, InterruptedException {
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-fetch";
+    stubFor(post(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = VRequest.Builder.post("http://127.0.0.1:" + port + path).build();
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+  }
+
+//  @Test
+//  public void testHead() throws ExecutionException, InterruptedException {
+//    final int port = wireMockServer.port();
+//    configureFor("localhost", port);
+//    final String path = "/test-fetch";
+//    stubFor(head(urlEqualTo(path))
+//        .willReturn(aResponse()
+//            .withStatus(200)
+//            .withHeader("Content-Type", "text/html; charset=utf-8")
+//            .withBody(content)));
+//
+//    final Request request = VRequest.Builder.head("http://127.0.0.1:" + port + path).build();
+//    final Future<Response> responseFuture = fetcher.fetch(request);
+//    final Response response = responseFuture.get();
+//    Assertions.assertEquals(200, response.getStatusCode());
+//    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+//    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+//    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+//
+//    final VResponse vResponse = new VResponse(response);
+//    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+//  }
+
+  @Test
+  public void testPut() throws ExecutionException, InterruptedException {
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-fetch";
+    stubFor(put(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = VRequest.Builder.put("http://127.0.0.1:" + port + path).build();
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+  }
+
+  @Test
+  public void testDelete() throws ExecutionException, InterruptedException {
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-fetch";
+    stubFor(delete(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = VRequest.Builder.delete("http://127.0.0.1:" + port + path).build();
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+  }
+
+  @Test
+  public void testOptions() throws ExecutionException, InterruptedException {
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-fetch";
+    stubFor(options(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = VRequest.Builder.options("http://127.0.0.1:" + port + path).build();
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
@@ -111,7 +225,6 @@ public class AsyncFetcherTest {
             .withHeader("Content-Type", "")
             .withBody(content)));
 
-
     final Request request = new VRequest("http://127.0.0.1:" + port + path);
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
@@ -130,7 +243,6 @@ public class AsyncFetcherTest {
             .withStatus(200)
             .withHeader("Content-Type", "")
             .withBody(content)));
-
 
     final Request request = new VRequest("http://127.0.0.1:" + port + path);
     final Future<Response> responseFuture = fetcher.fetch(request);
@@ -266,7 +378,7 @@ public class AsyncFetcherTest {
     final String headerKey = "XHeader";
     final String headerValue = "Venom";
     final Map<String, String> headersPreset = Collections.singletonMap(headerKey, headerValue);
-    fetcher = AsyncFetcher.builder().headers(headersPreset).build();
+    fetcher = AsyncFetcher.builder().setHeaders(headersPreset).build();
     fetcher.start();
 
     final int port = wireMockServer.port();
@@ -294,7 +406,7 @@ public class AsyncFetcherTest {
     final String headerKey = "XHeader";
     final String headerValue = "Venom";
     final Map<String, String> headersPreset = Collections.singletonMap(headerKey, headerValue);
-    fetcher = AsyncFetcher.builder().headers(headersPreset).build();
+    fetcher = AsyncFetcher.builder().setHeaders(headersPreset).build();
     fetcher.start();
 
     final int port = wireMockServer.port();

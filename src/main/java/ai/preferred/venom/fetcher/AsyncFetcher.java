@@ -79,17 +79,17 @@ public class AsyncFetcher implements Fetcher {
    */
   private static final Callback EMPTY_CALLBACK = new Callback() {
     @Override
-    public void completed(@NotNull Request request, @NotNull Response response) {
+    public void completed(final @NotNull Request request, final @NotNull Response response) {
 
     }
 
     @Override
-    public void failed(@NotNull Request request, @NotNull Exception ex) {
+    public void failed(final @NotNull Request request, final @NotNull Exception ex) {
 
     }
 
     @Override
-    public void cancelled(@NotNull Request request) {
+    public void cancelled(final @NotNull Request request) {
 
     }
   };
@@ -540,7 +540,6 @@ public class AsyncFetcher implements Fetcher {
           StatusOkValidator.INSTANCE,
           EmptyContentValidator.INSTANCE
       );
-      router = request -> Validator.ALWAYS_VALID;
       connectionRequestTimeout = -1;
       connectTimeout = -1;
       socketTimeout = -1;
@@ -582,7 +581,7 @@ public class AsyncFetcher implements Fetcher {
      * @param fileManager file manager to be used.
      * @return this
      */
-    public Builder fileManager(final @NotNull FileManager fileManager) {
+    public Builder setFileManager(final @NotNull FileManager fileManager) {
       this.fileManager = fileManager;
       return this;
     }
@@ -593,7 +592,7 @@ public class AsyncFetcher implements Fetcher {
      * @param headers a map to headers to be used.
      * @return this
      */
-    public Builder headers(final @NotNull Map<String, String> headers) {
+    public Builder setHeaders(final @NotNull Map<String, String> headers) {
       this.headers = headers;
       return this;
     }
@@ -604,7 +603,7 @@ public class AsyncFetcher implements Fetcher {
      * @param numIoThreads number of threads.
      * @return this
      */
-    public Builder numIoThreads(final int numIoThreads) {
+    public Builder setNumIoThreads(final int numIoThreads) {
       this.numIoThreads = numIoThreads;
       return this;
     }
@@ -638,7 +637,7 @@ public class AsyncFetcher implements Fetcher {
      * @param proxyProvider proxy provider to be used.
      * @return this
      */
-    public Builder proxyProvider(final @NotNull ProxyProvider proxyProvider) {
+    public Builder setProxyProvider(final @NotNull ProxyProvider proxyProvider) {
       this.proxyProvider = proxyProvider;
       return this;
     }
@@ -660,7 +659,7 @@ public class AsyncFetcher implements Fetcher {
      * @param codes A list of stop codes.
      * @return this
      */
-    public Builder stopCodes(final int... codes) {
+    public Builder setStopCodes(final int... codes) {
       ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
       for (int code : codes) {
         builder.add(code);
@@ -676,7 +675,7 @@ public class AsyncFetcher implements Fetcher {
      * @param threadFactory an instance of ThreadFactory.
      * @return this
      */
-    public Builder threadFactory(final @NotNull ThreadFactory threadFactory) {
+    public Builder setThreadFactory(final @NotNull ThreadFactory threadFactory) {
       this.threadFactory = threadFactory;
       return this;
     }
@@ -687,7 +686,7 @@ public class AsyncFetcher implements Fetcher {
      * @param userAgent user agent generator to be used.
      * @return this
      */
-    public Builder userAgent(final @NotNull UserAgent userAgent) {
+    public Builder setUserAgent(final @NotNull UserAgent userAgent) {
       this.userAgent = userAgent;
       return this;
     }
@@ -703,7 +702,7 @@ public class AsyncFetcher implements Fetcher {
      * @param validator validator to be used.
      * @return this
      */
-    public Builder validator(final @NotNull Validator validator) {
+    public Builder setValidator(final @NotNull Validator validator) {
       this.validator = validator;
       return this;
     }
@@ -719,7 +718,7 @@ public class AsyncFetcher implements Fetcher {
      * @param validators validator to be used.
      * @return this
      */
-    public Builder validator(final @NotNull Validator... validators) {
+    public Builder setValidator(final @NotNull Validator... validators) {
       this.validator = new PipelineValidator(validators);
       return this;
     }
@@ -739,10 +738,10 @@ public class AsyncFetcher implements Fetcher {
      * Sets ValidatorRouter to be used. Defaults to none.
      * Validator rules set in validator will always be used.
      *
-     * @param router router validator router to be used.
+     * @param router router validator setValidatorRouter to be used.
      * @return this
      */
-    public Builder router(final @NotNull ValidatorRouter router) {
+    public Builder setValidatorRouter(final @NotNull ValidatorRouter router) {
       this.router = router;
       return this;
     }
@@ -755,7 +754,7 @@ public class AsyncFetcher implements Fetcher {
      * @param connectionRequestTimeout timeout.
      * @return this
      */
-    public Builder connectionRequestTimeout(final int connectionRequestTimeout) {
+    public Builder setConnectionRequestTimeout(final int connectionRequestTimeout) {
       this.connectionRequestTimeout = connectionRequestTimeout;
       return this;
     }
@@ -767,7 +766,7 @@ public class AsyncFetcher implements Fetcher {
      * @param connectTimeout timeout.
      * @return this
      */
-    public Builder connectTimeout(final int connectTimeout) {
+    public Builder setConnectTimeout(final int connectTimeout) {
       this.connectTimeout = connectTimeout;
       return this;
     }
@@ -780,7 +779,7 @@ public class AsyncFetcher implements Fetcher {
      * @param socketTimeout timeout.
      * @return this
      */
-    public Builder socketTimeout(final int socketTimeout) {
+    public Builder setSocketTimeout(final int socketTimeout) {
       this.socketTimeout = socketTimeout;
       return this;
     }

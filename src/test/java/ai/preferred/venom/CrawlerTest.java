@@ -25,9 +25,9 @@ import ai.preferred.venom.request.VRequest;
 import org.apache.http.HttpHost;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,16 +47,20 @@ public class CrawlerTest {
 
     final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assertions.assertEquals(url, request.getUrl());
-      Assertions.assertNull(request.getProxy());
+      try {
+        Assertions.assertNull(request.getProxy());
+        Assertions.assertEquals(url, request.getUrl());
+      } catch (AssertionFailedError e) {
+        throw new FatalHandlerException(e);
+      }
     };
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .maxTries(2)
-        .scheduler(new FIFOScheduler())
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setMaxTries(2)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
@@ -64,6 +68,32 @@ public class CrawlerTest {
       crawler.getScheduler().add(vRequest, assertHandler);
       crawler.getScheduler().add(vRequest, assertHandler);
     }
+
+    Assertions.assertEquals(3, fetcher.getCounter());
+  }
+
+  @Test
+  public void testCrawlerStartAndClose() throws Exception {
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+    statuses.add(FakeFetcher.Status.COMPLETE);
+
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
+
+    final Crawler crawler = Crawler.builder()
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setMaxTries(2)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
+        .build();
+
+    crawler.getScheduler().add(vRequest, handler);
+    crawler.getScheduler().add(vRequest, handler);
+    crawler.getScheduler().add(vRequest, handler);
+
+    crawler.startAndClose();
 
     Assertions.assertEquals(3, fetcher.getCounter());
   }
@@ -80,11 +110,11 @@ public class CrawlerTest {
     final FakeFetcher fetcher = new FakeFetcher(statuses);
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .maxTries(5)
-        .scheduler(new FIFOScheduler())
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setMaxTries(5)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
@@ -108,11 +138,11 @@ public class CrawlerTest {
     final FakeFetcher fetcher = new FakeFetcher(statuses);
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .maxTries(5)
-        .scheduler(new FIFOScheduler())
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setMaxTries(5)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
@@ -131,17 +161,21 @@ public class CrawlerTest {
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
     final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assertions.assertEquals(url, request.getUrl());
-      Assertions.assertNull(response.getProxy());
+      try {
+        Assertions.assertEquals(url, request.getUrl());
+        Assertions.assertNull(response.getProxy());
+      } catch (AssertionFailedError e) {
+        throw new FatalHandlerException(e);
+      }
     };
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .propRetainProxy(0.2)
-        .maxTries(5)
-        .scheduler(new FIFOScheduler())
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setPropRetainProxy(0.2)
+        .setMaxTries(5)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
@@ -160,17 +194,21 @@ public class CrawlerTest {
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
     final FakeFetcher fetcher = new FakeFetcher(statuses);
     final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      Assertions.assertEquals(url, request.getUrl());
-      Assertions.assertEquals(proxy, response.getProxy());
+      try {
+        Assertions.assertEquals(url, request.getUrl());
+        Assertions.assertEquals(proxy, response.getProxy());
+      } catch (AssertionFailedError e) {
+        throw new FatalHandlerException(e);
+      }
     };
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .propRetainProxy(0.2)
-        .maxTries(5)
-        .scheduler(new FIFOScheduler())
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setPropRetainProxy(0.2)
+        .setMaxTries(5)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
@@ -197,20 +235,42 @@ public class CrawlerTest {
     requests.add(vRequest);
 
     try (final Crawler crawler = Crawler.builder()
-        .fetcher(fetcher)
-        .maxConnections(1)
-        .propRetainProxy(0.2)
-        .maxTries(5)
-        .scheduler(new LazyScheduler(requests.iterator(), handler))
-        .sleepScheduler(new SleepScheduler(0))
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setPropRetainProxy(0.2)
+        .setMaxTries(5)
+        .setScheduler(new LazyScheduler(requests.iterator(), handler))
+        .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
 
-      final VRequest vRequestProxied = new VRequest(url, Collections.singletonMap("key", ""));
-      crawler.getScheduler().add(vRequestProxied, handler);
+      crawler.getScheduler().add(vRequest, handler);
     }
 
     Assertions.assertEquals(4, fetcher.getCounter());
+  }
+
+  @Test
+  public void testUrlRouterIntegration() throws Exception {
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
+
+    final UrlRouter urlRouter = new UrlRouter(handler);
+    try (final Crawler crawler = Crawler.builder()
+        .setFetcher(fetcher)
+        .setMaxTries(1)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
+        .setHandlerRouter(urlRouter)
+        .build()
+        .start()) {
+
+      crawler.getScheduler().add(vRequest);
+    }
+
+    Assertions.assertEquals(1, fetcher.getCounter());
   }
 
   @Test
@@ -220,9 +280,10 @@ public class CrawlerTest {
           FakeFetcher.Status.COMPLETE);
       final Fetcher fetcher = new FakeFetcher(new LinkedList<>(statuses));
       try (final Crawler crawler = Crawler.builder()
-          .fetcher(fetcher)
-          .scheduler(new FIFOScheduler())
-          .sleepScheduler(new SleepScheduler(0))
+          .setFetcher(fetcher)
+          .setMaxTries(1)
+          .setScheduler(new FIFOScheduler())
+          .setSleepScheduler(new SleepScheduler(0))
           .build()
           .start()) {
 
@@ -239,6 +300,37 @@ public class CrawlerTest {
         });
       }
     });
+  }
+
+  @Test
+  public void testSessionIntegration() throws Exception {
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
+
+    final Session session = Session.EMPTY_SESSION;
+    final Handler assertHandler = (request, response, schedulerH, handleSession, worker) -> {
+      try {
+        Assertions.assertEquals(session, handleSession);
+      } catch (AssertionFailedError e) {
+        throw new FatalHandlerException(e);
+      }
+    };
+
+    try (final Crawler crawler = Crawler.builder()
+        .setFetcher(fetcher)
+        .setMaxTries(1)
+        .setScheduler(new FIFOScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
+        .setSession(session)
+        .build()
+        .start()) {
+
+      crawler.getScheduler().add(vRequest, assertHandler);
+    }
+
+    Assertions.assertEquals(1, fetcher.getCounter());
   }
 
 

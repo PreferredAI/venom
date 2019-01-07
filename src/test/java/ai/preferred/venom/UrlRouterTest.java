@@ -33,6 +33,42 @@ public class UrlRouterTest {
     final Validator validator = (request, response) -> null;
 
     final UrlRouter urlRouter = new UrlRouter();
+    urlRouter.register(Pattern.compile("pass"), handler, validator);
+
+    Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
+    Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+    Assertions.assertThrows(RuntimeException.class, () -> urlRouter.getHandler(new VRequest("fail")));
+  }
+
+  @Test
+  public void testUrlRouter() {
+    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    };
+
+    final Handler handler = (request, response, scheduler, session, worker) -> {
+    };
+    final Validator validator = (request, response) -> null;
+
+    final UrlRouter urlRouter = new UrlRouter(defaultHandler);
+    urlRouter.register(Pattern.compile("pass"), handler, validator);
+
+    Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
+    Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+
+    Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+  }
+
+  @Test
+  public void testUrlRouterSeparateNoDefault() {
+    final Handler handler = (request, response, scheduler, session, worker) -> {
+
+    };
+    final Validator validator = (request, response) -> null;
+
+    final UrlRouter urlRouter = new UrlRouter();
     urlRouter.register(Pattern.compile("pass"), handler);
     urlRouter.register(Pattern.compile("pass"), validator);
 
@@ -41,11 +77,10 @@ public class UrlRouterTest {
 
     Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
     Assertions.assertThrows(RuntimeException.class, () -> urlRouter.getHandler(new VRequest("fail")));
-
   }
 
   @Test
-  public void testUrlRouter() {
+  public void testUrlRouterSeparate() {
     final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
     };
 
@@ -59,6 +94,42 @@ public class UrlRouterTest {
 
     Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
     Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+
+    Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+  }
+
+
+  @Test
+  public void testValidatorUrlRouter() {
+    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    };
+
+    final Validator validator = (request, response) -> null;
+
+    final UrlRouter urlRouter = new UrlRouter(defaultHandler);
+    urlRouter.register(Pattern.compile("pass"), validator);
+
+    Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("pass")));
+    Assertions.assertEquals(validator, urlRouter.getValidator(new VRequest("pass")));
+
+    Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));
+  }
+
+  @Test
+  public void testHandlerUrlRouter() {
+    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    };
+
+    final Handler handler = (request, response, scheduler, session, worker) -> {
+    };
+
+    final UrlRouter urlRouter = new UrlRouter(defaultHandler);
+    urlRouter.register(Pattern.compile("pass"), handler);
+
+    Assertions.assertEquals(handler, urlRouter.getHandler(new VRequest("pass")));
+    Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("pass")));
 
     Assertions.assertEquals(defaultHandler, urlRouter.getHandler(new VRequest("fail")));
     Assertions.assertEquals(Validator.ALWAYS_VALID, urlRouter.getValidator(new VRequest("fail")));

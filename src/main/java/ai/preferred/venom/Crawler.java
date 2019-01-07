@@ -496,7 +496,7 @@ public final class Crawler implements Interruptible {
      * @param name name for crawler thread
      * @return this
      */
-    public Builder name(final @NotNull String name) {
+    public Builder setName(final @NotNull String name) {
       this.name = name;
       return this;
     }
@@ -507,7 +507,7 @@ public final class Crawler implements Interruptible {
      * @param fetcher fetcher to be used.
      * @return this
      */
-    public Builder fetcher(final @NotNull Fetcher fetcher) {
+    public Builder setFetcher(final @NotNull Fetcher fetcher) {
       this.fetcher = fetcher;
       return this;
     }
@@ -518,7 +518,7 @@ public final class Crawler implements Interruptible {
      * @param parallelism the parallelism level.
      * @return this
      */
-    public Builder parallism(final int parallelism) {
+    public Builder setParallism(final int parallelism) {
       if (parallelism <= 0) {
         LOGGER.warn("Attribute 'numThreads' not within range, defaulting to system default.");
       } else {
@@ -533,7 +533,7 @@ public final class Crawler implements Interruptible {
      * @param workerManager result workerManager to be used.
      * @return this
      */
-    public Builder workerManager(final @NotNull WorkerManager workerManager) {
+    public Builder setWorkerManager(final @NotNull WorkerManager workerManager) {
       this.workerManager = workerManager;
       return this;
     }
@@ -544,7 +544,7 @@ public final class Crawler implements Interruptible {
      * @param scheduler scheduler to be used.
      * @return this
      */
-    public Builder scheduler(final @NotNull AbstractQueueScheduler scheduler) {
+    public Builder setScheduler(final @NotNull AbstractQueueScheduler scheduler) {
       this.scheduler = scheduler;
       return this;
     }
@@ -555,7 +555,7 @@ public final class Crawler implements Interruptible {
      * @param router handler router to be used.
      * @return this
      */
-    public Builder router(final @NotNull HandlerRouter router) {
+    public Builder setHandlerRouter(final @NotNull HandlerRouter router) {
       this.router = router;
       return this;
     }
@@ -566,7 +566,7 @@ public final class Crawler implements Interruptible {
      * @param maxConnections maximum number of concurrent connections.
      * @return this
      */
-    public Builder maxConnections(final int maxConnections) {
+    public Builder setMaxConnections(final int maxConnections) {
       this.maxConnections = maxConnections;
       return this;
     }
@@ -578,7 +578,7 @@ public final class Crawler implements Interruptible {
      * @param maxTries max retry times.
      * @return this
      */
-    public Builder maxTries(final int maxTries) {
+    public Builder setMaxTries(final int maxTries) {
       this.maxTries = maxTries;
       return this;
     }
@@ -594,7 +594,7 @@ public final class Crawler implements Interruptible {
      * @param propRetainProxy threshold percentage.
      * @return this
      */
-    public Builder propRetainProxy(final double propRetainProxy) {
+    public Builder setPropRetainProxy(final double propRetainProxy) {
       if (propRetainProxy > 1 || propRetainProxy < 0) {
         LOGGER.warn("Attribute 'propRetainProxy' not within range, defaulting to 0.05.");
       } else {
@@ -609,7 +609,7 @@ public final class Crawler implements Interruptible {
      * @param sleepScheduler sleepAndGetTime scheduler to be used.
      * @return this
      */
-    public Builder sleepScheduler(final @NotNull SleepScheduler sleepScheduler) {
+    public Builder setSleepScheduler(final @NotNull SleepScheduler sleepScheduler) {
       this.sleepScheduler = sleepScheduler;
       return this;
     }
@@ -620,7 +620,7 @@ public final class Crawler implements Interruptible {
      * @param session Sessions where variables are defined
      * @return this
      */
-    public Builder session(final @NotNull Session session) {
+    public Builder setSession(final @NotNull Session session) {
       this.session = session;
       return this;
     }
@@ -687,7 +687,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void completed(Request request, final Response response) {
+    public void completed(final Request request, final Response response) {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         try {
@@ -715,7 +715,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void failed(Request request, final Exception ex) {
+    public void failed(final Request request, final Exception ex) {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         if (ex instanceof StopCodeException) {
@@ -734,7 +734,7 @@ public final class Crawler implements Interruptible {
     }
 
     @Override
-    public void cancelled(Request request) {
+    public void cancelled(final Request request) {
       crawler.connections.release();
       crawler.threadPool.execute(this::removeJob);
     }
