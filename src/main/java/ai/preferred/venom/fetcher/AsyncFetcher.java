@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -50,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URI;
@@ -174,14 +176,21 @@ public class AsyncFetcher implements Fetcher {
     final IOReactorConfig reactorConfig = IOReactorConfig.custom()
         .setIoThreadCount(builder.numIoThreads)
         .setSoKeepAlive(true)
-        .setTcpNoDelay(true)
         .setConnectTimeout(builder.connectTimeout)
         .setSoTimeout(builder.socketTimeout)
         .build();
 
     final HttpAsyncClientBuilder clientBuilder = HttpAsyncClientBuilder.create()
         .setDefaultIOReactorConfig(reactorConfig)
-        .setThreadFactory(builder.threadFactory);
+        .setThreadFactory(builder.threadFactory)
+        .setMaxConnPerRoute(builder.maxRouteConnections)
+        .setMaxConnTotal(builder.maxConnections)
+        .setSSLContext(builder.sslContext)
+        .setRedirectStrategy(builder.redirectStrategy);
+
+    if (builder.disableCookies) {
+      clientBuilder.disableCookieManagement();
+    }
 
     if (builder.compressed) {
       clientBuilder.addInterceptorLast(new RequestAcceptEncoding());
@@ -423,6 +432,11 @@ public class AsyncFetcher implements Fetcher {
     private final List<Callback> callbacks;
 
     /**
+     * Determines whether cookie storage is allowed.
+     */
+    private boolean disableCookies;
+
+    /**
      * The file manager used to store raw responses.
      */
     private FileManager fileManager;
@@ -438,9 +452,24 @@ public class AsyncFetcher implements Fetcher {
     private int numIoThreads;
 
     /**
+     * The maximum number of connections allowed.
+     */
+    private int maxConnections;
+
+    /**
+     * The maximum number of connections allowed per route.
+     */
+    private int maxRouteConnections;
+
+    /**
      * The proxy provider for proxies.
      */
     private ProxyProvider proxyProvider;
+
+    /**
+     * The SSL context for a response.
+     */
+    private SSLContext sslContext;
 
     /**
      * A list of status code to stop retry.
@@ -461,6 +490,11 @@ public class AsyncFetcher implements Fetcher {
      * The validator used.
      */
     private Validator validator;
+
+    /**
+     * The redirection strategy for a response.
+     */
+    private RedirectStrategy redirectStrategy;
 
     /**
      * The validator router used.
@@ -492,8 +526,11 @@ public class AsyncFetcher implements Fetcher {
      */
     private Builder() {
       callbacks = new ArrayList<>();
+      disableCookies = false;
       fileManager = null;
       headers = Collections.emptyMap();
+      maxConnections = 0;
+      maxRouteConnections = 0;
       numIoThreads = Runtime.getRuntime().availableProcessors();
       proxyProvider = null;
       stopCodes = Collections.emptySet();
@@ -523,6 +560,16 @@ public class AsyncFetcher implements Fetcher {
      */
     public Builder register(final @NotNull Callback callback) {
       this.callbacks.add(callback);
+      return this;
+    }
+
+    /**
+     * Disables cookie storage.
+     *
+     * @return this
+     */
+    public Builder disableCookies() {
+      this.disableCookies = true;
       return this;
     }
 
@@ -563,9 +610,32 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
+     * Sets the maximum allowable connections at an instance.
+     *
+     * @param maxConnections the max allowable connections.
+     * @return this
+     */
+    public Builder setMaxConnections(int maxConnections) {
+      this.maxConnections = maxConnections;
+      return this;
+    }
+
+    /**
+     * Sets the maximum allowable connections at an instance for
+     * a particular route (host).
+     *
+     * @param maxRouteConnections the max allowable connections per route.
+     * @return this
+     */
+    public Builder setMaxRouteConnections(int maxRouteConnections) {
+      this.maxRouteConnections = maxRouteConnections;
+      return this;
+    }
+
+    /**
      * Sets the ProxyProvider to be used. Defaults to none.
      *
-     * @param proxyProvider proxy provider to be used
+     * @param proxyProvider proxy provider to be used.
      * @return this
      */
     public Builder proxyProvider(final @NotNull ProxyProvider proxyProvider) {
@@ -574,9 +644,20 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
+     * Sets the ssl context for an encrypted response.
+     *
+     * @param sslContext SSLContext to be used.
+     * @return this
+     */
+    public Builder setSslContext(SSLContext sslContext) {
+      this.sslContext = sslContext;
+      return this;
+    }
+
+    /**
      * Set a list of stop code that will interrupt crawling.
      *
-     * @param codes A list of stop codes
+     * @param codes A list of stop codes.
      * @return this
      */
     public Builder stopCodes(final int... codes) {
@@ -644,6 +725,17 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
+     * Sets the redirection strategy for a response received by the fetcher.
+     *
+     * @param redirectStrategy redirection strategy to be used.
+     * @return this
+     */
+    public Builder setRedirectStrategy(RedirectStrategy redirectStrategy) {
+      this.redirectStrategy = redirectStrategy;
+      return this;
+    }
+
+    /**
      * Sets ValidatorRouter to be used. Defaults to none.
      * Validator rules set in validator will always be used.
      *
@@ -694,14 +786,13 @@ public class AsyncFetcher implements Fetcher {
     }
 
     /**
-     * Set whether to request for compress pages and to decompress pages
+     * Disables request for compress pages and to decompress pages
      * after it is fetched. Defaults to true.
      *
-     * @param compressed should request for compress pages
      * @return this
      */
-    public Builder compressed(final boolean compressed) {
-      this.compressed = compressed;
+    public Builder disableCompression() {
+      this.compressed = false;
       return this;
     }
 
