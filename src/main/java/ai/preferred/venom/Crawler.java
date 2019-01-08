@@ -28,6 +28,7 @@ import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,7 @@ public final class Crawler implements Interruptible {
    * A list of pending futures.
    */
   @NotNull
-  private final Map<Job, Future> pendingJobs;
+  private final Set<Job> pendingJobs;
 
   /**
    * The list of fatal exceptions occurred during response handling.
@@ -160,7 +161,7 @@ public final class Crawler implements Interruptible {
         true
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
-    pendingJobs = new ConcurrentHashMap<>();
+    pendingJobs = Sets.newConcurrentHashSet();
     handlerExceptions = Collections.synchronizedList(new ArrayList<>());
   }
 
@@ -243,8 +244,12 @@ public final class Crawler implements Interruptible {
     long lastRequestTime = 0;
     while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown() && handlerExceptions.isEmpty()) {
       try {
-        final Job job = scheduler.poll(5, TimeUnit.SECONDS);
+        final Job job = scheduler.poll(100, TimeUnit.MILLISECONDS);
         if (job == null) {
+          if (pendingJobs.size() != 0) {
+            continue;
+          }
+          // This should only run if pendingJob == 0 && job == null
           synchronized (pendingJobs) {
             LOGGER.debug("({}) Checking for exit conditions.", crawlerThread.getName());
             if (scheduler.peek() == null && pendingJobs.size() == 0 && exitWhenDone.get()) {
@@ -258,19 +263,16 @@ public final class Crawler implements Interruptible {
         lastRequestTime = System.nanoTime();
 
         connections.acquire();
+        pendingJobs.add(job);
         threadPool.execute(() -> {
           LOGGER.debug("Preparing to fetch {}", job.getRequest().getUrl());
           final CrawlerRequest crawlerRequest = prepareRequest(job.getRequest(), job.getTryCount());
           if (Thread.currentThread().isInterrupted()) {
+            pendingJobs.remove(job);
             LOGGER.debug("The thread pool is interrupted");
             return;
           }
-          final Future<Response> responseFuture = fetcher.fetch(crawlerRequest,
-              new AsyncCrawlerCallbackProcessor(this, job));
-          synchronized (job) {
-            pendingJobs.put(job, responseFuture);
-            job.notifyAll();
-          }
+          fetcher.fetch(crawlerRequest, new AsyncCrawlerCallbackProcessor(this, job));
         });
       } catch (InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
@@ -333,6 +335,11 @@ public final class Crawler implements Interruptible {
     }
   }
 
+  /**
+   * Interrupts crawler, fetcher and worker threads.
+   *
+   * @throws Exception if any resources throws an exception on close.
+   */
   private void interrupt() throws Exception {
     exitWhenDone.set(true);
     crawlerThread.interrupt();
@@ -662,30 +669,6 @@ public final class Crawler implements Interruptible {
       this.job = job;
     }
 
-    /**
-     * Wait for job to be added to uncompleted futures then remove it, this
-     * block of code should only run in a new thread and should only be ran
-     * after all logic has completed.
-     * <p>
-     * This synchronisation is for safety.
-     * </p>
-     */
-    private void removeJob() {
-      synchronized (job) {
-        while (!crawler.pendingJobs.containsKey(job)) {
-          try {
-            job.wait();
-          } catch (InterruptedException e) {
-            LOGGER.error("Waiting to remove job is interrupted.", e);
-          }
-        }
-      }
-
-      synchronized (crawler.pendingJobs) {
-        crawler.pendingJobs.remove(job);
-      }
-    }
-
     @Override
     public void completed(final Request request, final Response response) {
       crawler.connections.release();
@@ -710,7 +693,7 @@ public final class Crawler implements Interruptible {
         } catch (final Exception e) {
           LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
         }
-        removeJob();
+        crawler.pendingJobs.remove(job);
       });
     }
 
@@ -719,10 +702,10 @@ public final class Crawler implements Interruptible {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
         if (ex instanceof StopCodeException) {
-          removeJob();
+          crawler.pendingJobs.remove(job);
         } else {
           synchronized (crawler.pendingJobs) {
-            removeJob();
+            crawler.pendingJobs.remove(job);
             if (job.getTryCount() < crawler.maxTries) {
               job.reQueue();
             } else {
@@ -736,7 +719,7 @@ public final class Crawler implements Interruptible {
     @Override
     public void cancelled(final Request request) {
       crawler.connections.release();
-      crawler.threadPool.execute(this::removeJob);
+      crawler.pendingJobs.remove(job);
     }
 
   }
