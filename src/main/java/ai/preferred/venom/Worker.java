@@ -27,6 +27,16 @@ import java.util.concurrent.Future;
 public interface Worker {
 
   /**
+   * Performs the given task, returning its result upon completion.
+   * It is imperative to wrap all I/O tasks in this method to prevent
+   * starving other parsing tasks from threads.
+   *
+   * @param task the task to submit
+   * @throws NullPointerException if the task is null
+   */
+  void invokeBlockingTask(@NotNull Runnable task);
+
+  /**
    * Submits a value-returning task for execution and returns a
    * Future representing the pending results of the task. The
    * Future's {@code get} method will return the task's result upon

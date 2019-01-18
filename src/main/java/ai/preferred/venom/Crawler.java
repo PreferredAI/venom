@@ -116,7 +116,7 @@ public final class Crawler implements Interruptible {
    * The thread pool to fetch requests and execute callbacks.
    */
   @NotNull
-  private final ExecutorService threadPool;
+  private final ForkJoinPool threadPool;
 
   /**
    * The worker manager to use.
