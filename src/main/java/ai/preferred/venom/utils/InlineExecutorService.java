@@ -48,7 +48,7 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
   private final Lock lock = new ReentrantLock();
 
   @Override
-  public void shutdown() {
+  public final void shutdown() {
     shutdown.compareAndSet(false, true);
   }
 
