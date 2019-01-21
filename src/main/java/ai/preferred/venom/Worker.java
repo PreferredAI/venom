@@ -27,14 +27,17 @@ import java.util.concurrent.Future;
 public interface Worker {
 
   /**
-   * Performs the given task, returning its result upon completion.
+   * Performs the given task inline, and increase available threads in the pool
+   * by one for the execution of other tasks.
+   * <p>
    * It is imperative to wrap all I/O tasks in this method to prevent
    * starving other parsing tasks from threads.
+   * </p>
    *
-   * @param task the task to submit
+   * @param task the I/O blocking task to execute
    * @throws NullPointerException if the task is null
    */
-  void invokeBlockingTask(@NotNull Runnable task);
+  void executeBlockingIO(@NotNull Runnable task);
 
   /**
    * Submits a value-returning task for execution and returns a

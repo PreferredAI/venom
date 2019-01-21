@@ -106,7 +106,7 @@ public class ThreadedWorkerManager implements WorkerManager {
   public abstract static class AbstractManagedBlockingWorker implements Worker {
 
     @Override
-    public final void invokeBlockingTask(final @NotNull Runnable task) {
+    public final void executeBlockingIO(final @NotNull Runnable task) {
       if (task == null) {
         throw new NullPointerException();
       }
@@ -114,7 +114,8 @@ public class ThreadedWorkerManager implements WorkerManager {
       try {
         ForkJoinPool.managedBlock(managedBlockerTask);
       } catch (InterruptedException e) {
-        throw new RuntimeException(e);
+        Thread.currentThread().interrupt();
+        throw new AssertionError("Exception of unknown cause. Please verify codebase.", e);
       }
     }
 

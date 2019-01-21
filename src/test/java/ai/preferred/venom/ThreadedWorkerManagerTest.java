@@ -33,7 +33,7 @@ public class ThreadedWorkerManagerTest {
     Assertions.assertTrue(runnableBool.get());
 
     final AtomicBoolean blockingBool = new AtomicBoolean(false);
-    worker.invokeBlockingTask(() -> blockingBool.set(true));
+    worker.executeBlockingIO(() -> blockingBool.set(true));
     Assertions.assertTrue(returnBool.get());
   }
 
@@ -74,7 +74,7 @@ public class ThreadedWorkerManagerTest {
     try (final ThreadedWorkerManager threadedWorkerManager = new ThreadedWorkerManager(null)) {
       final Worker worker = threadedWorkerManager.getWorker();
       Assertions.assertTrue(worker instanceof ThreadedWorkerManager.ForkJoinWorker);
-      Assertions.assertThrows(NullPointerException.class, () -> worker.invokeBlockingTask(null));
+      Assertions.assertThrows(NullPointerException.class, () -> worker.executeBlockingIO(null));
     }
   }
 }
