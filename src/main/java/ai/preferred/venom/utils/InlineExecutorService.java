@@ -70,9 +70,7 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
 
   @Override
   public final void execute(final @Nonnull Runnable command) {
-    if (command == null) {
-      throw new NullPointerException();
-    } else if (shutdown.get()) {
+    if (shutdown.get()) {
       throw new RejectedExecutionException("Executor has been shutdown.");
     } else {
       lock.lock();
