@@ -123,7 +123,7 @@ public class ThreadedWorkerManager implements WorkerManager {
   /**
    * This class exposes the methods to allow submitting tasks for multithreading.
    */
-  private static final class DefaultWorker extends AbstractManagedBlockingWorker {
+  static final class DefaultWorker extends AbstractManagedBlockingWorker {
 
     /**
      * The executor used to submit tasks.
@@ -159,7 +159,7 @@ public class ThreadedWorkerManager implements WorkerManager {
    * This class exposes the methods to allow submitting tasks for multithreading
    * in {@link ForkJoinPool} or {@link ForkJoinPool#commonPool()}.
    */
-  private static final class ForkJoinWorker extends AbstractManagedBlockingWorker {
+  static final class ForkJoinWorker extends AbstractManagedBlockingWorker {
 
     @Override
     public @NotNull <T> Future<T> submit(final @NotNull Callable<T> task) {
@@ -182,7 +182,7 @@ public class ThreadedWorkerManager implements WorkerManager {
    * This class allows extending managed parallelism for tasks running
    * in {@link ForkJoinPool}s.
    */
-  private static final class ManagedBlockerTask implements ForkJoinPool.ManagedBlocker {
+  static final class ManagedBlockerTask implements ForkJoinPool.ManagedBlocker {
 
     /**
      * The task to be run.
