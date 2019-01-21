@@ -32,10 +32,19 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class InlineExecutorService extends AbstractExecutorService implements ExecutorService {
 
+  /**
+   * Is {@code true} if executor is shutdown.
+   */
   private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
+  /**
+   * Is {@code true} if executor is terminated.
+   */
   private final AtomicBoolean terminated = new AtomicBoolean(false);
 
+  /**
+   * Lock when running.
+   */
   private final Lock lock = new ReentrantLock();
 
   @Override
@@ -65,7 +74,11 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
       return true;
     }
     lock.tryLock(timeout, unit);
-    return terminated.get();
+    try {
+      return terminated.get();
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Override
@@ -74,9 +87,13 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
       throw new RejectedExecutionException("Executor has been shutdown.");
     } else {
       lock.lock();
-      command.run();
-      if (shutdown.get()) {
-        terminated.compareAndSet(false, true);
+      try {
+        command.run();
+      } finally {
+        if (shutdown.get()) {
+          terminated.compareAndSet(false, true);
+        }
+        lock.unlock();
       }
     }
   }
