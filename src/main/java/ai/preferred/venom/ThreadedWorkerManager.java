@@ -19,6 +19,7 @@ package ai.preferred.venom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.concurrent.*;
 
@@ -35,6 +36,7 @@ public class ThreadedWorkerManager implements WorkerManager {
   /**
    * The executor used to submit tasks.
    */
+  @Nullable
   private final ExecutorService executor;
 
   /**
@@ -43,22 +45,17 @@ public class ThreadedWorkerManager implements WorkerManager {
   private final Worker worker;
 
   /**
-   * Constructs a fix thread worker with a specified number of threads.
-   *
-   * @param numThreads Number of threads
-   */
-  public ThreadedWorkerManager(final int numThreads) {
-    this(Executors.newFixedThreadPool(numThreads));
-  }
-
-  /**
    * Constructs a threaded worker manager with a specified executor.
    *
    * @param executor An executor service
    */
   public ThreadedWorkerManager(final ExecutorService executor) {
     this.executor = executor;
-    this.worker = new InnerWorker(executor);
+    if (executor instanceof ForkJoinPool || executor == null) {
+      this.worker = new ForkJoinWorker();
+    } else {
+      this.worker = new DefaultWorker(executor);
+    }
   }
 
   @Override
@@ -68,6 +65,9 @@ public class ThreadedWorkerManager implements WorkerManager {
 
   @Override
   public final void interruptAndClose() {
+    if (executor == null) {
+      return;
+    }
     LOGGER.debug("Forcefully shutting down the worker manager");
     executor.shutdownNow();
     try {
@@ -81,6 +81,9 @@ public class ThreadedWorkerManager implements WorkerManager {
 
   @Override
   public final void close() {
+    if (executor == null) {
+      return;
+    }
     LOGGER.debug("Shutting down the worker manager");
     executor.shutdown();
     try {
@@ -97,9 +100,31 @@ public class ThreadedWorkerManager implements WorkerManager {
   }
 
   /**
+   * This abstract class exposes the methods to allow submitting tasks for
+   * multithreading and implements inline blocking method.
+   */
+  public abstract static class AbstractManagedBlockingWorker implements Worker {
+
+    @Override
+    public final void executeBlockingIO(final @NotNull Runnable task) {
+      if (task == null) {
+        throw new NullPointerException();
+      }
+      final ManagedBlockerTask managedBlockerTask = new ManagedBlockerTask(task);
+      try {
+        ForkJoinPool.managedBlock(managedBlockerTask);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new AssertionError("Exception of unknown cause. Please verify codebase.", e);
+      }
+    }
+
+  }
+
+  /**
    * This class exposes the methods to allow submitting tasks for multithreading.
    */
-  private static class InnerWorker implements Worker {
+  static final class DefaultWorker extends AbstractManagedBlockingWorker {
 
     /**
      * The executor used to submit tasks.
@@ -111,7 +136,7 @@ public class ThreadedWorkerManager implements WorkerManager {
      *
      * @param executor An instance of executor service
      */
-    InnerWorker(final ExecutorService executor) {
+    DefaultWorker(final ExecutorService executor) {
       this.executor = executor;
     }
 
@@ -128,6 +153,67 @@ public class ThreadedWorkerManager implements WorkerManager {
     @Override
     public @NotNull Future<?> submit(final @NotNull Runnable task) {
       return executor.submit(task);
+    }
+  }
+
+  /**
+   * This class exposes the methods to allow submitting tasks for multithreading
+   * in {@link ForkJoinPool} or {@link ForkJoinPool#commonPool()}.
+   */
+  static final class ForkJoinWorker extends AbstractManagedBlockingWorker {
+
+    @Override
+    public @NotNull <T> Future<T> submit(final @NotNull Callable<T> task) {
+      return ForkJoinTask.adapt(task).fork();
+    }
+
+    @Override
+    public @NotNull <T> Future<T> submit(final @NotNull Runnable task, final T result) {
+      return ForkJoinTask.adapt(task, result).fork();
+    }
+
+    @Override
+    public @NotNull Future<?> submit(final @NotNull Runnable task) {
+      return ForkJoinTask.adapt(task).fork();
+    }
+
+  }
+
+  /**
+   * This class allows extending managed parallelism for tasks running
+   * in {@link ForkJoinPool}s.
+   */
+  static final class ManagedBlockerTask implements ForkJoinPool.ManagedBlocker {
+
+    /**
+     * The task to be run.
+     */
+    private final Runnable task;
+
+    /**
+     * {@code true} if task has successfully completed.
+     */
+    private boolean done = false;
+
+    /**
+     * Constructs a managed blocking task.
+     *
+     * @param task the blocking task
+     */
+    private ManagedBlockerTask(final Runnable task) {
+      this.task = task;
+    }
+
+    @Override
+    public boolean block() {
+      task.run();
+      done = true;
+      return true;
+    }
+
+    @Override
+    public boolean isReleasable() {
+      return done;
     }
   }
 

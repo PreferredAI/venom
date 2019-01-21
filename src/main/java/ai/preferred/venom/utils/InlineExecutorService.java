@@ -21,16 +21,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Ween Jiann Lee
  */
 public class InlineExecutorService extends AbstractExecutorService implements ExecutorService {
 
-  @Override
-  public void shutdown() {
+  /**
+   * Is {@code true} if executor is shutdown.
+   */
+  private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
+  /**
+   * Is {@code true} if executor is terminated.
+   */
+  private final AtomicBoolean terminated = new AtomicBoolean(false);
+
+  /**
+   * Lock when running.
+   */
+  private final Lock lock = new ReentrantLock();
+
+  @Override
+  public final void shutdown() {
+    shutdown.compareAndSet(false, true);
   }
 
   @Nonnull
@@ -41,21 +60,42 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
 
   @Override
   public final boolean isShutdown() {
-    return true;
+    return shutdown.get();
   }
 
   @Override
   public final boolean isTerminated() {
-    return true;
+    return terminated.get();
   }
 
   @Override
-  public final boolean awaitTermination(final long timeout, final @Nonnull TimeUnit unit) {
-    return true;
+  public final boolean awaitTermination(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
+    if (terminated.get()) {
+      return true;
+    }
+    lock.tryLock(timeout, unit);
+    try {
+      return terminated.get();
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Override
   public final void execute(final @Nonnull Runnable command) {
-    command.run();
+    if (shutdown.get()) {
+      throw new RejectedExecutionException("Executor has been shutdown.");
+    } else {
+      lock.lock();
+      try {
+        command.run();
+      } finally {
+        if (shutdown.get()) {
+          terminated.compareAndSet(false, true);
+        }
+        lock.unlock();
+      }
+    }
   }
 }
+
