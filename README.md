@@ -43,7 +43,7 @@ If you already have a project then just add Venom as a dependency to your pom.xm
     <!-- Venom: A focused crawler framework @ https://venom.preferred.ai/ -->
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
-    <version>[4.0,4.1)</version>
+    <version>[4.1,4.2)</version>
 </dependency>
 ```
 
