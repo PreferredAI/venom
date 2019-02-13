@@ -59,12 +59,12 @@ public class FileManagerCallback implements Callback {
 
   @Override
   public final void failed(final Request request, final Exception ex) {
-    // Do nothing
+    // do nothing
   }
 
   @Override
   public final void cancelled(final Request request) {
-    // Do nothing
+    // do nothing
   }
 
 }

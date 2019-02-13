@@ -46,9 +46,9 @@ public class DummyFileManager implements FileManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(DummyFileManager.class);
 
   /**
-   * The directory path to store raw responses.
+   * The storage path on the file system to use for content storage.
    */
-  private final String storageDir;
+  private final File storagePath;
 
   /**
    * The callback to trigger upon response.
@@ -58,10 +58,19 @@ public class DummyFileManager implements FileManager {
   /**
    * Constructs an instance of DummyFileManager.
    *
-   * @param storageDir directory path to store raw responses
+   * @param storageDir storage directory to use for content storage
    */
   public DummyFileManager(final String storageDir) {
-    this.storageDir = storageDir;
+    this(new File(storageDir));
+  }
+
+  /**
+   * Constructs an instance of DummyFileManager.
+   *
+   * @param storagePath storage path to use for content storage
+   */
+  public DummyFileManager(final File storagePath) {
+    this.storagePath = storagePath;
     this.callback = new FileManagerCallback(this);
   }
 
@@ -113,14 +122,14 @@ public class DummyFileManager implements FileManager {
       final String fileExtension = tryFileExtension;
 
       LOGGER.info("Response from request {} has been saved to {}", request.getUrl(), md5 + fileExtension);
-      return write(content, new File(storageDir, subDirName), md5 + fileExtension);
+      return write(content, new File(storagePath, subDirName), md5 + fileExtension);
     } catch (IOException e) {
       throw new StorageException("Error in put.", e);
     }
   }
 
   @Override
-  public final Record get(final int i) {
+  public final Record get(final Object i) {
     throw new UnsupportedOperationException("File not found");
   }
 

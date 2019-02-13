@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * @author Ween Jiann Lee
  */
-public class MysqlFetcherRequest implements Request, Unwrappable {
+public class StorageFetcherRequest implements Request, Unwrappable {
 
   /**
    * An instance of underlying request.
@@ -40,21 +40,21 @@ public class MysqlFetcherRequest implements Request, Unwrappable {
   private final Map<String, String> headers;
 
   /**
-   * Constructs an instance of mysql fetcher request.
+   * Constructs an instance of StorageFetcherRequest.
    *
    * @param innerRequest An instance of underlying request
    */
-  public MysqlFetcherRequest(final Request innerRequest) {
+  public StorageFetcherRequest(final Request innerRequest) {
     this(innerRequest, new HashMap<>(innerRequest.getHeaders()));
   }
 
   /**
-   * Constructs an instance of mysql fetcher request.
+   * Constructs an instance of StorageFetcherRequest.
    *
    * @param innerRequest An instance of underlying request
    * @param headers      Headers to append to global headers
    */
-  private MysqlFetcherRequest(final Request innerRequest, final Map<String, String> headers) {
+  private StorageFetcherRequest(final Request innerRequest, final Map<String, String> headers) {
     this.innerRequest = innerRequest;
     this.headers = headers;
   }
@@ -65,10 +65,10 @@ public class MysqlFetcherRequest implements Request, Unwrappable {
    * @param preHeaders Headers to be prepended
    * @return A new instance of http fetcher request
    */
-  public final MysqlFetcherRequest prependHeaders(final Map<String, String> preHeaders) {
+  public final StorageFetcherRequest prependHeaders(final Map<String, String> preHeaders) {
     final Map<String, String> newHeaders = new HashMap<>(headers);
     preHeaders.forEach(newHeaders::putIfAbsent);
-    return new MysqlFetcherRequest(innerRequest, newHeaders);
+    return new StorageFetcherRequest(innerRequest, newHeaders);
   }
 
   @Override

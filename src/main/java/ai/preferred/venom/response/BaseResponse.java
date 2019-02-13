@@ -16,7 +16,6 @@
 
 package ai.preferred.venom.response;
 
-import ai.preferred.venom.validator.Validator;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -26,7 +25,7 @@ import org.apache.http.entity.ContentType;
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public class BaseResponse implements Response, Retrievable {
+public class BaseResponse implements Response {
 
   /**
    * The status code of this response.
@@ -59,16 +58,6 @@ public class BaseResponse implements Response, Retrievable {
   private final HttpHost proxy;
 
   /**
-   * The validator used to validate this response.
-   */
-  private final Validator validator;
-
-  /**
-   * The source id of this response.
-   */
-  private final String sourceId;
-
-  /**
    * Constructs a base response.
    *
    * @param statusCode  Status code of the response
@@ -80,31 +69,12 @@ public class BaseResponse implements Response, Retrievable {
    */
   public BaseResponse(final int statusCode, final String baseUrl, final byte[] content, final ContentType contentType,
                       final Header[] headers, final HttpHost proxy) {
-    this(statusCode, baseUrl, content, contentType, headers, proxy, null, null);
-  }
-
-  /**
-   * Constructs a base response.
-   *
-   * @param statusCode  Status code of the response
-   * @param baseUrl     Base url of the response
-   * @param content     Content from the response
-   * @param contentType Content type of the response
-   * @param headers     Headers from the response
-   * @param proxy       Proxy used to obtain the response
-   * @param validator   Validator used to validate this response
-   * @param sourceId    `id` of the row the raw response is saved to
-   */
-  public BaseResponse(final int statusCode, final String baseUrl, final byte[] content, final ContentType contentType,
-                      final Header[] headers, final HttpHost proxy, final Validator validator, final String sourceId) {
     this.statusCode = statusCode;
     this.baseUrl = baseUrl;
     this.content = content;
     this.contentType = contentType;
     this.headers = headers;
     this.proxy = proxy;
-    this.validator = validator;
-    this.sourceId = sourceId;
   }
 
   @Override
@@ -135,36 +105,6 @@ public class BaseResponse implements Response, Retrievable {
   @Override
   public final HttpHost getProxy() {
     return proxy;
-  }
-
-  @Override
-  public final Validator getValidator() {
-    return validator;
-  }
-
-  /**
-   * Sets the validator used to validate this response.
-   *
-   * @param validator Row id of the saved response
-   * @return A new instance of base response
-   */
-  public final BaseResponse setValidator(final Validator validator) {
-    return new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy, validator, sourceId);
-  }
-
-  @Override
-  public final String getSourceId() {
-    return sourceId;
-  }
-
-  /**
-   * Sets the source id where the raw response is saved.
-   *
-   * @param sourceId Row id of the saved response
-   * @return A new instance of base response
-   */
-  public final BaseResponse setSourceId(final String sourceId) {
-    return new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy, validator, sourceId);
   }
 
 }

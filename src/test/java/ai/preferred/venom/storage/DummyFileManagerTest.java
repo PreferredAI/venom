@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Preferred.AI
+ * Copyright 2018 Preferred.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,11 @@ import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
-import ch.vorburger.exec.ManagedProcessException;
-import ch.vorburger.mariadb4j.DB;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.util.SocketUtils;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,20 +34,16 @@ import java.nio.file.Path;
 import java.util.Comparator;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MysqlFileManagerTest {
+public class DummyFileManagerTest {
 
-  private DB db;
-  private MysqlFileManager fileManager;
+  private DummyFileManager fileManager;
+
   private Path storage;
 
   @BeforeAll
-  void setUp() throws ManagedProcessException, IOException {
-    final int randomPort = SocketUtils.findAvailableTcpPort();
-    db = DB.newEmbeddedDB(randomPort);
-    db.start();
+  void setUp() throws IOException {
     storage = Files.createTempDirectory("test_storage_directory");
-    fileManager = new MysqlFileManager("jdbc:mysql://localhost:" + randomPort + "/test",
-        "test", "root", "", storage.toFile());
+    fileManager = new DummyFileManager(storage.toFile());
   }
 
   @AfterAll
@@ -78,14 +69,6 @@ public class MysqlFileManagerTest {
       }
     }
 
-    try {
-      db.stop();
-    } catch (final ManagedProcessException e) {
-      if (cached != null) {
-        cached.addSuppressed(e);
-      }
-    }
-
     if (cached != null) {
       throw cached;
     }
@@ -103,13 +86,23 @@ public class MysqlFileManagerTest {
     final Request request = new VRequest(url);
     final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
 
-    fileManager.put(request, response);
+    final String md5 = DigestUtils.md5Hex(content);
+    final String subDirName = md5.substring(0, 2);
+
+    final String path = fileManager.put(request, response);
+    final String expectedPath = new File(new File(storage.toFile(), subDirName), md5).toString() + ".html";
+    Assertions.assertEquals(expectedPath, path);
   }
 
-//  @Test
-//  void testGet() throws StorageException {
-//    final String url = "https://preferred.ai/";
-//    final Request request = new VRequest(url);
-//    fileManager.get(request);
-//  }
+  @Test
+  void testGetId() {
+    Assertions.assertThrows(UnsupportedOperationException.class, () -> fileManager.get(new Object()));
+  }
+
+  @Test
+  void testGetRequest() {
+    final String url = "https://preferred.ai/";
+    final Request request = new VRequest(url);
+    Assertions.assertThrows(UnsupportedOperationException.class, () -> fileManager.get(request));
+  }
 }

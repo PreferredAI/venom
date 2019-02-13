@@ -18,25 +18,27 @@ package ai.preferred.venom.storage;
 
 import ai.preferred.venom.request.Request;
 import org.apache.http.Header;
+import org.apache.http.entity.ContentType;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
+ * This interface represents only the most basic of a record and
+ * the fields that should be retrievable from database.
+ *
+ * @param <T> the type of id
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public interface Record {
+public interface Record<T> {
 
   /**
    * @return valid id if the record is stored, null otherwise
    */
-  int getId();
+  T getId();
 
   /**
    * @return URL of the stored content
@@ -55,14 +57,9 @@ public interface Record {
   Map<String, String> getRequestHeaders();
 
   /**
-   * @return mime type of the content
+   * @return ContentType of the content
    */
-  String getMimeType();
-
-  /**
-   * @return encoding of the content
-   */
-  Charset getEncoding();
+  ContentType getContentType();
 
   /**
    * @return map of request body
@@ -83,16 +80,8 @@ public interface Record {
 
   /**
    * @return raw response file (uncompressed)
-   * @throws IOException throws IOException
    */
-  byte[] getResponseContent() throws IOException;
-
-  /**
-   * @return response file (uncompressed)
-   * @throws IOException throws IOException
-   */
-  @NotNull
-  InputStream getStreamResponseContent() throws IOException;
+  byte[] getResponseContent();
 
   /**
    * @return valid timestamp if the record is stored, -1 otherwise

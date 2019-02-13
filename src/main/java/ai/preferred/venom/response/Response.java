@@ -16,7 +16,6 @@
 
 package ai.preferred.venom.response;
 
-import ai.preferred.venom.validator.Validator;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -80,13 +79,5 @@ public interface Response {
    */
   @Nullable
   HttpHost getProxy();
-
-  /**
-   * Returns the instance of validator used to validate this response.
-   *
-   * @return an instance of validator
-   */
-  @NotNull
-  Validator getValidator();
 
 }

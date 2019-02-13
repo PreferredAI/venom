@@ -16,8 +16,8 @@
 
 package ai.preferred.venom.fetcher;
 
-import ai.preferred.venom.request.MysqlFetcherRequest;
 import ai.preferred.venom.request.Request;
+import ai.preferred.venom.request.StorageFetcherRequest;
 import ai.preferred.venom.request.Unwrappable;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.StorageResponse;
@@ -29,39 +29,29 @@ import ai.preferred.venom.validator.EmptyContentValidator;
 import ai.preferred.venom.validator.PipelineValidator;
 import ai.preferred.venom.validator.StatusOkValidator;
 import ai.preferred.venom.validator.Validator;
-import org.apache.http.ParseException;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * This class holds the implementation to provide how items are fetched from a MySQL database,
+ * This class holds the implementation to provide how items are fetched from a database,
  * to validate the item and to store it if specified.
  *
  * @author Ween Jiann Lee
  */
-public final class MysqlFetcher implements Fetcher {
+public final class StorageFetcher implements Fetcher {
 
   /**
    * Logger.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(MysqlFetcher.class);
-
-  /**
-   * Default content type of response if not given.
-   */
-  private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_OCTET_STREAM;
+  private static final Logger LOGGER = LoggerFactory.getLogger(StorageFetcher.class);
 
   /**
    * The file manager used to store raw responses.
@@ -79,11 +69,11 @@ public final class MysqlFetcher implements Fetcher {
   private final Map<String, String> headers;
 
   /**
-   * Constructs an instance of MySQL fetcher.
+   * Constructs an instance of StorageFetcher.
    *
    * @param builder An instance of builder
    */
-  private MysqlFetcher(final Builder builder) {
+  private StorageFetcher(final Builder builder) {
     this.fileManager = builder.fileManager;
     this.validator = builder.validator;
     this.headers = builder.headers;
@@ -100,34 +90,17 @@ public final class MysqlFetcher implements Fetcher {
   }
 
   /**
-   * Check if request is an instance of MySQL fetcher request and return it
-   * if true, otherwise wrap it with MySQL fetcher request and return that.
+   * Check if request is an instance of StorageFetcher request and return it
+   * if true, otherwise wrap it with StorageFetcherRequest and return that.
    *
    * @param request An instance of request
-   * @return An instance of MySQL fetcher request
+   * @return An instance of StorageFetcherRequest
    */
-  private MysqlFetcherRequest normalize(final Request request) {
-    if (request instanceof MysqlFetcherRequest) {
-      return (MysqlFetcherRequest) request;
+  private StorageFetcherRequest normalize(final Request request) {
+    if (request instanceof StorageFetcherRequest) {
+      return (StorageFetcherRequest) request;
     }
-    return new MysqlFetcherRequest(request);
-  }
-
-  /**
-   * Get content type from record, if not found return default.
-   *
-   * @param record an instance of record
-   * @return an instance of content type
-   */
-  private ContentType getContentType(final Record record) {
-    try {
-      return ContentType.create(record.getMimeType(), record.getEncoding());
-    } catch (ParseException e) {
-      LOGGER.warn("Could not parse content type", e);
-    } catch (UnsupportedCharsetException e) {
-      LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
-    }
-    return DEFAULT_CONTENT_TYPE;
+    return new StorageFetcherRequest(request);
   }
 
   @Override
@@ -143,7 +116,7 @@ public final class MysqlFetcher implements Fetcher {
   @Override
   public Future<Response> fetch(final Request request, final Callback callback) {
     LOGGER.debug("Getting record for: {}", request.getUrl());
-    final MysqlFetcherRequest mysqlFetcherRequest = normalize(request).prependHeaders(headers);
+    final StorageFetcherRequest storageFetcherRequest = normalize(request).prependHeaders(headers);
 
     final BasicFuture<Response> future = new BasicFuture<>(new FutureCallback<Response>() {
       @Override
@@ -163,46 +136,35 @@ public final class MysqlFetcher implements Fetcher {
     });
 
     try {
-      final Record record = fileManager.get(mysqlFetcherRequest);
-      LOGGER.debug("Record found with id: {}", record.getId());
-
-      String baseUrl;
-      try {
-        baseUrl = UrlUtil.getBaseUrl(request);
-      } catch (URISyntaxException e) {
-        LOGGER.warn("Could not parse base URL: " + request.getUrl());
-        baseUrl = request.getUrl();
+      final Record record = fileManager.get(storageFetcherRequest);
+      if (record == null) {
+        future.cancel();
+        LOGGER.info("No content found from storage for: {}", request.getUrl());
+        return future;
       }
 
-      final StorageResponse response = new StorageResponse(
-          record.getStatusCode(),
-          baseUrl,
-          record.getResponseContent(),
-          getContentType(record),
-          record.getResponseHeaders(),
-          String.valueOf(record.getId())
-      );
+      LOGGER.debug("Record found with id: {}", record.getId());
 
+      String tryBaseUrl;
+      try {
+        tryBaseUrl = UrlUtil.getBaseUrl(request);
+      } catch (URISyntaxException e) {
+        LOGGER.warn("Could not parse base URL: " + request.getUrl());
+        tryBaseUrl = request.getUrl();
+      }
+      final String baseUrl = tryBaseUrl;
+      final StorageResponse response = new StorageResponse(record, baseUrl);
       final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
       if (status != Validator.Status.VALID) {
         future.failed(new ValidationException(status, response, "Invalid response."));
         return future;
       }
 
-      final Response validatedResponse = new StorageResponse(response, validator);
-      future.completed(validatedResponse);
-      return future;
-    } catch (MalformedURLException e) {
-      LOGGER.warn("Could not parse base URL: " + request.getUrl());
-      future.failed(e);
-      return future;
-    } catch (IOException e) {
-      LOGGER.error("Fail to parse content from storage", e);
-      future.failed(e);
+      future.completed(response);
       return future;
     } catch (StorageException e) {
-      LOGGER.warn("No content found from storage for: {}", request.getUrl());
-      future.cancel();
+      LOGGER.warn("Error retrieving content for : {}", request.getUrl(), e);
+      future.failed(e);
       return future;
     }
   }
@@ -215,7 +177,7 @@ public final class MysqlFetcher implements Fetcher {
   }
 
   /**
-   * A builder for MySQL fetcher class.
+   * A builder for StorageFetcher class.
    */
   public static final class Builder {
 
@@ -296,8 +258,8 @@ public final class MysqlFetcher implements Fetcher {
      *
      * @return an instance of Fetcher.
      */
-    public MysqlFetcher build() {
-      return new MysqlFetcher(this);
+    public StorageFetcher build() {
+      return new StorageFetcher(this);
     }
 
   }

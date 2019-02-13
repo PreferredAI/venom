@@ -16,6 +16,8 @@
 
 package ai.preferred.venom.response;
 
+import ai.preferred.venom.storage.Record;
+
 /**
  * This interface represents that the response can be/ has been stored.
  *
@@ -24,14 +26,10 @@ package ai.preferred.venom.response;
 public interface Retrievable extends Response {
 
   /**
-   * Returns the id of the row where an archive of this response
-   * has been insert into a persistent storage.
-   * <p>
-   * This string should be null if no implementation of FileManager
-   * is specified during the initialisation of the fetcher.
-   * </p>
+   * Returns record archive of this response that has been
+   * insert into a persistent storage.
    *
-   * @return unique id of where an archive has been saved
+   * @return record where an archive has been saved
    */
-  String getSourceId();
+  Record getRecord();
 }

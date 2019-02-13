@@ -17,25 +17,23 @@
 package ai.preferred.venom.storage;
 
 import ai.preferred.venom.request.Request;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.entity.ContentType;
 
-import java.io.*;
-import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 /**
  * This class implements a default storage record.
  *
+ * @param <T> the type of id
  * @author Ween Jiann Lee
  */
-public final class StorageRecord implements Record {
+public final class StorageRecord<T> implements Record<T> {
 
   /**
    * The id of this record.
    */
-  private final int id;
+  private final T id;
 
   /**
    * The url for this request.
@@ -68,19 +66,14 @@ public final class StorageRecord implements Record {
   private final Header[] responseHeaders;
 
   /**
-   * The mime type of the response.
+   * The content type of the response.
    */
-  private final String mimeType;
-
-  /**
-   * The encoding of the response.
-   */
-  private final Charset encoding;
+  private final ContentType contentType;
 
   /**
    * The content of the response.
    */
-  private final File responseContent;
+  private final byte[] responseContent;
 
   /**
    * The md5 hash of the content.
@@ -97,7 +90,7 @@ public final class StorageRecord implements Record {
    *
    * @param builder an instance of builder
    */
-  private StorageRecord(final Builder builder) {
+  private StorageRecord(final Builder<T> builder) {
     this.id = builder.id;
     this.url = builder.url;
     this.requestMethod = builder.requestMethod;
@@ -105,8 +98,7 @@ public final class StorageRecord implements Record {
     this.requestBody = builder.requestBody;
     this.statusCode = builder.statusCode;
     this.responseHeaders = builder.responseHeaders;
-    this.mimeType = builder.mimeType;
-    this.encoding = builder.encoding;
+    this.contentType = builder.contentType;
     this.responseContent = builder.responseContent;
     this.md5 = builder.md5;
     this.dateCreated = builder.dateCreated;
@@ -115,14 +107,15 @@ public final class StorageRecord implements Record {
   /**
    * Create an instance of builder.
    *
-   * @return A new instance of builder
+   * @param <T> the type of id
+   * @return a new instance of builder
    */
-  public static Builder builder() {
-    return new Builder();
+  public static <T> Builder<T> builder() {
+    return new Builder<>();
   }
 
   @Override
-  public int getId() {
+  public T getId() {
     return id;
   }
 
@@ -157,27 +150,13 @@ public final class StorageRecord implements Record {
   }
 
   @Override
-  public String getMimeType() {
-    return mimeType;
+  public ContentType getContentType() {
+    return contentType;
   }
 
   @Override
-  public Charset getEncoding() {
-    return encoding;
-  }
-
-  @Override
-  public byte[] getResponseContent() throws IOException {
-    return IOUtils.toByteArray(getStreamResponseContent());
-  }
-
-  @Override
-  public InputStream getStreamResponseContent() throws IOException {
-    return new BufferedInputStream(
-        new GZIPInputStream(
-            new FileInputStream(responseContent)
-        )
-    );
+  public byte[] getResponseContent() {
+    return responseContent;
   }
 
   @Override
@@ -185,19 +164,26 @@ public final class StorageRecord implements Record {
     return dateCreated;
   }
 
+  /**
+   * Get md5 hash of the response content.
+   *
+   * @return md5 hash of the response content
+   */
   public String getMD5() {
     return md5;
   }
 
   /**
    * A builder for StorageRecord class.
+   *
+   * @param <T> the type of id
    */
-  public static class Builder {
+  public static class Builder<T> {
 
     /**
      * The id of this record.
      */
-    private int id;
+    private T id;
 
     /**
      * The url for this request.
@@ -230,19 +216,14 @@ public final class StorageRecord implements Record {
     private Header[] responseHeaders;
 
     /**
-     * The mime type of the response.
+     * The content type of the response.
      */
-    private String mimeType;
-
-    /**
-     * The encoding of the response.
-     */
-    private Charset encoding;
+    private ContentType contentType;
 
     /**
      * The content of the response.
      */
-    private File responseContent;
+    private byte[] responseContent;
 
     /**
      * The md5 hash of the content.
@@ -260,7 +241,7 @@ public final class StorageRecord implements Record {
      * @param id id for the record
      * @return this
      */
-    public final Builder setId(final int id) {
+    public final Builder setId(final T id) {
       this.id = id;
       return this;
     }
@@ -332,24 +313,13 @@ public final class StorageRecord implements Record {
     }
 
     /**
-     * Sets the response mime type for the record.
+     * Sets the response content type for the record.
      *
-     * @param mimeType mime type of the response
+     * @param contentType content type of the response
      * @return this
      */
-    public final Builder setMimeType(final String mimeType) {
-      this.mimeType = mimeType;
-      return this;
-    }
-
-    /**
-     * Sets the response encoding for the record.
-     *
-     * @param encoding encoding of the response
-     * @return this
-     */
-    public final Builder setEncoding(final Charset encoding) {
-      this.encoding = encoding;
+    public final Builder setContentType(final ContentType contentType) {
+      this.contentType = contentType;
       return this;
     }
 
@@ -359,7 +329,7 @@ public final class StorageRecord implements Record {
      * @param responseContent content of the response
      * @return this
      */
-    public final Builder setResponseContent(final File responseContent) {
+    public final Builder setResponseContent(final byte[] responseContent) {
       this.responseContent = responseContent;
       return this;
     }
@@ -391,8 +361,8 @@ public final class StorageRecord implements Record {
      *
      * @return an instance of StorageRecord.
      */
-    public final StorageRecord build() {
-      return new StorageRecord(this);
+    public final StorageRecord<T> build() {
+      return new StorageRecord<>(this);
     }
 
   }

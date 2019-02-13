@@ -24,6 +24,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.ParseException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
 import org.apache.tika.mime.MimeTypeException;
 import org.json.JSONObject;
@@ -34,10 +36,12 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -49,12 +53,17 @@ import java.util.zip.GZIPOutputStream;
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public class MysqlFileManager implements FileManager {
+public class MysqlFileManager implements FileManager<Integer> {
 
   /**
    * Logger.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(MysqlFileManager.class);
+
+  /**
+   * Default content type of response if not given.
+   */
+  private static final ContentType DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_OCTET_STREAM;
 
   /**
    * The DataSource to use for connecting to database.
@@ -233,6 +242,30 @@ public class MysqlFileManager implements FileManager {
   }
 
   /**
+   * Get content type from record, if not found return default.
+   *
+   * @param mimeType name of mime type
+   * @param encoding name of encoding
+   * @return an instance of content type
+   */
+  private ContentType getContentType(final String mimeType, final String encoding) {
+    final Charset charset;
+    if (encoding != null) {
+      charset = Charset.forName(encoding);
+    } else {
+      charset = null;
+    }
+    try {
+      return ContentType.create(mimeType, charset);
+    } catch (ParseException e) {
+      LOGGER.warn("Could not parse content type", e);
+    } catch (UnsupportedCharsetException e) {
+      LOGGER.warn("Charset is not available in this instance of the Java virtual machine", e);
+    }
+    return DEFAULT_CONTENT_TYPE;
+  }
+
+  /**
    * Create an instance of Record using the result from database.
    *
    * @param rs an instance of result set from database
@@ -242,7 +275,7 @@ public class MysqlFileManager implements FileManager {
    *                          called on a closed result set
    * @throws StorageException if file is not found
    */
-  private StorageRecord createRecord(final ResultSet rs) throws SQLException, StorageException {
+  private StorageRecord<Integer> createRecord(final ResultSet rs) throws SQLException, StorageException {
     final Map<String, String> requestHeaders = parseRequestHeaders(new JSONObject(rs.getString("request_headers")));
     final Header[] responseHeaders = parseResponseHeaders(new JSONObject(rs.getString("response_headers")));
     final String location = rs.getString("location");
@@ -256,28 +289,37 @@ public class MysqlFileManager implements FileManager {
     final String fileExtension = tryFileExtension;
     final File file = new File(new File(storagePath, location), rs.getString("id") + fileExtension + ".gz");
 
-    final StorageRecord.Builder builder = StorageRecord.builder()
+    final ContentType contentType = getContentType(
+        rs.getString("mime_type"), rs.getString("encoding"));
+
+    final byte[] responseContent;
+    try {
+      responseContent = IOUtils.toByteArray(
+          new BufferedInputStream(
+              new GZIPInputStream(
+                  new FileInputStream(file)
+              )
+          )
+      );
+    } catch (FileNotFoundException e) {
+      throw new StorageException("Record found but file not found for " + rs.getString("url") + ".", e);
+    } catch (IOException e) {
+      throw new StorageException("Error reading file for " + rs.getString("url") + ".", e);
+    }
+
+    LOGGER.debug("Record found for request: {}", rs.getString("url"));
+    //noinspection unchecked
+    return StorageRecord.builder()
         .setId(rs.getInt("id"))
         .setUrl(rs.getString("url"))
         .setRequestMethod(Request.Method.valueOf(rs.getString("method")))
         .setRequestHeaders(requestHeaders)
         .setResponseHeaders(responseHeaders)
-        .setMimeType(rs.getString("mime_type"))
+        .setContentType(contentType)
         .setMD5(rs.getString("md5"))
         .setDateCreated(rs.getLong("date_created"))
-        .setResponseContent(file);
-
-    if (rs.getString("encoding") != null) {
-      builder.setEncoding(Charset.forName(rs.getString("encoding")));
-    }
-
-    if (file.exists()) {
-      LOGGER.debug("Record found for request: {}", rs.getString("url"));
-      return builder.build();
-    }
-
-    LOGGER.error("Record found but file not found for request: {}", rs.getString("url"));
-    throw new StorageException("Record found but file not found");
+        .setResponseContent(responseContent)
+        .build();
   }
 
   @Override
@@ -373,7 +415,7 @@ public class MysqlFileManager implements FileManager {
   }
 
   @Override
-  public final Record get(final int id) throws StorageException {
+  public final Record<Integer> get(final Integer id) throws StorageException {
     try (final Connection conn = dataSource.getConnection();
          final PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` WHERE id = ?")) {
       pstmt.setInt(1, id);
@@ -381,16 +423,17 @@ public class MysqlFileManager implements FileManager {
       if (rs.next()) {
         return createRecord(rs);
       }
+
     } catch (SQLException e) {
       LOGGER.error("Record query failure for id: {}", id, e);
       throw new StorageException("Cannot retrieve the record", e);
     }
     LOGGER.debug("No record found for id: {}", id);
-    throw new StorageException("No record found");
+    return null;
   }
 
   @Override
-  public final Record get(final Request request) throws StorageException {
+  public final Record<Integer> get(final Request request) throws StorageException {
     try (final Connection conn = dataSource.getConnection();
          final PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` "
              + "WHERE url = ? "
@@ -407,12 +450,13 @@ public class MysqlFileManager implements FileManager {
       if (rs.next()) {
         return createRecord(rs);
       }
+
     } catch (SQLException e) {
       LOGGER.error("Record query failure for request: {}", request.getUrl(), e);
-      throw new StorageException("Cannot retrieve the record", e);
+      throw new StorageException("Cannot retrieve the record for " + request.getUrl() + ".", e);
     }
     LOGGER.debug("No record found for request: {}", request.getUrl());
-    throw new StorageException("No record found");
+    return null;
   }
 
   @Override

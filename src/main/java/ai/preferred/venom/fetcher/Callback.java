@@ -32,17 +32,17 @@ public interface Callback {
   Callback EMPTY_CALLBACK = new Callback() {
     @Override
     public void completed(final @NotNull Request request, final @NotNull Response response) {
-      // Do nothing
+      // do nothing
     }
 
     @Override
     public void failed(final @NotNull Request request, final @NotNull Exception ex) {
-      // Do nothing
+      // do nothing
     }
 
     @Override
     public void cancelled(final @NotNull Request request) {
-      // Do nothing
+      // do nothing
     }
   };
 

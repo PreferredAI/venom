@@ -16,7 +16,7 @@
 
 package ai.preferred.venom.response;
 
-import ai.preferred.venom.validator.Validator;
+import ai.preferred.venom.storage.Record;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -28,24 +28,9 @@ import org.apache.http.entity.ContentType;
 public class StorageResponse implements Response, Retrievable {
 
   /**
-   * The status code of this response.
+   * The record holding this response.
    */
-  private final int statusCode;
-
-  /**
-   * The content of this response.
-   */
-  private final byte[] content;
-
-  /**
-   * The content type of this response.
-   */
-  private final ContentType contentType;
-
-  /**
-   * The headers of this response.
-   */
-  private final Header[] headers;
+  private final Record record;
 
   /**
    * The base url of this response.
@@ -53,82 +38,34 @@ public class StorageResponse implements Response, Retrievable {
   private final String baseUrl;
 
   /**
-   * The validator used to validate this response.
-   */
-  private final Validator validator;
-
-  /**
-   * The source id of this response.
-   */
-  private final String sourceId;
-
-  /**
    * Constructs a base response.
    *
-   * @param statusCode  Status code of the response
-   * @param baseUrl     Status code of the response
-   * @param content     Content from the response
-   * @param contentType Content type of the response
-   * @param headers     Headers from the response
-   * @param sourceId    Stored ID of the response
+   * @param record  record holding this response
+   * @param baseUrl base URL of the response
    */
-  public StorageResponse(final int statusCode, final String baseUrl, final byte[] content,
-                         final ContentType contentType, final Header[] headers, final String sourceId) {
-    this(statusCode, baseUrl, content, contentType, headers, sourceId, null);
-  }
-
-  /**
-   * Constructs a base response.
-   *
-   * @param response  an instance of storage response where validator is to be replaced
-   * @param validator Validator used to validate this response
-   */
-  public StorageResponse(final StorageResponse response, final Validator validator) {
-    this(response.getStatusCode(), response.getBaseUrl(), response.getContent(), response.getContentType(),
-        response.getHeaders(), response.getSourceId(), validator);
-  }
-
-  /**
-   * Constructs a base response.
-   *
-   * @param statusCode  Status code of the response
-   * @param baseUrl     Status code of the response
-   * @param content     Content from the response
-   * @param contentType Content type of the response
-   * @param headers     Headers from the response
-   * @param sourceId    Stored ID of the response
-   * @param validator   Validator used to validate this response
-   */
-  private StorageResponse(final int statusCode, final String baseUrl, final byte[] content,
-                          final ContentType contentType, final Header[] headers, final String sourceId,
-                          final Validator validator) {
-    this.statusCode = statusCode;
+  public StorageResponse(final Record record, final String baseUrl) {
+    this.record = record;
     this.baseUrl = baseUrl;
-    this.content = content;
-    this.contentType = contentType;
-    this.headers = headers;
-    this.sourceId = sourceId;
-    this.validator = validator;
   }
 
   @Override
   public final int getStatusCode() {
-    return statusCode;
+    return record.getStatusCode();
   }
 
   @Override
   public final byte[] getContent() {
-    return content;
+    return record.getResponseContent();
   }
 
   @Override
   public final ContentType getContentType() {
-    return contentType;
+    return record.getContentType();
   }
 
   @Override
   public final Header[] getHeaders() {
-    return headers;
+    return record.getResponseHeaders();
   }
 
   @Override
@@ -137,17 +74,12 @@ public class StorageResponse implements Response, Retrievable {
   }
 
   @Override
-  public final Validator getValidator() {
-    return validator;
-  }
-
-  @Override
   public final HttpHost getProxy() {
     return null;
   }
 
   @Override
-  public final String getSourceId() {
-    return sourceId;
+  public final Record getRecord() {
+    return record;
   }
 }
