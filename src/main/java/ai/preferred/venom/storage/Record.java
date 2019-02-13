@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -54,6 +55,16 @@ public interface Record {
   Map<String, String> getRequestHeaders();
 
   /**
+   * @return mime type of the content
+   */
+  String getMimeType();
+
+  /**
+   * @return encoding of the content
+   */
+  Charset getEncoding();
+
+  /**
    * @return map of request body
    */
   @Nullable
@@ -82,13 +93,6 @@ public interface Record {
    */
   @NotNull
   InputStream getStreamResponseContent() throws IOException;
-
-  /**
-   * @return md5 hash of the input stream
-   * @throws IOException throws IOException
-   */
-  @NotNull
-  String getMD5() throws IOException;
 
   /**
    * @return valid timestamp if the record is stored, -1 otherwise

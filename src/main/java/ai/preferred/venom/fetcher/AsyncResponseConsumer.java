@@ -21,6 +21,7 @@ import ai.preferred.venom.request.Unwrappable;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.utils.ResponseDecompressor;
+import ai.preferred.venom.utils.UrlUtil;
 import ai.preferred.venom.validator.Validator;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -42,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Set;
@@ -157,13 +157,12 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
-    String baseUrl = request.getUrl();
+    String baseUrl;
     try {
-      final URI uri = new URI(request.getUrl());
-      final URI baseUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null);
-      baseUrl = baseUri.toString();
+      baseUrl = UrlUtil.getBaseUrl(request);
     } catch (URISyntaxException e) {
       LOGGER.warn("Could not parse base URL: " + request.getUrl());
+      baseUrl = request.getUrl();
     }
 
     return new BaseResponse(

@@ -40,44 +40,44 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   abstract BlockingQueue<Job> getQueue();
 
   @Override
-  public void add(final Request r, final Handler h, final Priority p) {
+  public final void add(final Request r, final Handler h, final Priority p) {
     add(r, h, p, Priority.FLOOR);
   }
 
   @Override
-  public void add(final Request r, final Handler h) {
+  public final void add(final Request r, final Handler h) {
     add(r, h, Priority.DEFAULT);
   }
 
   @Override
-  public void add(final Request r, final Priority p, final Priority pf) {
+  public final void add(final Request r, final Priority p, final Priority pf) {
     add(r, null, p, pf);
   }
 
   @Override
-  public void add(final Request r, final Priority p) {
+  public final void add(final Request r, final Priority p) {
     add(r, null, p, Priority.FLOOR);
   }
 
   @Override
-  public void add(final Request r) {
+  public final void add(final Request r) {
     add(r, null, Priority.DEFAULT, Priority.FLOOR);
   }
 
   @Nonnull
   @Override
-  public Iterator<Job> iterator() {
+  public final Iterator<Job> iterator() {
     return getQueue().iterator();
   }
 
   @Override
-  public int size() {
+  public final int size() {
     return getQueue().size();
   }
 
   @Nonnull
   @Override
-  public Job take() throws InterruptedException {
+  public final Job take() throws InterruptedException {
     return getQueue().take();
   }
 
@@ -87,22 +87,22 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   @Override
-  public int remainingCapacity() {
+  public final int remainingCapacity() {
     return getQueue().remainingCapacity();
   }
 
   @Override
-  public int drainTo(final @Nonnull Collection<? super Job> c) {
+  public final int drainTo(final @Nonnull Collection<? super Job> c) {
     return getQueue().drainTo(c);
   }
 
   @Override
-  public int drainTo(final @Nonnull Collection<? super Job> c, final int maxElements) {
+  public final int drainTo(final @Nonnull Collection<? super Job> c, final int maxElements) {
     return getQueue().drainTo(c, maxElements);
   }
 
   @Override
-  public boolean offer(final @Nonnull Job job) {
+  public final boolean offer(final @Nonnull Job job) {
     return getQueue().offer(job);
   }
 
@@ -112,7 +112,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   @Override
-  public Job peek() {
+  public final Job peek() {
     return getQueue().peek();
   }
 }

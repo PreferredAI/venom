@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ai.preferred.venom.utils;
+package ai.preferred.venom;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;

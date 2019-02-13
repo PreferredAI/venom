@@ -60,39 +60,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * This class holds the implementation to provide how items are fetched, to fetch the item,
+ * This class holds the implementation to provide how items are fetched from the web,
  * to validate the item and to store it if specified.
  *
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public class AsyncFetcher implements Fetcher {
+public final class AsyncFetcher implements Fetcher {
 
   /**
    * Logger.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFetcher.class);
-
-  /**
-   * An instance of empty callback.
-   */
-  private static final Callback EMPTY_CALLBACK = new Callback() {
-    @Override
-    public void completed(final @NotNull Request request, final @NotNull Response response) {
-
-    }
-
-    @Override
-    public void failed(final @NotNull Request request, final @NotNull Exception ex) {
-
-    }
-
-    @Override
-    public void cancelled(final @NotNull Request request) {
-
-    }
-  };
 
   /**
    * A list of callbacks to execute upon response.
@@ -347,7 +327,7 @@ public class AsyncFetcher implements Fetcher {
 
   @Override
   public Future<Response> fetch(final Request request) {
-    return fetch(request, EMPTY_CALLBACK);
+    return fetch(request, Callback.EMPTY_CALLBACK);
   }
 
   @Override
@@ -430,7 +410,7 @@ public class AsyncFetcher implements Fetcher {
   /**
    * A builder for async fetcher class.
    */
-  public static class Builder {
+  public static final class Builder {
 
     /**
      * A list of callbacks to execute upon response.
