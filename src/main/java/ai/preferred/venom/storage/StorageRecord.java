@@ -291,7 +291,7 @@ public final class StorageRecord<T> implements Record<T> {
     }
 
     /**
-     * Sets the respose status code for the record.
+     * Sets the response status code for the record.
      *
      * @param statusCode status code of the response
      * @return this

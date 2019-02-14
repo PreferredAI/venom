@@ -105,7 +105,7 @@ public class VResponse implements Response, Unwrappable {
   }
 
   /**
-   * Returns a Jsoup document of this response.
+   * Returns a Joup document of this response.
    *
    * @return Jsoup document of response
    */

@@ -333,5 +333,35 @@ public class CrawlerTest {
     Assertions.assertEquals(1, fetcher.getCounter());
   }
 
+  @Test
+  public void testInterruptAndClose() throws Exception {
+    final LinkedList<FakeFetcher.Status> statuses = new LinkedList<>();
+    statuses.add(FakeFetcher.Status.COMPLETE);
+
+    final FakeFetcher fetcher = new FakeFetcher(statuses);
+
+    final Session session = Session.EMPTY_SESSION;
+    final Handler assertHandler = (request, response, schedulerH, handleSession, worker) -> {
+      try {
+        Assertions.assertEquals(session, handleSession);
+      } catch (AssertionFailedError e) {
+        throw new FatalHandlerException(e);
+      }
+    };
+
+    final Crawler crawler = Crawler.builder()
+        .setFetcher(fetcher)
+        .setMaxTries(1)
+        .setScheduler(new FIFOScheduler())
+        .setSession(session)
+        .build()
+        .start();
+
+    crawler.getScheduler().add(vRequest, assertHandler);
+    crawler.interruptAndClose();
+
+    Assertions.assertEquals(0, fetcher.getCounter());
+  }
+
 
 }

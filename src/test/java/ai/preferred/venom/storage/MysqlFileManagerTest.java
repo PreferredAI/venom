@@ -95,7 +95,7 @@ public class MysqlFileManagerTest {
   void testPut() throws StorageException {
     final int statusCode = 200;
     final String url = "https://preferred.ai/";
-    final byte[] content = "This is test data.".getBytes();
+    final byte[] content = "This is put test data.".getBytes();
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Header[] headers = {};
     final HttpHost proxy = null;
@@ -104,6 +104,41 @@ public class MysqlFileManagerTest {
     final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
 
     fileManager.put(request, response);
+    // TODO: Check DB
+  }
+
+  @Test
+  void testCompleteCallback() {
+    final int statusCode = 200;
+    final String url = "https://preferred.ai/";
+    final byte[] content = "This is complete callback test data.".getBytes();
+    final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
+    final Header[] headers = {};
+    final HttpHost proxy = null;
+
+    final Request request = new VRequest(url);
+    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
+
+    fileManager.getCallback().completed(request, response);
+    // TODO: Check DB
+  }
+
+  @Test
+  void testFailedCallback() {
+    final String url = "https://preferred.ai/";
+    final Request request = new VRequest(url);
+
+    fileManager.getCallback().failed(request, new StorageException(""));
+    // TODO: Check DB
+  }
+
+  @Test
+  void testCancelledCallback() {
+    final String url = "https://preferred.ai/";
+    final Request request = new VRequest(url);
+
+    fileManager.getCallback().cancelled(request);
+    // TODO: Check DB
   }
 
 //  @Test

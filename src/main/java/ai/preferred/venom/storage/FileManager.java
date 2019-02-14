@@ -24,6 +24,9 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
+ * This interface represents the basic functions a FileManager should have.
+ *
+ * @param <T> type of id
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
  */

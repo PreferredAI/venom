@@ -105,7 +105,7 @@ public final class StorageFetcher implements Fetcher {
 
   @Override
   public void start() {
-
+    // do nothing
   }
 
   @Override

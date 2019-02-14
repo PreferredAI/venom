@@ -112,7 +112,7 @@ public final class Crawler implements Interruptible {
   /**
    * The sleep scheduler used.
    */
-  @NotNull
+  @Nullable
   private final SleepScheduler sleepScheduler;
 
   /**
@@ -196,11 +196,13 @@ public final class Crawler implements Interruptible {
   private void sleep(final Job job, final long lastRequestTime) throws InterruptedException {
     final long sleepTime;
     if (job.getRequest().getSleepScheduler() == null) {
-      sleepTime = sleepScheduler.getSleepTime();
-    } else if (job.getRequest().getSleepScheduler() != null) {
-      sleepTime = job.getRequest().getSleepScheduler().getSleepTime();
+      if (sleepScheduler != null) {
+        sleepTime = sleepScheduler.getSleepTime();
+      } else {
+        sleepTime = 0;
+      }
     } else {
-      sleepTime = 0;
+      sleepTime = job.getRequest().getSleepScheduler().getSleepTime();
     }
 
     final long timeElapsed = System.nanoTime() - lastRequestTime;
@@ -528,7 +530,7 @@ public final class Crawler implements Interruptible {
      * @param parallelism the parallelism level.
      * @return this
      */
-    public Builder setParallism(final int parallelism) {
+    public Builder setParallelism(final int parallelism) {
       if (parallelism <= 0) {
         LOGGER.warn("Attribute 'numThreads' not within range, defaulting to system default.");
       } else {
@@ -619,7 +621,7 @@ public final class Crawler implements Interruptible {
      * @param sleepScheduler sleepAndGetTime scheduler to be used.
      * @return this
      */
-    public Builder setSleepScheduler(final @NotNull SleepScheduler sleepScheduler) {
+    public Builder setSleepScheduler(final SleepScheduler sleepScheduler) {
       this.sleepScheduler = sleepScheduler;
       return this;
     }

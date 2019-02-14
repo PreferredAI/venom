@@ -180,7 +180,7 @@ public class StorageFetcherTest {
       final Future<Response> responseFuture = fetcher.fetch(request);
       Assertions.assertTrue(responseFuture.isCancelled());
       try {
-        final Response response = responseFuture.get();
+        responseFuture.get();
       } catch (CancellationException e) {
         thrown.set(true);
       } catch (InterruptedException | ExecutionException e) {
@@ -215,7 +215,7 @@ public class StorageFetcherTest {
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
       final Future<Response> responseFuture = fetcher.fetch(request);
       try {
-        final Response response = responseFuture.get();
+        responseFuture.get();
       } catch (InterruptedException | ExecutionException e) {
         Assertions.assertTrue(e.getCause() instanceof StorageException);
         thrown.set(true);

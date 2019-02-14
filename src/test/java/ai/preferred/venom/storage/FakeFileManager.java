@@ -19,13 +19,17 @@ package ai.preferred.venom.storage;
 import ai.preferred.venom.fetcher.Callback;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FakeFileManager implements FileManager {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileManager.class);
 
   private final Callback callback;
 
@@ -34,7 +38,7 @@ public class FakeFileManager implements FileManager {
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   public FakeFileManager() {
-    this(Collections.emptyMap());
+    this(new HashMap<>());
   }
 
   public FakeFileManager(final Map<Request, Record> requestRecordMap) {
@@ -49,6 +53,8 @@ public class FakeFileManager implements FileManager {
 
   @Override
   public @NotNull String put(@NotNull Request request, @NotNull Response response) {
+    requestRecordMap.put(request, StorageRecord.builder().build());
+    LOGGER.info("Put called for request: {}", request.getUrl());
     return "true";
   }
 
@@ -76,6 +82,7 @@ public class FakeFileManager implements FileManager {
         }
       }
     }
+    LOGGER.info("Get return none for request: {}", request.getUrl());
     return null;
   }
 
