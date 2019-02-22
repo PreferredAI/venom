@@ -153,6 +153,7 @@ public final class StorageFetcher implements Fetcher {
         tryBaseUrl = request.getUrl();
       }
       final String baseUrl = tryBaseUrl;
+
       final StorageResponse response = new StorageResponse(record, baseUrl);
       final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
       if (status != Validator.Status.VALID) {

@@ -157,13 +157,14 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
-    String baseUrl;
+    String tryBaseUrl;
     try {
-      baseUrl = UrlUtil.getBaseUrl(request);
+      tryBaseUrl = UrlUtil.getBaseUrl(request);
     } catch (URISyntaxException e) {
       LOGGER.warn("Could not parse base URL: " + request.getUrl());
-      baseUrl = request.getUrl();
+      tryBaseUrl = request.getUrl();
     }
+    final String baseUrl = tryBaseUrl;
 
     return new BaseResponse(
         httpResponse.getStatusLine().getStatusCode(),

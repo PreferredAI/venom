@@ -70,4 +70,14 @@ public class PriorityQueueScheduler extends AbstractQueueScheduler {
     return getQueue().offer(job, timeout, unit);
   }
 
+  @Override
+  public final Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
+    return getQueue().poll(timeout, unit);
+  }
+
+  @Override
+  public final Job poll() {
+    return getQueue().poll();
+  }
+
 }

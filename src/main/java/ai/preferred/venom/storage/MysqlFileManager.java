@@ -374,6 +374,7 @@ public class MysqlFileManager implements FileManager<Integer> {
           LOGGER.debug("MySQL insert successfully for: {}", request.getUrl());
           final int id = rs.getInt(1);
           final String sId = String.valueOf(id);
+
           String tryFileExtension;
           try {
             tryFileExtension = StorageUtil.getFileExtension(response);
@@ -382,6 +383,7 @@ public class MysqlFileManager implements FileManager<Integer> {
             tryFileExtension = "";
           }
           final String fileExtension = tryFileExtension;
+
           LOGGER.debug("Using extension ({}) for: {}", fileExtension, request.getUrl());
           createFile(content, new File(storagePath, subDirName), sId + fileExtension + ".gz");
           conn.commit();

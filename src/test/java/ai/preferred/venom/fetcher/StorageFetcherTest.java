@@ -248,7 +248,7 @@ public class StorageFetcherTest {
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).build()) {
       final Future<Response> responseFuture = fetcher.fetch(request);
       try {
-        final Response response = responseFuture.get();
+        responseFuture.get();
       } catch (InterruptedException | ExecutionException e) {
         Assertions.assertTrue(e.getCause() instanceof ValidationException);
         thrown.set(true);

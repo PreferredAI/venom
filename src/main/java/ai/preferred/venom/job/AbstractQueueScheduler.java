@@ -24,7 +24,6 @@ import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Ween Jiann Lee
@@ -82,11 +81,6 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   @Override
-  public Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
-    return getQueue().poll(timeout, unit);
-  }
-
-  @Override
   public final int remainingCapacity() {
     return getQueue().remainingCapacity();
   }
@@ -104,11 +98,6 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   @Override
   public final boolean offer(final @Nonnull Job job) {
     return getQueue().offer(job);
-  }
-
-  @Override
-  public Job poll() {
-    return getQueue().poll();
   }
 
   @Override
