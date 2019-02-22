@@ -82,6 +82,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>resolve-ranges</id>
+                        <goals>
+                            <goal>resolve-ranges</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0-M2</version>
@@ -238,7 +251,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
-            <version>4.1.4</version>
+            <version>[4.1.4,4.2)</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
