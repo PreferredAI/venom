@@ -5,6 +5,8 @@ cache:
   directories:
     - ~/.m2/repository
 
+before_install:  mvn versions:resolve-ranges
+
 install: mvn -s .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
 script: mvn clean test jacoco:report coveralls:report
