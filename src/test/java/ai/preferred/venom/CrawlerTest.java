@@ -276,12 +276,15 @@ public class CrawlerTest {
   @Test
   public void testFatalHandlerException() {
     Assertions.assertThrows(FatalHandlerException.class, () -> {
-      final List<FakeFetcher.Status> statuses = Arrays.asList(FakeFetcher.Status.COMPLETE, FakeFetcher.Status.COMPLETE,
+      final List<FakeFetcher.Status> statuses = Arrays.asList(
+          FakeFetcher.Status.COMPLETE,
+          FakeFetcher.Status.COMPLETE,
           FakeFetcher.Status.COMPLETE);
       final Fetcher fetcher = new FakeFetcher(new LinkedList<>(statuses));
       try (final Crawler crawler = Crawler.builder()
           .setFetcher(fetcher)
           .setMaxTries(1)
+          .setMaxConnections(1)
           .setScheduler(new FIFOScheduler())
           .setSleepScheduler(new SleepScheduler(0))
           .build()
@@ -292,11 +295,11 @@ public class CrawlerTest {
         });
 
         crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
-          throw new FatalHandlerException("FatalHandlerException #1");
+          throw new FatalHandlerException("FatalHandlerException");
         });
 
         crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
-          throw new FatalHandlerException("FatalHandlerException #2");
+          // do nothing
         });
       }
     });
