@@ -22,6 +22,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 - Page Validation
 - Automatic Retries
 - Proxy support
+- Auto-save raw html pages
 
 ## Getting started
 Getting started with Venom is quick and easy. There are two ways to get started. 
@@ -40,7 +41,7 @@ git clone https://github.com/PreferredAI/venom-tutorial.git
 If you already have a project then just add Venom as a dependency to your pom.xml:
 ```xml
 <dependency>
-    <!-- Venom: A focused crawler framework @ https://venom.preferred.ai/ -->
+    <!-- Venom: Your preferred focused crawler @ https://venom.preferred.ai/ -->
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
     <version>[4.1,4.2)</version>
@@ -49,7 +50,7 @@ If you already have a project then just add Venom as a dependency to your pom.xm
 
 ### Tutorial
 If you are new to Venom, we have created a set of exercises to get you up and sprinting.
-The exercises are bundled in our [venom-tutorial](https://github.com/PreferredAI/venom-tutorials).
+The exercises are bundled in [venom-tutorials](https://github.com/PreferredAI/venom-tutorials).
 More information can be found on this [page](https://github.com/PreferredAI/venom-tutorials).
 
 ### Example
