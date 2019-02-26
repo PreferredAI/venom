@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ai.preferred.venom;
+package ai.preferred.venom.utils;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -45,7 +45,23 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
   /**
    * Lock when running.
    */
-  private final Lock lock = new ReentrantLock();
+  private final Lock executing = new ReentrantLock();
+
+  /**
+   * Check and set terminated status
+   */
+  private void setTerminated() {
+    if (!shutdown.get()) {
+      return;
+    }
+    if (executing.tryLock()) {
+      try {
+        terminated.compareAndSet(false, true);
+      } finally {
+        executing.unlock();
+      }
+    }
+  }
 
   @Override
   public final void shutdown() {
@@ -55,6 +71,7 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
   @Nonnull
   @Override
   public final List<Runnable> shutdownNow() {
+    shutdown.compareAndSet(false, true);
     return Collections.emptyList();
   }
 
@@ -65,6 +82,10 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
 
   @Override
   public final boolean isTerminated() {
+    if (terminated.get()) {
+      return true;
+    }
+    setTerminated();
     return terminated.get();
   }
 
@@ -73,12 +94,13 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
     if (terminated.get()) {
       return true;
     }
-    lock.tryLock(timeout, unit);
+    executing.tryLock(timeout, unit);
     try {
-      return terminated.get();
+      setTerminated();
     } finally {
-      lock.unlock();
+      executing.unlock();
     }
+    return terminated.get();
   }
 
   @Override
@@ -86,14 +108,12 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
     if (shutdown.get()) {
       throw new RejectedExecutionException("Executor has been shutdown.");
     } else {
-      lock.lock();
+      executing.lock();
       try {
         command.run();
       } finally {
-        if (shutdown.get()) {
-          terminated.compareAndSet(false, true);
-        }
-        lock.unlock();
+        setTerminated();
+        executing.unlock();
       }
     }
   }
