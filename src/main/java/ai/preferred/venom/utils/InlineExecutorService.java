@@ -48,7 +48,7 @@ public class InlineExecutorService extends AbstractExecutorService implements Ex
   private final Lock executing = new ReentrantLock();
 
   /**
-   * Check and set terminated status
+   * Check and set terminated status.
    */
   private void setTerminated() {
     if (!shutdown.get()) {
