@@ -1,9 +1,11 @@
 language: java
 jdk:
-- oraclejdk8
+- openjdk11
 cache:
   directories:
     - ~/.m2/repository
+
+before_install:  mvn versions:resolve-ranges
 
 install: mvn -s .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 

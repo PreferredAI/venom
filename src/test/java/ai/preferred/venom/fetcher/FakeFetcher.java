@@ -38,23 +38,6 @@ public class FakeFetcher implements Fetcher {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FakeFetcher.class);
 
-  private static final Callback EMPTY_CALLBACK = new Callback() {
-    @Override
-    public void completed(@NotNull Request request, @NotNull Response response) {
-
-    }
-
-    @Override
-    public void failed(@NotNull Request request, @NotNull Exception ex) {
-
-    }
-
-    @Override
-    public void cancelled(@NotNull Request request) {
-
-    }
-  };
-
   private final AtomicInteger counter = new AtomicInteger();
 
   private final Deque<Status> statuses;
@@ -69,12 +52,12 @@ public class FakeFetcher implements Fetcher {
 
   @Override
   public void start() {
-
+    // do nothing
   }
 
   @Override
   public @NotNull Future<Response> fetch(@NotNull Request request) {
-    return fetch(request, EMPTY_CALLBACK);
+    return fetch(request, Callback.EMPTY_CALLBACK);
   }
 
   @Override
@@ -132,7 +115,7 @@ public class FakeFetcher implements Fetcher {
 
   @Override
   public void close() {
-
+    // do nothing
   }
 
   public enum Status {

@@ -49,7 +49,7 @@ public class ThreadedWorkerManager implements WorkerManager {
    *
    * @param executor An executor service
    */
-  public ThreadedWorkerManager(final ExecutorService executor) {
+  public ThreadedWorkerManager(@Nullable final ExecutorService executor) {
     this.executor = executor;
     if (executor instanceof ForkJoinPool || executor == null) {
       this.worker = new ForkJoinWorker();

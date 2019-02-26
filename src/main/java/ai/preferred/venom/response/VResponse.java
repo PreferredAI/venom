@@ -16,7 +16,6 @@
 
 package ai.preferred.venom.response;
 
-import ai.preferred.venom.validator.Validator;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -82,11 +81,6 @@ public class VResponse implements Response, Unwrappable {
     return getInner().getProxy();
   }
 
-  @Override
-  public final Validator getValidator() {
-    return getInner().getValidator();
-  }
-
   /**
    * Returns the html in string format.
    *
@@ -111,7 +105,7 @@ public class VResponse implements Response, Unwrappable {
   }
 
   /**
-   * Returns a Jsoup document of this response.
+   * Returns a Joup document of this response.
    *
    * @return Jsoup document of response
    */

@@ -16,36 +16,21 @@
 
 package ai.preferred.venom.response;
 
+import ai.preferred.venom.storage.Record;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 
+
 /**
- * @author Maksim Tkachenko
- * @author Truong Quoc Tuan
  * @author Ween Jiann Lee
  */
-public class BaseResponse implements Response {
+public class StorageResponse implements Response, Retrievable {
 
   /**
-   * The status code of this response.
+   * The record holding this response.
    */
-  private final int statusCode;
-
-  /**
-   * The content of this response.
-   */
-  private final byte[] content;
-
-  /**
-   * The content type of this response.
-   */
-  private final ContentType contentType;
-
-  /**
-   * The headers of this response.
-   */
-  private final Header[] headers;
+  private final Record record;
 
   /**
    * The base url of this response.
@@ -53,48 +38,34 @@ public class BaseResponse implements Response {
   private final String baseUrl;
 
   /**
-   * The proxy used to obtain response.
-   */
-  private final HttpHost proxy;
-
-  /**
    * Constructs a base response.
    *
-   * @param statusCode  Status code of the response
-   * @param baseUrl     Base url of the response
-   * @param content     Content from the response
-   * @param contentType Content type of the response
-   * @param headers     Headers from the response
-   * @param proxy       Proxy used to obtain the response
+   * @param record  record holding this response
+   * @param baseUrl base URL of the response
    */
-  public BaseResponse(final int statusCode, final String baseUrl, final byte[] content, final ContentType contentType,
-                      final Header[] headers, final HttpHost proxy) {
-    this.statusCode = statusCode;
+  public StorageResponse(final Record record, final String baseUrl) {
+    this.record = record;
     this.baseUrl = baseUrl;
-    this.content = content;
-    this.contentType = contentType;
-    this.headers = headers;
-    this.proxy = proxy;
   }
 
   @Override
   public final int getStatusCode() {
-    return statusCode;
+    return record.getStatusCode();
   }
 
   @Override
   public final byte[] getContent() {
-    return content;
+    return record.getResponseContent();
   }
 
   @Override
   public final ContentType getContentType() {
-    return contentType;
+    return record.getContentType();
   }
 
   @Override
   public final Header[] getHeaders() {
-    return headers;
+    return record.getResponseHeaders();
   }
 
   @Override
@@ -104,7 +75,11 @@ public class BaseResponse implements Response {
 
   @Override
   public final HttpHost getProxy() {
-    return proxy;
+    return null;
   }
 
+  @Override
+  public final Record getRecord() {
+    return record;
+  }
 }

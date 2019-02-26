@@ -27,6 +27,26 @@ import javax.validation.constraints.NotNull;
 public interface Callback {
 
   /**
+   * An instance of empty callback.
+   */
+  Callback EMPTY_CALLBACK = new Callback() {
+    @Override
+    public void completed(final @NotNull Request request, final @NotNull Response response) {
+      // do nothing
+    }
+
+    @Override
+    public void failed(final @NotNull Request request, final @NotNull Exception ex) {
+      // do nothing
+    }
+
+    @Override
+    public void cancelled(final @NotNull Request request) {
+      // do nothing
+    }
+  };
+
+  /**
    * Method to be call upon completion of request.
    *
    * @param request  Request sent.

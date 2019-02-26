@@ -20,6 +20,9 @@ import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
+import ai.preferred.venom.storage.FakeFileManager;
+import ai.preferred.venom.storage.FileManager;
+import ai.preferred.venom.storage.Record;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -27,14 +30,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.constraints.NotNull;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -429,5 +435,133 @@ public class AsyncFetcherTest {
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
   }
+
+  @Test
+  public void testFileMangerIntegration() throws Exception {
+    fetcher.close();
+    final FileManager fileManager = new FakeFileManager();
+    fetcher = AsyncFetcher.builder().setFileManager(fileManager).build();
+    fetcher.start();
+
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-file-manager";
+    stubFor(get(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = new VRequest("http://127.0.0.1:" + port + path);
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+
+    fetcher.close();
+    final Record record = fileManager.get(request);
+    Assertions.assertNotNull(record, "Record not found.");
+  }
+
+  @Test
+  public void testCallbackIntegration() throws Exception {
+    fetcher.close();
+    final AtomicBoolean completed = new AtomicBoolean(false);
+    final Callback callback = new Callback() {
+      @Override
+      public void completed(@NotNull Request request, @NotNull Response response) {
+        completed.set(true);
+      }
+
+      @Override
+      public void failed(@NotNull Request request, @NotNull Exception ex) {
+
+      }
+
+      @Override
+      public void cancelled(@NotNull Request request) {
+
+      }
+    };
+    fetcher = AsyncFetcher.builder().register(callback).build();
+    fetcher.start();
+
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-file-manager";
+    stubFor(get(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = new VRequest("http://127.0.0.1:" + port + path);
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+
+    fetcher.close();
+    Assertions.assertTrue(completed.get(), "Callback complete function not called");
+  }
+
+  @Test
+  public void testStopCode() throws Exception {
+    fetcher.close();
+    fetcher = AsyncFetcher.builder().setStopCodes(410).build();
+    fetcher.start();
+
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final String path = "/test-fetch";
+    stubFor(get(urlEqualTo(path))
+        .willReturn(aResponse()
+            .withStatus(410)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = new VRequest("http://127.0.0.1:" + port + path);
+    final Future<Response> responseFuture = fetcher.fetch(request);
+
+    final AtomicBoolean thrown = new AtomicBoolean(false);
+    try {
+      responseFuture.get();
+    } catch (InterruptedException | ExecutionException e) {
+      Assertions.assertTrue(e.getCause() instanceof StopCodeException);
+      thrown.set(true);
+    }
+
+    Assertions.assertTrue(thrown.get(), "StopCodeException not thrown.");
+  }
+
+  @Test
+  public void testClosed() throws Exception {
+    fetcher.close();
+
+    final Request request = new VRequest("http://127.0.0.1");
+    final Future<Response> responseFuture = fetcher.fetch(request);
+
+    final AtomicBoolean thrown = new AtomicBoolean(false);
+    try {
+      responseFuture.get();
+    } catch (CancellationException e) {
+      thrown.set(true);
+    } catch (InterruptedException | ExecutionException e) {
+      Assertions.fail("Wrong exception");
+    }
+
+    Assertions.assertTrue(thrown.get(), "CancellationException not thrown.");
+  }
+
 
 }

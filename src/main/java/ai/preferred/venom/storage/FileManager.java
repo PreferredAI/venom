@@ -20,13 +20,17 @@ import ai.preferred.venom.fetcher.Callback;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
+ * This interface represents the basic functions a FileManager should have.
+ *
+ * @param <T> type of id
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
  */
-public interface FileManager extends AutoCloseable {
+public interface FileManager<T> extends AutoCloseable {
 
   /**
    * Get callback upon completion of request.
@@ -59,8 +63,8 @@ public interface FileManager extends AutoCloseable {
    * @return stored record
    * @throws StorageException throws StorageException
    */
-  @NotNull
-  Record get(int id) throws StorageException;
+  @Nullable
+  Record get(T id) throws StorageException;
 
   /**
    * Returns latest record matching request.

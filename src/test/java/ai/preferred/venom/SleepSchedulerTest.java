@@ -58,7 +58,7 @@ public class SleepSchedulerTest {
   }
 
   @Test
-  public void testSleepTimeMaxGTMinLTZerio() {
+  public void testSleepTimeMaxGTMinLTZero() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> new SleepScheduler(50, -10));
   }
 
