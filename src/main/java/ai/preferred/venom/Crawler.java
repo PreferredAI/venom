@@ -26,17 +26,13 @@ import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
 import ai.preferred.venom.validator.Validator;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -162,7 +158,7 @@ public final class Crawler implements Interruptible {
         true
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
-    pendingJobs = Sets.newConcurrentHashSet();
+    pendingJobs = ConcurrentHashMap.newKeySet();
     handlerExceptions = Collections.synchronizedList(new ArrayList<>());
   }
 
