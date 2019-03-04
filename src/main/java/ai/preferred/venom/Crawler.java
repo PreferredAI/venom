@@ -16,10 +16,7 @@
 
 package ai.preferred.venom;
 
-import ai.preferred.venom.fetcher.AsyncFetcher;
-import ai.preferred.venom.fetcher.Callback;
-import ai.preferred.venom.fetcher.Fetcher;
-import ai.preferred.venom.fetcher.StopCodeException;
+import ai.preferred.venom.fetcher.*;
 import ai.preferred.venom.job.AbstractQueueScheduler;
 import ai.preferred.venom.job.Job;
 import ai.preferred.venom.job.PriorityQueueScheduler;
@@ -28,6 +25,7 @@ import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.response.VResponse;
+import ai.preferred.venom.validator.Validator;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -706,7 +704,8 @@ public final class Crawler implements Interruptible {
     public void failed(final Request request, final Exception ex) {
       crawler.connections.release();
       crawler.threadPool.execute(() -> {
-        if (ex instanceof StopCodeException) {
+        if (ex instanceof StopCodeException
+            || (ex instanceof ValidationException && ((ValidationException) ex).getStatus() == Validator.Status.STOP)) {
           crawler.pendingJobs.remove(job);
         } else {
           synchronized (crawler.pendingJobs) {

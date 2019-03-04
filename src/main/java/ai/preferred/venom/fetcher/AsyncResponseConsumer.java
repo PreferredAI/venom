@@ -265,7 +265,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     }
 
     if (status == Validator.Status.STOP) {
-      throw new StopCodeException(statusCode, "Validator stopped the request.");
+      throw new ValidationException(status, response, "Validator stopped the request.");
     } else if (status != Validator.Status.VALID) {
       throw new ValidationException(status, response, "Invalid response.");
     }
