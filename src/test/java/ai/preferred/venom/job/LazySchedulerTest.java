@@ -72,7 +72,7 @@ public class LazySchedulerTest {
 
     final LazyScheduler scheduler = new LazyScheduler(requests.iterator(), handler);
     final VRequest vRequest = new VRequest(url);
-    scheduler.add(vRequest);
+    scheduler.getScheduler().add(vRequest);
 
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);

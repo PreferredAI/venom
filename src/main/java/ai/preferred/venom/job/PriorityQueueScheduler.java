@@ -17,11 +17,6 @@
 package ai.preferred.venom.job;
 
 
-import ai.preferred.venom.Handler;
-import ai.preferred.venom.request.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -39,34 +34,20 @@ import java.util.concurrent.TimeUnit;
 public class PriorityQueueScheduler extends AbstractQueueScheduler {
 
   /**
-   * Logger.
-   */
-  private static final Logger LOGGER = LoggerFactory.getLogger(PriorityQueueScheduler.class);
-
-  /**
    * The queue used for this scheduler.
    */
-  private final PriorityBlockingQueue<Job> queue = new PriorityBlockingQueue<>();
-
-  @Override
-  final PriorityBlockingQueue<Job> getQueue() {
-    return queue;
+  public PriorityQueueScheduler() {
+    super(new PriorityBlockingQueue<>());
   }
 
   @Override
-  public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
-    final Job job = new BasicJob(r, h, p, pf, queue);
-    getQueue().add(job);
-    LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
-  }
-
-  @Override
-  public final void put(final @Nonnull Job job) {
+  public final void put(final @Nonnull Job job) throws InterruptedException {
     getQueue().put(job);
   }
 
   @Override
-  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
+      throws InterruptedException {
     return getQueue().offer(job, timeout, unit);
   }
 

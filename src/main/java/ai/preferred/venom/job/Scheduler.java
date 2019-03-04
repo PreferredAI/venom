@@ -17,98 +17,24 @@
 package ai.preferred.venom.job;
 
 
-import ai.preferred.venom.Handler;
-import ai.preferred.venom.request.Request;
-
-import javax.validation.constraints.NotNull;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * This interface represents only the most basic of a scheduler.
  * It imposes no restrictions or particular details on the the
  * type of queue, and allows for different future types to be returned.
  *
+ * @param <T> the type of Job to schedule
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface Scheduler {
+public interface Scheduler<T extends Job> extends BlockingQueue<T> {
 
   /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by the handler specified, and
-   * its priority can be downgraded to a minimum priority specified.
-   * </p>
+   * Get the scheduler to add jobs.
    *
-   * @param r  request to fetch when dequeued
-   * @param h  handler to be used to parse the request
-   * @param p  initial priority of the request
-   * @param pf the minimum (floor) priority of this request
+   * @return an instance of Scheduler
    */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by the handler specified, and
-   * its priority can be downgraded to the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   * @param h handler to be used to parse the request
-   * @param p initial priority of the request
-   */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by the handler specified, and
-   * it's initialised with default priority that can be downgraded to
-   * the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   * @param h handler to be used to parse the request
-   */
-  void add(@NotNull Request r, @NotNull Handler h);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise, and its priority can be downgraded to a minimum
-   * priority specified.
-   * </p>
-   *
-   * @param r  request to fetch when dequeued
-   * @param p  initial priority of the request
-   * @param pf the minimum (floor) priority of this request
-   */
-  void add(@NotNull Request r, Priority p, Priority pf);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise defined, and its priority can be downgraded to the
-   * default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   * @param p initial priority of the request
-   */
-  void add(@NotNull Request r, Priority p);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise defined, and it's initialised with default priority
-   * that can be downgraded to the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   */
-  void add(@NotNull Request r);
+  ai.preferred.venom.Scheduler getScheduler();
 
 }

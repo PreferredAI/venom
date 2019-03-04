@@ -16,14 +16,7 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handler;
-import ai.preferred.venom.request.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotNull;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -39,25 +32,10 @@ import java.util.concurrent.TimeUnit;
 public class FIFOScheduler extends AbstractQueueScheduler {
 
   /**
-   * Logger.
+   * Constructs an instance of FIFOScheduler.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(FIFOScheduler.class);
-
-  /**
-   * The queue used for this scheduler.
-   */
-  private final LinkedBlockingQueue<Job> queue = new LinkedBlockingQueue<>();
-
-  @Override
-  final BlockingQueue<Job> getQueue() {
-    return queue;
-  }
-
-  @Override
-  public final void add(final @NotNull Request r, final @NotNull Handler h, final Priority p, final Priority pf) {
-    Job job = new BasicJob(r, h, p, pf, queue);
-    getQueue().add(job);
-    LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
+  public FIFOScheduler() {
+    super(new LinkedBlockingQueue<>());
   }
 
   @Override

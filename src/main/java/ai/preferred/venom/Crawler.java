@@ -17,7 +17,6 @@
 package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.*;
-import ai.preferred.venom.job.AbstractQueueScheduler;
 import ai.preferred.venom.job.Job;
 import ai.preferred.venom.job.PriorityQueueScheduler;
 import ai.preferred.venom.job.Scheduler;
@@ -89,7 +88,7 @@ public final class Crawler implements Interruptible {
    * The scheduler used.
    */
   @NotNull
-  private final AbstractQueueScheduler scheduler;
+  private final Scheduler<? extends Job> scheduler;
 
   /**
    * The maximum number of simultaneous connections.
@@ -293,8 +292,8 @@ public final class Crawler implements Interruptible {
    *
    * @return the instance of scheduler used.
    */
-  public Scheduler getScheduler() {
-    return scheduler;
+  public ai.preferred.venom.Scheduler getScheduler() {
+    return scheduler.getScheduler();
   }
 
   /**
@@ -467,7 +466,7 @@ public final class Crawler implements Interruptible {
     /**
      * The scheduler used.
      */
-    private AbstractQueueScheduler scheduler;
+    private Scheduler<? extends Job> scheduler;
 
     /**
      * The sleep scheduler used.
@@ -550,7 +549,7 @@ public final class Crawler implements Interruptible {
      * @param scheduler scheduler to be used.
      * @return this
      */
-    public Builder setScheduler(final @NotNull AbstractQueueScheduler scheduler) {
+    public Builder setScheduler(final @NotNull Scheduler<? extends Job> scheduler) {
       this.scheduler = scheduler;
       return this;
     }
@@ -674,13 +673,13 @@ public final class Crawler implements Interruptible {
       crawler.threadPool.execute(() -> {
         try {
           if (job.getHandler() != null) {
-            job.getHandler().handle(job.getRequest(), new VResponse(response), crawler.scheduler, crawler.session,
-                crawler.workerManager.getWorker());
+            job.getHandler().handle(job.getRequest(), new VResponse(response), crawler.scheduler.getScheduler(),
+                crawler.session, crawler.workerManager.getWorker());
           } else if (crawler.router != null) {
             final Handler routedHandler = crawler.router.getHandler(job.getRequest());
             if (routedHandler != null) {
-              routedHandler.handle(job.getRequest(), new VResponse(response), crawler.scheduler, crawler.session,
-                  crawler.workerManager.getWorker());
+              routedHandler.handle(job.getRequest(), new VResponse(response), crawler.scheduler.getScheduler(),
+                  crawler.session, crawler.workerManager.getWorker());
             }
           } else {
             LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());

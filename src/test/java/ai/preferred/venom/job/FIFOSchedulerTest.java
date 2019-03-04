@@ -30,7 +30,7 @@ public class FIFOSchedulerTest {
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
 
-    scheduler.add(vRequest);
+    scheduler.getScheduler().add(vRequest);
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
@@ -49,7 +49,7 @@ public class FIFOSchedulerTest {
 
     };
 
-    scheduler.add(vRequest, handler);
+    scheduler.getScheduler().add(vRequest, handler);
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
@@ -65,10 +65,10 @@ public class FIFOSchedulerTest {
     final VRequest vRequest = new VRequest(url);
     final VRequest vRequestNeg = new VRequest(url);
 
-    scheduler.add(vRequest, Priority.HIGH);
-    scheduler.add(vRequestNeg, Priority.HIGHEST);
-    scheduler.add(vRequestNeg, Priority.DEFAULT);
-    scheduler.add(vRequestNeg, Priority.LOW);
+    scheduler.getScheduler().add(vRequest, Priority.HIGH);
+    scheduler.getScheduler().add(vRequestNeg, Priority.HIGHEST);
+    scheduler.getScheduler().add(vRequestNeg, Priority.DEFAULT);
+    scheduler.getScheduler().add(vRequestNeg, Priority.LOW);
 
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);

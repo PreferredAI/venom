@@ -3,7 +3,7 @@ package ai.preferred.venom;
 /**
  * This class defines fatal runtime exception for {@link Handler}.
  * If {@link Handler#handle(ai.preferred.venom.request.Request,
- * ai.preferred.venom.response.VResponse, ai.preferred.venom.job.Scheduler,
+ * ai.preferred.venom.response.VResponse, ai.preferred.venom.Scheduler,
  * Session, Worker)} encounters unexpected situation, it can signal
  * {@link Crawler} to stop execution by throwing this exception.
  *

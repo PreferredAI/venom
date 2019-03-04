@@ -133,7 +133,7 @@ public final class AsyncFetcher implements Fetcher {
   private final boolean compressed;
 
   /**
-   * Constructs an instance of async fetcher.
+   * Constructs an instance of AsyncFetcher.
    *
    * @param builder An instance of builder
    */
@@ -186,7 +186,7 @@ public final class AsyncFetcher implements Fetcher {
   }
 
   /**
-   * Create an instance of async fetcher with default options.
+   * Create an instance of AsyncFetcher with default options.
    *
    * @return A new instance of async fetcher
    */
@@ -205,10 +205,10 @@ public final class AsyncFetcher implements Fetcher {
 
   /**
    * Check if request is an instance of http fetcher request and return it
-   * if true, otherwise wrap it with http fetcher request and return that.
+   * if true, otherwise wrap it with HttpFetcherRequest and return that.
    *
    * @param request An instance of request
-   * @return An instance of http fetcher request
+   * @return An instance of HttpFetcherRequest
    */
   private HttpFetcherRequest normalizeRequest(final Request request) {
     if (request instanceof HttpFetcherRequest) {
@@ -221,7 +221,7 @@ public final class AsyncFetcher implements Fetcher {
    * Prepare fetcher request by prepending headers and set appropriate proxy.
    *
    * @param request An instance of request
-   * @return An instance of http fetcher request
+   * @return An instance of HttpFetcherRequest
    */
   private HttpFetcherRequest prepareFetcherRequest(final Request request) {
     HttpFetcherRequest httpFetcherRequest = normalizeRequest(request);

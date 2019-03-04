@@ -19,8 +19,6 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
@@ -39,16 +37,6 @@ import java.util.concurrent.TimeUnit;
  * @author Ween Jiann Lee
  */
 public class LazyScheduler extends AbstractQueueScheduler {
-
-  /**
-   * Logger.
-   */
-  private static final Logger LOGGER = LoggerFactory.getLogger(LazyScheduler.class);
-
-  /**
-   * The queue used for this scheduler.
-   */
-  private final PriorityBlockingQueue<Job> queue = new PriorityBlockingQueue<>();
 
   /**
    * An object to synchronise upon.
@@ -72,6 +60,7 @@ public class LazyScheduler extends AbstractQueueScheduler {
    * @param handler  The default handler to use
    */
   public LazyScheduler(final Iterator<Request> requests, final Handler handler) {
+    super(new PriorityBlockingQueue<>());
     this.requests = requests;
     this.handler = handler;
   }
@@ -83,18 +72,6 @@ public class LazyScheduler extends AbstractQueueScheduler {
    */
   public LazyScheduler(final Iterator<Request> requests) {
     this(requests, null);
-  }
-
-  @Override
-  final PriorityBlockingQueue<Job> getQueue() {
-    return queue;
-  }
-
-  @Override
-  public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
-    Job job = new BasicJob(r, h, p, pf, queue);
-    getQueue().add(job);
-    LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
   }
 
   /**
@@ -117,12 +94,13 @@ public class LazyScheduler extends AbstractQueueScheduler {
   }
 
   @Override
-  public final void put(final @Nonnull Job job) {
+  public final void put(final @Nonnull Job job) throws InterruptedException {
     getQueue().put(job);
   }
 
   @Override
-  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit) {
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
+      throws InterruptedException {
     return getQueue().offer(job, timeout, unit);
   }
 

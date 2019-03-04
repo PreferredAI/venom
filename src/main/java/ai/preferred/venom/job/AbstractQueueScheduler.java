@@ -18,6 +18,8 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.AbstractQueue;
@@ -29,79 +31,139 @@ import java.util.concurrent.BlockingQueue;
  * @author Ween Jiann Lee
  * @author Maksim Tkachenko
  */
-public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements Scheduler, BlockingQueue<Job> {
+public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements Scheduler<Job> {
 
   /**
-   * Get the queue this instance is using.
-   *
-   * @return An instance of blocking queue
+   * The queue used for this scheduler.
    */
-  abstract BlockingQueue<Job> getQueue();
+  private final BlockingQueue<Job> queue;
 
-  @Override
-  public final void add(final Request r, final Handler h, final Priority p) {
-    add(r, h, p, Priority.FLOOR);
+  /**
+   * The adding part of the scheduler.
+   */
+  private final ai.preferred.venom.Scheduler scheduler;
+
+  /**
+   * Constructs an instance of AbstractQueueScheduler.
+   *
+   * @param queue an instance of BlockingQueue
+   */
+  protected AbstractQueueScheduler(final BlockingQueue<Job> queue) {
+    this.queue = queue;
+    this.scheduler = new ExternalScheduler(queue);
   }
 
   @Override
-  public final void add(final Request r, final Handler h) {
-    add(r, h, Priority.DEFAULT);
-  }
-
-  @Override
-  public final void add(final Request r, final Priority p, final Priority pf) {
-    add(r, null, p, pf);
-  }
-
-  @Override
-  public final void add(final Request r, final Priority p) {
-    add(r, null, p, Priority.FLOOR);
-  }
-
-  @Override
-  public final void add(final Request r) {
-    add(r, null, Priority.DEFAULT, Priority.FLOOR);
+  public final ai.preferred.venom.Scheduler getScheduler() {
+    return scheduler;
   }
 
   @Nonnull
   @Override
   public final Iterator<Job> iterator() {
-    return getQueue().iterator();
+    return queue.iterator();
   }
 
   @Override
   public final int size() {
-    return getQueue().size();
+    return queue.size();
   }
 
   @Nonnull
   @Override
   public final Job take() throws InterruptedException {
-    return getQueue().take();
+    return queue.take();
   }
 
   @Override
   public final int remainingCapacity() {
-    return getQueue().remainingCapacity();
+    return queue.remainingCapacity();
   }
 
   @Override
   public final int drainTo(final @Nonnull Collection<? super Job> c) {
-    return getQueue().drainTo(c);
+    return queue.drainTo(c);
   }
 
   @Override
   public final int drainTo(final @Nonnull Collection<? super Job> c, final int maxElements) {
-    return getQueue().drainTo(c, maxElements);
+    return queue.drainTo(c, maxElements);
   }
 
   @Override
   public final boolean offer(final @Nonnull Job job) {
-    return getQueue().offer(job);
+    return queue.offer(job);
   }
 
   @Override
   public final Job peek() {
-    return getQueue().peek();
+    return queue.peek();
+  }
+
+  /**
+   * Get the BlockingQueue backing this scheduler.
+   *
+   * @return an instance of BlockingQueue
+   */
+  protected final BlockingQueue<Job> getQueue() {
+    return queue;
+  }
+
+  /**
+   * An implementation of ai.preferred.venom.Scheduler using BasicJob.
+   */
+  public static class ExternalScheduler implements ai.preferred.venom.Scheduler {
+
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalScheduler.class);
+
+    /**
+     * The queue used for this scheduler.
+     */
+    private final BlockingQueue<Job> queue;
+
+    /**
+     * Constructs an instance of ExternalScheduler
+     *
+     * @param queue an instance of BlockingQueue
+     */
+    public ExternalScheduler(final BlockingQueue<Job> queue) {
+      this.queue = queue;
+    }
+
+    @Override
+    public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
+      final Job job = new BasicJob(r, h, p, pf, queue);
+      queue.add(job);
+      LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
+    }
+
+    @Override
+    public final void add(final Request r, final Handler h, final Priority p) {
+      add(r, h, p, Priority.FLOOR);
+    }
+
+    @Override
+    public final void add(final Request r, final Handler h) {
+      add(r, h, Priority.DEFAULT);
+    }
+
+    @Override
+    public final void add(final Request r, final Priority p, final Priority pf) {
+      add(r, null, p, pf);
+    }
+
+    @Override
+    public final void add(final Request r, final Priority p) {
+      add(r, null, p, Priority.FLOOR);
+    }
+
+    @Override
+    public final void add(final Request r) {
+      add(r, null, Priority.DEFAULT, Priority.FLOOR);
+    }
+
   }
 }
