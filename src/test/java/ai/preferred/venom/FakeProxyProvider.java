@@ -21,33 +21,10 @@ import org.apache.http.HttpHost;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class FakeProxyProvider implements ProxyProvider {
 
   private final HttpHost proxy = new HttpHost("http://127.0.0.1:8080");
-
-  @Override
-  public @NotNull List<HttpHost> getProxyList() {
-    return Collections.singletonList(proxy);
-  }
-
-  @Override
-  public void add(@NotNull HttpHost proxy) {
-
-  }
-
-  @Override
-  public void addAll(@NotNull Collection<HttpHost> proxies) {
-
-  }
-
-  @Override
-  public void remove(@NotNull HttpHost proxy) {
-
-  }
 
   @Nullable
   @Override

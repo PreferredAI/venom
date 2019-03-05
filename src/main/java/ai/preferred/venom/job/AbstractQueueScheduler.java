@@ -125,7 +125,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     private final BlockingQueue<Job> queue;
 
     /**
-     * Constructs an instance of ExternalScheduler
+     * Constructs an instance of ExternalScheduler.
      *
      * @param queue an instance of BlockingQueue
      */
