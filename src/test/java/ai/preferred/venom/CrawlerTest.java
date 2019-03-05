@@ -360,8 +360,8 @@ public class CrawlerTest {
         .build()
         .start();
 
-    crawler.getScheduler().add(vRequest, assertHandler);
     crawler.interruptAndClose();
+    crawler.getScheduler().add(vRequest, assertHandler);
 
     Assertions.assertEquals(0, fetcher.getCounter());
   }
