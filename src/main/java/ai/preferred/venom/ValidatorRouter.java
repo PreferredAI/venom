@@ -22,7 +22,7 @@ import ai.preferred.venom.validator.Validator;
 import javax.validation.constraints.NotNull;
 
 /**
- * This interface allows the user to map request to handleable.
+ * This interface allows the user to map request to handler.
  *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee

@@ -29,12 +29,12 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Ween Jiann Lee
  */
-public class FIFOScheduler extends AbstractQueueScheduler {
+public class FIFOQueueScheduler extends AbstractQueueScheduler {
 
   /**
-   * Constructs an instance of FIFOScheduler.
+   * Constructs an instance of FIFOQueueScheduler.
    */
-  public FIFOScheduler() {
+  public FIFOQueueScheduler() {
     super(new LinkedBlockingQueue<>());
   }
 

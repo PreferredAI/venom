@@ -105,19 +105,19 @@ public class VResponse implements Response, Unwrappable {
   }
 
   /**
-   * Returns a Joup document of this response.
+   * Returns a jsoup document of this response.
    *
-   * @return Jsoup document of response
+   * @return jsoup document of response
    */
   public final Document getJsoup() {
     return Jsoup.parse(getHtml(), getBaseUrl());
   }
 
   /**
-   * Returns a Jsoup document of this response.
+   * Returns a jsoup document of this response.
    *
    * @param charset use specified charset for this html document
-   * @return Jsoup document of response
+   * @return jsoup document of response
    */
   public final Document getJsoup(final Charset charset) {
     return Jsoup.parse(getHtml(charset), getBaseUrl());

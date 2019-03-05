@@ -17,39 +17,35 @@
 package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
+import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class FIFOSchedulerTest {
+import java.util.ArrayList;
+import java.util.List;
+
+public class LazyQueueSchedulerTest {
 
   @Test
-  public void testAddRequest() {
-    final FIFOScheduler scheduler = new FIFOScheduler();
+  public void testIterator() {
+    final List<Request> requests = new ArrayList<>();
 
     final String url = "https://venom.preferred.ai";
+    final VRequest vRequestNeg = new VRequest(url);
     final VRequest vRequest = new VRequest(url);
 
-    scheduler.getScheduler().add(vRequest);
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
-  }
-
-  @Test
-  public void testAddRequestHandler() {
-    final FIFOScheduler scheduler = new FIFOScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
+    requests.add(vRequest);
+    requests.add(vRequestNeg);
+    requests.add(vRequestNeg);
+    requests.add(vRequestNeg);
 
     final Handler handler = (request, response, schedulerH, session, worker) -> {
 
     };
 
-    scheduler.getScheduler().add(vRequest, handler);
+    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
+
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
@@ -58,23 +54,31 @@ public class FIFOSchedulerTest {
   }
 
   @Test
-  public void testFIFOQueue() {
-    final FIFOScheduler scheduler = new FIFOScheduler();
+  public void testLazyQueue() {
+    final List<Request> requests = new ArrayList<>();
 
     final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
     final VRequest vRequestNeg = new VRequest(url);
 
-    scheduler.getScheduler().add(vRequest, Priority.HIGH);
-    scheduler.getScheduler().add(vRequestNeg, Priority.HIGHEST);
-    scheduler.getScheduler().add(vRequestNeg, Priority.DEFAULT);
-    scheduler.getScheduler().add(vRequestNeg, Priority.LOW);
+    requests.add(vRequestNeg);
+    requests.add(vRequestNeg);
+    requests.add(vRequestNeg);
+    requests.add(vRequestNeg);
+
+    final Handler handler = (request, response, schedulerH, session, worker) -> {
+
+    };
+
+
+    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
+    final VRequest vRequest = new VRequest(url);
+    scheduler.getScheduler().add(vRequest);
 
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(Priority.HIGH, job.getPriority());
+    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
 }

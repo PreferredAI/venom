@@ -17,6 +17,8 @@
 package ai.preferred.venom.job;
 
 
+import ai.preferred.venom.Scheduler;
+
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -28,13 +30,13 @@ import java.util.concurrent.BlockingQueue;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface Scheduler<T extends Job> extends BlockingQueue<T> {
+public interface QueueScheduler<T extends Job> extends BlockingQueue<T> {
 
   /**
    * Get the scheduler to add jobs.
    *
    * @return an instance of Scheduler
    */
-  ai.preferred.venom.Scheduler getScheduler();
+  Scheduler getScheduler();
 
 }

@@ -17,6 +17,7 @@
 package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
+import ai.preferred.venom.Scheduler;
 import ai.preferred.venom.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Ween Jiann Lee
  * @author Maksim Tkachenko
  */
-public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements Scheduler<Job> {
+public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements QueueScheduler<Job> {
 
   /**
    * The queue used for this scheduler.
@@ -41,7 +42,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   /**
    * The adding part of the scheduler.
    */
-  private final ai.preferred.venom.Scheduler scheduler;
+  private final Scheduler scheduler;
 
   /**
    * Constructs an instance of AbstractQueueScheduler.
@@ -112,7 +113,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   /**
    * An implementation of ai.preferred.venom.Scheduler using BasicJob.
    */
-  public static class ExternalScheduler implements ai.preferred.venom.Scheduler {
+  public static class ExternalScheduler implements Scheduler {
 
     /**
      * Logger.
