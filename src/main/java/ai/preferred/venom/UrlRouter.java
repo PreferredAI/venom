@@ -21,6 +21,7 @@ import ai.preferred.venom.validator.Validator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
 /**
@@ -46,6 +47,16 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * A list of validator rules.
    */
   private final Map<Pattern, Validator> validatorRules = new LinkedHashMap<>();
+
+  /**
+   * A read write lock for handler rules.
+   */
+  private final ReentrantReadWriteLock handlerRulesLock = new ReentrantReadWriteLock();
+
+  /**
+   * A read write lock for validator rules.
+   */
+  private final ReentrantReadWriteLock validatorRulesLock = new ReentrantReadWriteLock();
 
   /**
    * Constructs a url router without default handler.
@@ -74,7 +85,12 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * @return this.
    */
   public final UrlRouter register(final Pattern urlPattern, final Handler handler) {
-    handlerRules.put(urlPattern, handler);
+    handlerRulesLock.writeLock().lock();
+    try {
+      handlerRules.put(urlPattern, handler);
+    } finally {
+      handlerRulesLock.writeLock().unlock();
+    }
     return this;
   }
 
@@ -89,7 +105,12 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
    * @return this.
    */
   public final UrlRouter register(final Pattern urlPattern, final Validator validator) {
-    validatorRules.put(urlPattern, validator);
+    validatorRulesLock.writeLock().lock();
+    try {
+      validatorRules.put(urlPattern, validator);
+    } finally {
+      validatorRulesLock.writeLock().unlock();
+    }
     return this;
   }
 
@@ -112,10 +133,15 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
 
   @Override
   public final Handler getHandler(final Request request) {
-    for (final Map.Entry<Pattern, Handler> rule : handlerRules.entrySet()) {
-      if (rule.getKey().matcher(request.getUrl()).matches()) {
-        return rule.getValue();
+    handlerRulesLock.readLock().lock();
+    try {
+      for (final Map.Entry<Pattern, Handler> rule : handlerRules.entrySet()) {
+        if (rule.getKey().matcher(request.getUrl()).matches()) {
+          return rule.getValue();
+        }
       }
+    } finally {
+      handlerRulesLock.readLock().unlock();
     }
 
     if (defaultHandler != null) {
@@ -127,10 +153,15 @@ public class UrlRouter implements HandlerRouter, ValidatorRouter {
 
   @Override
   public final Validator getValidator(final Request request) {
-    for (final Map.Entry<Pattern, Validator> rule : validatorRules.entrySet()) {
-      if (rule.getKey().matcher(request.getUrl()).matches()) {
-        return rule.getValue();
+    validatorRulesLock.readLock().lock();
+    try {
+      for (final Map.Entry<Pattern, Validator> rule : validatorRules.entrySet()) {
+        if (rule.getKey().matcher(request.getUrl()).matches()) {
+          return rule.getValue();
+        }
       }
+    } finally {
+      validatorRulesLock.readLock().unlock();
     }
 
     return Validator.ALWAYS_VALID;
