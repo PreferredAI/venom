@@ -32,11 +32,6 @@ import javax.validation.constraints.NotNull;
 public interface ProxyProvider {
 
   /**
-   * An instance of proxy provider without any proxies.
-   */
-  ProxyProvider EMPTY_PROXY_PROVIDER = request -> null;
-
-  /**
    * Returns the get proxy from the list.
    *
    * @param request the request to be made

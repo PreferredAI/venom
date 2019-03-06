@@ -50,7 +50,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
    */
   protected AbstractQueueScheduler(final BlockingQueue<Job> queue) {
     this.queue = queue;
-    this.scheduler = new ExternalScheduler(queue);
+    this.scheduler = new JobScheduler(queue);
   }
 
   @Override
@@ -112,12 +112,12 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   /**
    * An implementation of ai.preferred.venom.job.Scheduler using BasicJob.
    */
-  public static class ExternalScheduler implements Scheduler {
+  public static class JobScheduler implements Scheduler {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalScheduler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobScheduler.class);
 
     /**
      * The queue used for this scheduler.
@@ -125,11 +125,11 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     private final BlockingQueue<Job> queue;
 
     /**
-     * Constructs an instance of ExternalScheduler.
+     * Constructs an instance of JobScheduler.
      *
      * @param queue an instance of BlockingQueue
      */
-    public ExternalScheduler(final BlockingQueue<Job> queue) {
+    public JobScheduler(final BlockingQueue<Job> queue) {
       this.queue = queue;
     }
 
