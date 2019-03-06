@@ -17,8 +17,6 @@
 package ai.preferred.venom.job;
 
 
-import ai.preferred.venom.Scheduler;
-
 import java.util.concurrent.BlockingQueue;
 
 /**

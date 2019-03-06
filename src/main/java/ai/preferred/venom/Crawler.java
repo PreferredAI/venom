@@ -20,6 +20,7 @@ import ai.preferred.venom.fetcher.*;
 import ai.preferred.venom.job.QueueScheduler;
 import ai.preferred.venom.job.Job;
 import ai.preferred.venom.job.PriorityQueueScheduler;
+import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;

@@ -17,7 +17,6 @@
 package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
-import ai.preferred.venom.Scheduler;
 import ai.preferred.venom.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   @Override
-  public final ai.preferred.venom.Scheduler getScheduler() {
+  public final Scheduler getScheduler() {
     return scheduler;
   }
 
@@ -111,7 +110,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   /**
-   * An implementation of ai.preferred.venom.Scheduler using BasicJob.
+   * An implementation of ai.preferred.venom.job.Scheduler using BasicJob.
    */
   public static class ExternalScheduler implements Scheduler {
 

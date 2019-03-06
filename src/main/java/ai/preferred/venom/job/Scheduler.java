@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ai.preferred.venom;
+package ai.preferred.venom.job;
 
-import ai.preferred.venom.job.Priority;
+import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 
 import javax.validation.constraints.NotNull;
