@@ -12,6 +12,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
 [API Reference](https://venom.preferred.ai/docs/) |
+[Wiki](https://github.com/PreferredAI/venom/wiki) |
 [Examples](https://github.com/PreferredAI/venom-examples) |
 [Tutorial](https://github.com/PreferredAI/venom-tutorial) |
 [PreferredAI](https://preferred.ai/)
@@ -52,6 +53,9 @@ If you already have a project then just add Venom as a dependency to your pom.xm
 If you are new to Venom, we have created a set of exercises to get you up and sprinting.
 The exercises are bundled in [venom-tutorials](https://github.com/PreferredAI/venom-tutorials).
 More information can be found on this [page](https://github.com/PreferredAI/venom-tutorials).
+
+### Wiki
+If you would like more information check out our [Wiki](https://github.com/PreferredAI/venom/wiki).
 
 ### Example
 Think you are beyond exercises? Get started quickly with these few lines of code.
