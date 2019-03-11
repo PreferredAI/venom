@@ -67,7 +67,7 @@ public class Example {
                            Session session,
                            Worker worker) {
  
-            String about = response.getJsoup().select(".about p").text();
+            String about = response.getJsoup().select(".sub-title b").text();
             System.out.println("ABOUT: " + about);
  
         }
