@@ -17,9 +17,9 @@
 package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.*;
-import ai.preferred.venom.job.QueueScheduler;
 import ai.preferred.venom.job.Job;
 import ai.preferred.venom.job.PriorityQueueScheduler;
+import ai.preferred.venom.job.QueueScheduler;
 import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
@@ -484,7 +484,7 @@ public final class Crawler implements Interruptible {
      */
     private Builder() {
       fetcher = AsyncFetcher.buildDefault();
-      maxConnections = Runtime.getRuntime().availableProcessors() * 50;
+      maxConnections = 32;
       maxTries = 50;
       name = "Crawler";
       parallelism = Runtime.getRuntime().availableProcessors();
@@ -503,6 +503,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setName(final @NotNull String name) {
+      if (name == null) {
+        throw new IllegalStateException("Attribute 'name' cannot be null.");
+      }
       this.name = name;
       return this;
     }
@@ -514,6 +517,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setFetcher(final @NotNull Fetcher fetcher) {
+      if (fetcher == null) {
+        throw new IllegalStateException("Attribute 'fetcher' cannot be null.");
+      }
       this.fetcher = fetcher;
       return this;
     }
@@ -526,10 +532,9 @@ public final class Crawler implements Interruptible {
      */
     public Builder setParallelism(final int parallelism) {
       if (parallelism <= 0) {
-        LOGGER.warn("Attribute 'numThreads' not within range, defaulting to system default.");
-      } else {
-        this.parallelism = parallelism;
+        throw new IllegalStateException("Attribute 'parallelism' must be more or equal to 1.");
       }
+      this.parallelism = parallelism;
       return this;
     }
 
@@ -540,6 +545,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setWorkerManager(final @NotNull WorkerManager workerManager) {
+      if (workerManager == null) {
+        throw new IllegalStateException("Attribute 'workerManager' cannot be null.");
+      }
       this.workerManager = workerManager;
       return this;
     }
@@ -551,6 +559,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setScheduler(final @NotNull QueueScheduler<? extends Job> queueScheduler) {
+      if (queueScheduler == null) {
+        throw new IllegalStateException("Attribute 'queueScheduler' cannot be null.");
+      }
       this.queueScheduler = queueScheduler;
       return this;
     }
@@ -561,7 +572,7 @@ public final class Crawler implements Interruptible {
      * @param router handler router to be used.
      * @return this
      */
-    public Builder setHandlerRouter(final @NotNull HandlerRouter router) {
+    public Builder setHandlerRouter(final HandlerRouter router) {
       this.router = router;
       return this;
     }
@@ -573,6 +584,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setMaxConnections(final int maxConnections) {
+      if (maxConnections <= 0) {
+        throw new IllegalStateException("Attribute 'maxConnections' must be more or equal to 1.");
+      }
       this.maxConnections = maxConnections;
       return this;
     }
@@ -585,6 +599,9 @@ public final class Crawler implements Interruptible {
      * @return this
      */
     public Builder setMaxTries(final int maxTries) {
+      if (maxTries <= 0) {
+        throw new IllegalStateException("Attribute 'maxTries' must be more or equal to 1.");
+      }
       this.maxTries = maxTries;
       return this;
     }
@@ -602,10 +619,9 @@ public final class Crawler implements Interruptible {
      */
     public Builder setPropRetainProxy(final double propRetainProxy) {
       if (propRetainProxy > 1 || propRetainProxy < 0) {
-        LOGGER.warn("Attribute 'propRetainProxy' not within range, defaulting to 0.05.");
-      } else {
-        this.propRetainProxy = propRetainProxy;
+        throw new IllegalStateException("Attribute 'propRetainProxy' not within range, must be (0,1].");
       }
+      this.propRetainProxy = propRetainProxy;
       return this;
     }
 
@@ -621,12 +637,15 @@ public final class Crawler implements Interruptible {
     }
 
     /**
-     * Sets the Session to be used, if not set, defaults to none.
+     * Sets the Session to be used, if not set, defaults to {@code Session.EMPTY_SESSION}.
      *
      * @param session Sessions where variables are defined
      * @return this
      */
-    public Builder setSession(final @NotNull Session session) {
+    public Builder setSession(final Session session) {
+      if (session == null) {
+        this.session = Session.EMPTY_SESSION;
+      }
       this.session = session;
       return this;
     }
@@ -704,6 +723,7 @@ public final class Crawler implements Interruptible {
             || (ex instanceof ValidationException && ((ValidationException) ex).getStatus() == Validator.Status.STOP)) {
           crawler.pendingJobs.remove(job);
         } else {
+          // Synchronisation required to prevent crawler stopping incorrectly.
           synchronized (crawler.pendingJobs) {
             crawler.pendingJobs.remove(job);
             if (job.getTryCount() < crawler.maxTries) {
