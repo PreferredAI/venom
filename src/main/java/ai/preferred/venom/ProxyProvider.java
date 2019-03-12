@@ -19,7 +19,6 @@ package ai.preferred.venom;
 import ai.preferred.venom.request.Request;
 import org.apache.http.HttpHost;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -37,7 +36,6 @@ public interface ProxyProvider {
    * @param request the request to be made
    * @return the proxy to use
    */
-  @Nullable
   HttpHost get(@NotNull Request request);
 
 }

@@ -596,8 +596,8 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setNumIoThreads(final int numIoThreads) {
-      if (numIoThreads == -1 ^ numIoThreads <= 0) {
-        throw new IllegalStateException("Attribute 'numIoThreads' must be -1, or more or equal to 1.");
+      if (numIoThreads <= 0) {
+        throw new IllegalStateException("Attribute 'numIoThreads' must be more or equal to 1.");
       }
       this.numIoThreads = numIoThreads;
       return this;
@@ -661,6 +661,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setStopCodes(final int... codes) {
+      if (codes == null) {
+        throw new IllegalStateException("Attribute 'codes' cannot be null.");
+      }
       ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
       for (int code : codes) {
         builder.add(code);

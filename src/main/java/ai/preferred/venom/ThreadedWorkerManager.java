@@ -46,6 +46,13 @@ public class ThreadedWorkerManager implements WorkerManager {
 
   /**
    * Constructs a threaded worker manager with a specified executor.
+   */
+  public ThreadedWorkerManager() {
+    this(null);
+  }
+
+  /**
+   * Constructs a threaded worker manager with a specified executor.
    *
    * @param executor An executor service
    */
