@@ -11,7 +11,7 @@ Our aim is to create a blazing fast, fully customizable and robust crawler that 
 
 ### Quick links
 [Website](https://venom.preferred.ai/) |
-[API Reference](https://venom.preferred.ai/docs/) |
+[API Reference](https://venom.preferred.ai/docs) |
 [Wiki](https://github.com/PreferredAI/venom/wiki) |
 [Examples](https://github.com/PreferredAI/venom-examples) |
 [Tutorial](https://github.com/PreferredAI/venom-tutorial) |
