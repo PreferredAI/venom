@@ -78,6 +78,9 @@ public class FakeFetcher implements Fetcher {
     if (status == Status.COMPLETE) {
       LOGGER.debug("Executing completion callback on {}.", request.getUrl());
       callback.completed(request, response);
+    } else if (status == Status.STOP) {
+      LOGGER.debug("Executing fail callback on {} with StopCodeException.", request.getUrl());
+      callback.failed(request, new StopCodeException(401, "STOP"));
     } else {
       final Exception ex = new ValidationException(Validator.Status.INVALID_CONTENT, response,
           "Failure expected... Proceeding with tests.");
@@ -120,6 +123,7 @@ public class FakeFetcher implements Fetcher {
 
   public enum Status {
     COMPLETE,
-    FAILED
+    FAILED,
+    STOP
   }
 }

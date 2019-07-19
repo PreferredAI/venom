@@ -166,7 +166,7 @@ public class AsyncFetcherBuilderTest {
 
   @Test
   void testSetStopCodes() {
-    Assertions.assertThrows(IllegalStateException.class, () -> AsyncFetcher.builder().setStopCodes(null));
+    Assertions.assertThrows(IllegalStateException.class, () -> AsyncFetcher.builder().setStopCodes((int[]) null));
     AsyncFetcher.builder().setStopCodes(500);
   }
 
