@@ -133,7 +133,7 @@ public final class AsyncFetcher implements Fetcher {
   private final boolean compressed;
 
   /**
-   * Constructs an instance of async fetcher.
+   * Constructs an instance of AsyncFetcher.
    *
    * @param builder An instance of builder
    */
@@ -186,7 +186,7 @@ public final class AsyncFetcher implements Fetcher {
   }
 
   /**
-   * Create an instance of async fetcher with default options.
+   * Create an instance of AsyncFetcher with default options.
    *
    * @return A new instance of async fetcher
    */
@@ -205,10 +205,10 @@ public final class AsyncFetcher implements Fetcher {
 
   /**
    * Check if request is an instance of http fetcher request and return it
-   * if true, otherwise wrap it with http fetcher request and return that.
+   * if true, otherwise wrap it with HttpFetcherRequest and return that.
    *
    * @param request An instance of request
-   * @return An instance of http fetcher request
+   * @return An instance of HttpFetcherRequest
    */
   private HttpFetcherRequest normalizeRequest(final Request request) {
     if (request instanceof HttpFetcherRequest) {
@@ -221,7 +221,7 @@ public final class AsyncFetcher implements Fetcher {
    * Prepare fetcher request by prepending headers and set appropriate proxy.
    *
    * @param request An instance of request
-   * @return An instance of http fetcher request
+   * @return An instance of HttpFetcherRequest
    */
   private HttpFetcherRequest prepareFetcherRequest(final Request request) {
     HttpFetcherRequest httpFetcherRequest = normalizeRequest(request);
@@ -544,6 +544,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder register(final @NotNull Callback callback) {
+      if (callback == null) {
+        throw new IllegalStateException("Attribute 'callback' cannot be null.");
+      }
       this.callbacks.add(callback);
       return this;
     }
@@ -567,7 +570,7 @@ public final class AsyncFetcher implements Fetcher {
      * @param fileManager file manager to be used.
      * @return this
      */
-    public Builder setFileManager(final @NotNull FileManager fileManager) {
+    public Builder setFileManager(final FileManager fileManager) {
       this.fileManager = fileManager;
       return this;
     }
@@ -579,6 +582,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setHeaders(final @NotNull Map<String, String> headers) {
+      if (headers == null) {
+        throw new IllegalStateException("Attribute 'headers' cannot be null.");
+      }
       this.headers = headers;
       return this;
     }
@@ -590,6 +596,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setNumIoThreads(final int numIoThreads) {
+      if (numIoThreads <= 0) {
+        throw new IllegalStateException("Attribute 'numIoThreads' must be more or equal to 1.");
+      }
       this.numIoThreads = numIoThreads;
       return this;
     }
@@ -601,6 +610,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setMaxConnections(final int maxConnections) {
+      if (maxConnections <= 0) {
+        throw new IllegalStateException("Attribute 'maxConnections' must be more or equal to 1.");
+      }
       this.maxConnections = maxConnections;
       return this;
     }
@@ -613,6 +625,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setMaxRouteConnections(final int maxRouteConnections) {
+      if (maxRouteConnections <= 0) {
+        throw new IllegalStateException("Attribute 'maxRouteConnections' must be more or equal to 1.");
+      }
       this.maxRouteConnections = maxRouteConnections;
       return this;
     }
@@ -623,7 +638,7 @@ public final class AsyncFetcher implements Fetcher {
      * @param proxyProvider proxy provider to be used.
      * @return this
      */
-    public Builder setProxyProvider(final @NotNull ProxyProvider proxyProvider) {
+    public Builder setProxyProvider(final ProxyProvider proxyProvider) {
       this.proxyProvider = proxyProvider;
       return this;
     }
@@ -646,6 +661,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setStopCodes(final int... codes) {
+      if (codes == null) {
+        throw new IllegalStateException("Attribute 'codes' cannot be null.");
+      }
       ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
       for (int code : codes) {
         builder.add(code);
@@ -662,6 +680,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setThreadFactory(final @NotNull ThreadFactory threadFactory) {
+      if (threadFactory == null) {
+        throw new IllegalStateException("Attribute 'threadFactory' cannot be null.");
+      }
       this.threadFactory = threadFactory;
       return this;
     }
@@ -673,6 +694,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setUserAgent(final @NotNull UserAgent userAgent) {
+      if (userAgent == null) {
+        throw new IllegalStateException("Attribute 'userAgent' cannot be null.");
+      }
       this.userAgent = userAgent;
       return this;
     }
@@ -727,7 +751,7 @@ public final class AsyncFetcher implements Fetcher {
      * @param router router validator setValidatorRouter to be used.
      * @return this
      */
-    public Builder setValidatorRouter(final @NotNull ValidatorRouter router) {
+    public Builder setValidatorRouter(final ValidatorRouter router) {
       this.router = router;
       return this;
     }
@@ -741,6 +765,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setConnectionRequestTimeout(final int connectionRequestTimeout) {
+      if (connectionRequestTimeout == -1 ^ connectionRequestTimeout < 0) {
+        throw new IllegalStateException("Attribute 'connectTimeout' must be -1, or more or equal to 0.");
+      }
       this.connectionRequestTimeout = connectionRequestTimeout;
       return this;
     }
@@ -753,6 +780,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setConnectTimeout(final int connectTimeout) {
+      if (connectTimeout == -1 ^ connectTimeout < 0) {
+        throw new IllegalStateException("Attribute 'connectTimeout' must be -1, or more or equal to 0.");
+      }
       this.connectTimeout = connectTimeout;
       return this;
     }
@@ -766,6 +796,9 @@ public final class AsyncFetcher implements Fetcher {
      * @return this
      */
     public Builder setSocketTimeout(final int socketTimeout) {
+      if (socketTimeout == -1 ^ socketTimeout < 0) {
+        throw new IllegalStateException("Attribute 'socketTimeout' must be -1, or more or equal to 0.");
+      }
       this.socketTimeout = socketTimeout;
       return this;
     }

@@ -24,7 +24,7 @@ public class DefaultUserAgent implements UserAgent {
 
   @Override
   public final String get() {
-    return "Venom/4.0.1 ("
+    return "Venom/4.1 ("
         + System.getProperty("os.name") + "; "
         + System.getProperty("os.version") + "; "
         + System.getProperty("os.arch")

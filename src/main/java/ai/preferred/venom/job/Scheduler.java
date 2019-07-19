@@ -16,16 +16,13 @@
 
 package ai.preferred.venom.job;
 
-
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * This interface represents only the most basic of a scheduler.
- * It imposes no restrictions or particular details on the the
- * type of queue, and allows for different future types to be returned.
+ * This interface represents only the adding part a scheduler.
  *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee

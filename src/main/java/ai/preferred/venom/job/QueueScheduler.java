@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package ai.preferred.venom;
+package ai.preferred.venom.job;
 
-import ai.preferred.venom.request.Request;
-import org.apache.http.HttpHost;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import java.util.concurrent.BlockingQueue;
 
-public class FakeProxyProvider implements ProxyProvider {
+/**
+ * This interface represents only the most basic of a scheduler.
+ * It imposes no restrictions or particular details on the the
+ * type of queue, and allows for different future types to be returned.
+ *
+ * @param <T> the type of Job to schedule
+ * @author Maksim Tkachenko
+ * @author Ween Jiann Lee
+ */
+public interface QueueScheduler<T extends Job> extends BlockingQueue<T> {
 
-  private final HttpHost proxy = new HttpHost("http://127.0.0.1:8080");
+  /**
+   * Get the scheduler to add jobs.
+   *
+   * @return an instance of Scheduler
+   */
+  Scheduler getScheduler();
 
-  @Nullable
-  @Override
-  public HttpHost get(@NotNull Request request) {
-    return proxy;
-  }
 }

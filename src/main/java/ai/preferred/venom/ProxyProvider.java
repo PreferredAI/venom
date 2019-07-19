@@ -19,11 +19,7 @@ package ai.preferred.venom;
 import ai.preferred.venom.request.Request;
 import org.apache.http.HttpHost;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This interface allows the user to define proxies to be used for requests.
@@ -35,71 +31,11 @@ import java.util.List;
 public interface ProxyProvider {
 
   /**
-   * An instance of proxy provider without any proxies.
-   */
-  ProxyProvider EMPTY_PROXY_PROVIDER = new ProxyProvider() {
-    @Override
-    public List<HttpHost> getProxyList() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public void add(final HttpHost proxy) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void addAll(final Collection<HttpHost> proxies) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void remove(final HttpHost proxy) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public HttpHost get(final Request request) {
-      return null;
-    }
-  };
-
-  /**
-   * Returns a list of all proxies.
-   *
-   * @return list of proxies
-   */
-  @NotNull
-  List<HttpHost> getProxyList();
-
-  /**
-   * Add a proxy to the list.
-   *
-   * @param proxy the proxy to be added
-   */
-  void add(@NotNull HttpHost proxy);
-
-  /**
-   * Add a list of proxies to the list.
-   *
-   * @param proxies the list of proxies to be added
-   */
-  void addAll(@NotNull Collection<HttpHost> proxies);
-
-  /**
-   * Remove a proxy from the list.
-   *
-   * @param proxy the proxy to be removed
-   */
-  void remove(@NotNull HttpHost proxy);
-
-  /**
    * Returns the get proxy from the list.
    *
    * @param request the request to be made
    * @return the proxy to use
    */
-  @Nullable
   HttpHost get(@NotNull Request request);
 
 }
