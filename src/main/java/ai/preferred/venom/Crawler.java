@@ -330,7 +330,7 @@ public final class Crawler implements Interruptible {
           completableResponseFuture
               .whenComplete((response, throwable) -> connections.release())
               .thenAcceptAsync(response -> handle(job, response), threadPool)
-              .whenComplete((response, throwable) -> {
+              .whenComplete((blank, throwable) -> {
                 if (throwable != null) {
                   final Throwable cause = throwable.getCause();
                   except(job, cause);
