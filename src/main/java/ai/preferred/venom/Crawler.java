@@ -130,7 +130,7 @@ public final class Crawler implements Interruptible {
   /**
    * The list of fatal exceptions occurred during response handling.
    */
-  private final List<FatalHandlerException> handlerExceptions;
+  private final List<FatalHandlerException> fatalHandlerExceptions;
 
   /**
    * Constructs a new instance of crawler.
@@ -159,7 +159,7 @@ public final class Crawler implements Interruptible {
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
     pendingJobs = ConcurrentHashMap.newKeySet();
-    handlerExceptions = Collections.synchronizedList(new ArrayList<>());
+    fatalHandlerExceptions = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -236,12 +236,66 @@ public final class Crawler implements Interruptible {
   }
 
   /**
+   * Handle a successful response.
+   *
+   * @param job      The instance of job being processed.
+   * @param response Response returned.
+   */
+  private void handle(final Job job, final Response response) {
+    try {
+      if (job.getHandler() != null) {
+        job.getHandler().handle(job.getRequest(), new VResponse(response), getScheduler(),
+            session, workerManager.getWorker());
+      } else if (router != null) {
+        final Handler routedHandler = router.getHandler(job.getRequest());
+        if (routedHandler != null) {
+          routedHandler.handle(job.getRequest(), new VResponse(response), getScheduler(),
+              session, workerManager.getWorker());
+        }
+      } else {
+        LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
+      }
+    } catch (final FatalHandlerException e) {
+      LOGGER.error("Fatal exception occurred in handler, when parsing response ({}), interrupting execution.",
+          job.getRequest().getUrl(), e);
+      fatalHandlerExceptions.add(e);
+    } catch (final Exception e) {
+      LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
+    } finally {
+      pendingJobs.remove(job);
+    }
+  }
+
+  /**
+   * Handle all exception thrown during the fetching process.
+   *
+   * @param job The instance of job being processed.
+   * @param ex  Exception returned.
+   */
+  private void except(final Job job, final Throwable ex) {
+    if ((ex instanceof ValidationException && ((ValidationException) ex).getStatus() == Validator.Status.STOP)
+        || ex instanceof StopCodeException
+        || ex instanceof CancellationException) {
+      pendingJobs.remove(job);
+    } else {
+      synchronized (pendingJobs) { // Synchronisation required to prevent crawler stopping incorrectly.
+        pendingJobs.remove(job);
+        if (job.getTryCount() < maxTries) {
+          job.reQueue();
+        } else {
+          LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
+        }
+      }
+    }
+  }
+
+  /**
    * Start polling for jobs, and fetch request.
    */
   private void run() {
     fetcher.start();
     long lastRequestTime = 0;
-    while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown() && handlerExceptions.isEmpty()) {
+    while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown() && fatalHandlerExceptions.isEmpty()) {
       try {
         final Job job = queueScheduler.poll(100, TimeUnit.MILLISECONDS);
         if (job == null) {
@@ -271,14 +325,44 @@ public final class Crawler implements Interruptible {
             LOGGER.debug("The thread pool is interrupted");
             return;
           }
-          fetcher.fetch(crawlerRequest, new AsyncCrawlerCallbackProcessor(this, job));
+
+          final CompletableFuture<Response> completableResponseFuture = new CompletableFuture<>();
+          completableResponseFuture
+              .whenComplete((response, throwable) -> connections.release())
+              .thenAcceptAsync(response -> handle(job, response), threadPool)
+              .whenComplete((blank, throwable) -> {
+                if (throwable != null) {
+                  final Throwable cause = throwable.getCause();
+                  except(job, cause);
+                }
+              });
+
+          final Callback callback = new Callback() {
+            @Override
+            public void completed(final @NotNull Request request, final @NotNull Response response) {
+              completableResponseFuture.complete(response);
+            }
+
+            @Override
+            public void failed(final @NotNull Request request, final @NotNull Exception ex) {
+              completableResponseFuture.completeExceptionally(ex);
+            }
+
+            @Override
+            public void cancelled(final @NotNull Request request) {
+              completableResponseFuture.cancel(true);
+            }
+          };
+
+          fetcher.fetch(crawlerRequest, callback);
         });
       } catch (InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
         break;
       }
     }
-    if (!handlerExceptions.isEmpty()) {
+    if (!fatalHandlerExceptions.isEmpty()) {
+      LOGGER.debug("Handler exception found... Interrupting.");
       try {
         interrupt();
       } catch (final Exception e) {
@@ -398,10 +482,10 @@ public final class Crawler implements Interruptible {
         }
       }
 
-      if (!handlerExceptions.isEmpty()) {
+      if (!fatalHandlerExceptions.isEmpty()) {
         final FatalHandlerException mainHandlerException;
-        synchronized (handlerExceptions) {
-          final Iterator<FatalHandlerException> iterator = handlerExceptions.iterator();
+        synchronized (fatalHandlerExceptions) {
+          final Iterator<FatalHandlerException> iterator = fatalHandlerExceptions.iterator();
           mainHandlerException = iterator.next();
           while (iterator.hasNext()) {
             mainHandlerException.addSuppressed(iterator.next());
@@ -661,86 +745,4 @@ public final class Crawler implements Interruptible {
 
   }
 
-  /**
-   * This class methods is executed upon the completion of fetcher.
-   */
-  public static final class AsyncCrawlerCallbackProcessor implements Callback {
-
-    /**
-     * The instance of crawler used.
-     */
-    private final Crawler crawler;
-
-    /**
-     * The instance of job being processed.
-     */
-    private final Job job;
-
-    /**
-     * Constructs an instance of async crawler callback processor.
-     *
-     * @param crawler The instance of crawler used
-     * @param job     The instance of job being processed
-     */
-    private AsyncCrawlerCallbackProcessor(final Crawler crawler, final Job job) {
-      this.crawler = crawler;
-      this.job = job;
-    }
-
-    @Override
-    public void completed(final Request request, final Response response) {
-      crawler.connections.release();
-      crawler.threadPool.execute(() -> {
-        try {
-          if (job.getHandler() != null) {
-            job.getHandler().handle(job.getRequest(), new VResponse(response), crawler.queueScheduler.getScheduler(),
-                crawler.session, crawler.workerManager.getWorker());
-          } else if (crawler.router != null) {
-            final Handler routedHandler = crawler.router.getHandler(job.getRequest());
-            if (routedHandler != null) {
-              routedHandler.handle(job.getRequest(), new VResponse(response), crawler.queueScheduler.getScheduler(),
-                  crawler.session, crawler.workerManager.getWorker());
-            }
-          } else {
-            LOGGER.error("No handler to handle request {}.", job.getRequest().getUrl());
-          }
-        } catch (final FatalHandlerException e) {
-          LOGGER.error("Fatal exception occurred in handler, when parsing response ({}), interrupting execution",
-              job.getRequest().getUrl(), e);
-          crawler.handlerExceptions.add(e);
-        } catch (final Exception e) {
-          LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
-        }
-        crawler.pendingJobs.remove(job);
-      });
-    }
-
-    @Override
-    public void failed(final Request request, final Exception ex) {
-      crawler.connections.release();
-      crawler.threadPool.execute(() -> {
-        if (ex instanceof StopCodeException
-            || (ex instanceof ValidationException && ((ValidationException) ex).getStatus() == Validator.Status.STOP)) {
-          crawler.pendingJobs.remove(job);
-        } else {
-          // Synchronisation required to prevent crawler stopping incorrectly.
-          synchronized (crawler.pendingJobs) {
-            crawler.pendingJobs.remove(job);
-            if (job.getTryCount() < crawler.maxTries) {
-              job.reQueue();
-            } else {
-              LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
-            }
-          }
-        }
-      });
-    }
-
-    @Override
-    public void cancelled(final Request request) {
-      crawler.connections.release();
-      crawler.pendingJobs.remove(job);
-    }
-
-  }
 }
