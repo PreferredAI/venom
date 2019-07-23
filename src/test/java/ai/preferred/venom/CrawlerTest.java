@@ -366,5 +366,30 @@ public class CrawlerTest {
     Assertions.assertEquals(0, fetcher.getCounter());
   }
 
+  @Test
+  public void testStopCodeException() throws Exception {
+    final List<FakeFetcher.Status> statuses = Arrays.asList(
+        FakeFetcher.Status.COMPLETE,
+        FakeFetcher.Status.STOP,
+        FakeFetcher.Status.COMPLETE);
+
+    final FakeFetcher fetcher = new FakeFetcher(new LinkedList<>(statuses));
+
+    try (final Crawler crawler = Crawler.builder()
+        .setFetcher(fetcher)
+        .setMaxConnections(1)
+        .setMaxTries(5)
+        .setScheduler(new FIFOQueueScheduler())
+        .setSleepScheduler(new SleepScheduler(0))
+        .build()
+        .start()) {
+
+      for (FakeFetcher.Status status : statuses) {
+        crawler.getScheduler().add(vRequest, handler);
+      }
+    }
+
+    Assertions.assertEquals(3, fetcher.getCounter());
+  }
 
 }
