@@ -104,7 +104,7 @@ public class BasicJob implements Job {
     tryCount++;
     queue.add(this);
 
-    LOGGER.debug("Job {} - {} re-queued.", this.toString(), request.getUrl());
+    LOGGER.debug("Re-queued job {} - {}.", Integer.toHexString(hashCode()), request.getUrl());
   }
 
   @Override
