@@ -137,7 +137,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
       final Job job = new BasicJob(r, h, p, pf, queue);
       queue.add(job);
-      LOGGER.debug("Job {} - {} added to queue.", job.toString(), r.getUrl());
+      LOGGER.debug("Added job {} - {} to queue.", Integer.toHexString(job.hashCode()), r.getUrl());
     }
 
     @Override

@@ -318,7 +318,8 @@ public final class Crawler implements Interruptible {
         connections.acquire();
         pendingJobs.add(job);
         threadPool.execute(() -> {
-          LOGGER.debug("Preparing to fetch {}", job.getRequest().getUrl());
+          LOGGER.debug("Preparing job {} - {} (try {}/{}).",
+              Integer.toHexString(job.hashCode()), job.getRequest().getUrl(), job.getTryCount(), maxTries);
           final CrawlerRequest crawlerRequest = prepareRequest(job.getRequest(), job.getTryCount());
           if (Thread.currentThread().isInterrupted()) {
             pendingJobs.remove(job);
@@ -340,16 +341,22 @@ public final class Crawler implements Interruptible {
           final Callback callback = new Callback() {
             @Override
             public void completed(final @NotNull Request request, final @NotNull Response response) {
+              LOGGER.debug("Completed received for job {} - {}.", Integer.toHexString(job.hashCode()),
+                  job.getRequest().getUrl());
               completableResponseFuture.complete(response);
             }
 
             @Override
             public void failed(final @NotNull Request request, final @NotNull Exception ex) {
+              LOGGER.debug("Failed received for job {} - {}.", Integer.toHexString(job.hashCode()),
+                  job.getRequest().getUrl());
               completableResponseFuture.completeExceptionally(ex);
             }
 
             @Override
             public void cancelled(final @NotNull Request request) {
+              LOGGER.debug("Cancelled received for job {} - {}.", Integer.toHexString(job.hashCode()),
+                  job.getRequest().getUrl());
               completableResponseFuture.cancel(true);
             }
           };
