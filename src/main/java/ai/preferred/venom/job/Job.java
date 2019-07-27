@@ -146,11 +146,13 @@ public class Job {
    * Get the job attribute for a specific attribute class or
    * return {@code null} if not found.
    *
-   * @param clazz The class of attribute to find.
+   * @param clazz the class of attribute to find.
+   * @param <T> the class of attribute to find.
    * @return an instance of job attribute for class or null.
    */
-  public final JobAttribute getJobAttribute(final Class<? extends JobAttribute> clazz) {
-    return jobAttributeMap.get(clazz);
+  public final <T extends JobAttribute> T getJobAttribute(final Class<T> clazz) {
+    //noinspection unchecked
+    return (T) jobAttributeMap.get(clazz);
   }
 
 }

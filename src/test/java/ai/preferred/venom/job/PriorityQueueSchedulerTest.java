@@ -37,7 +37,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertNull(job.getHandler());
     Assertions.assertEquals(
         Priority.DEFAULT,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
@@ -59,7 +59,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertEquals(handler, job.getHandler());
     Assertions.assertEquals(
         Priority.DEFAULT,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
@@ -82,7 +82,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertNull(job.getHandler());
     Assertions.assertEquals(
         Priority.HIGHEST,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
@@ -101,7 +101,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertNull(job.getHandler());
     Assertions.assertEquals(
         Priority.HIGH,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
 
     job.prepareRetry();
@@ -112,7 +112,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertNull(jobRQ.getHandler());
     Assertions.assertEquals(
         Priority.NORMAL,
-        ((PriorityJobAttribute) jobRQ.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        jobRQ.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
 
     job.prepareRetry();
@@ -123,7 +123,7 @@ public class PriorityQueueSchedulerTest {
     Assertions.assertNull(jobRQRQ.getHandler());
     Assertions.assertEquals(
         Priority.NORMAL,
-        ((PriorityJobAttribute) jobRQRQ.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        jobRQRQ.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 

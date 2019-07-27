@@ -31,7 +31,7 @@ public abstract class AbstractPriorityQueueScheduler extends AbstractQueueSchedu
    */
   protected AbstractPriorityQueueScheduler() {
     super(new PriorityBlockingQueue<>(11,
-        Comparator.comparing(o -> ((PriorityJobAttribute) o.getJobAttribute(PriorityJobAttribute.class)))));
+        Comparator.comparing(o -> (o.getJobAttribute(PriorityJobAttribute.class)))));
   }
 
   /**

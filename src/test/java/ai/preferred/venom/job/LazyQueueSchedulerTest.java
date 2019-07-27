@@ -52,7 +52,7 @@ public class LazyQueueSchedulerTest {
     Assertions.assertEquals(handler, job.getHandler());
     Assertions.assertEquals(
         Priority.DEFAULT,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
@@ -82,7 +82,7 @@ public class LazyQueueSchedulerTest {
     Assertions.assertNull(job.getHandler());
     Assertions.assertEquals(
         Priority.DEFAULT,
-        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
