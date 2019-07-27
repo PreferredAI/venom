@@ -32,6 +32,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Ween Jiann Lee
  * @author Maksim Tkachenko
  */
+@SuppressWarnings("NullableProblems")
 public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements QueueScheduler {
 
   /**

@@ -22,7 +22,6 @@ import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.*;
 
@@ -81,10 +80,9 @@ public class DummyFileManagerTest {
     final byte[] content = "This is test data.".getBytes();
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Header[] headers = {};
-    final HttpHost proxy = null;
 
     final Request request = new VRequest(url);
-    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, null);
 
     final String md5 = DigestUtils.md5Hex(content);
     final String subDirName = md5.substring(0, 2);

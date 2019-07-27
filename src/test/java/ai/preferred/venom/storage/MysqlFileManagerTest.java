@@ -23,7 +23,6 @@ import ai.preferred.venom.response.Response;
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -98,10 +97,9 @@ public class MysqlFileManagerTest {
     final byte[] content = "This is put test data.".getBytes();
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Header[] headers = {};
-    final HttpHost proxy = null;
 
     final Request request = new VRequest(url);
-    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, null);
 
     fileManager.put(request, response);
     // TODO: Check DB
@@ -114,10 +112,9 @@ public class MysqlFileManagerTest {
     final byte[] content = "This is complete callback test data.".getBytes();
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Header[] headers = {};
-    final HttpHost proxy = null;
 
     final Request request = new VRequest(url);
-    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, url, content, contentType, headers, null);
 
     fileManager.getCallback().completed(request, response);
     // TODO: Check DB

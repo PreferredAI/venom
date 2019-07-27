@@ -53,6 +53,7 @@ public interface QueueScheduler extends BlockingQueue<Job> {
    * @throws IllegalArgumentException if some property of the specified
    *                                  element prevents it from being added to this queue
    */
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   default void removeAndAdd(final @Nonnull Job job) {
     synchronized (job) {
       remove(job);
