@@ -32,80 +32,46 @@ public interface Scheduler {
   /**
    * Adds a request to the queue.
    * <p>
-   * This request would be parsed by the handler specified, and
-   * its priority can be downgraded to a minimum priority specified.
+   * This request would be parsed by the handler specified.
    * </p>
    *
-   * @param r  request to fetch when dequeued
-   * @param h  handler to be used to parse the request
-   * @param p  initial priority of the request
-   * @param pf the minimum (floor) priority of this request
+   * @param request       request to fetch when dequeued.
+   * @param handler       handler to be used to parse the request.
+   * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
+  void add(@NotNull Request request, @NotNull Handler handler, JobAttribute... jobAttributes);
 
   /**
    * Adds a request to the queue.
    * <p>
-   * This request would be parsed by the handler specified, and
-   * its priority can be downgraded to the default minimum priority.
+   * This request would be parsed by the handler specified.
    * </p>
    *
-   * @param r request to fetch when dequeued
-   * @param h handler to be used to parse the request
-   * @param p initial priority of the request
+   * @param request       request to fetch when dequeued.
+   * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p);
+  void add(@NotNull Request request, JobAttribute... jobAttributes);
 
   /**
    * Adds a request to the queue.
    * <p>
-   * This request would be parsed by the handler specified, and
-   * it's initialised with default priority that can be downgraded to
-   * the default minimum priority.
+   * This request would be parsed by the handler specified.
    * </p>
    *
-   * @param r request to fetch when dequeued
-   * @param h handler to be used to parse the request
+   * @param request request to fetch when dequeued.
+   * @param handler handler to be used to parse the request.
    */
-  void add(@NotNull Request r, @NotNull Handler h);
+  void add(@NotNull Request request, @NotNull Handler handler);
 
   /**
    * Adds a request to the queue.
    * <p>
    * This request would be parsed by a handler defined in Router
-   * or otherwise, and its priority can be downgraded to a minimum
-   * priority specified.
+   * or otherwise defined.
    * </p>
    *
-   * @param r  request to fetch when dequeued
-   * @param p  initial priority of the request
-   * @param pf the minimum (floor) priority of this request
+   * @param request request to fetch when dequeued.
    */
-  void add(@NotNull Request r, Priority p, Priority pf);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise defined, and its priority can be downgraded to the
-   * default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   * @param p initial priority of the request
-   */
-  void add(@NotNull Request r, Priority p);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise defined, and it's initialised with default priority
-   * that can be downgraded to the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   */
-  void add(@NotNull Request r);
+  void add(@NotNull Request request);
 
 }

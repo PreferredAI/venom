@@ -17,6 +17,7 @@
 package ai.preferred.venom.job;
 
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -24,11 +25,10 @@ import java.util.concurrent.BlockingQueue;
  * It imposes no restrictions or particular details on the the
  * type of queue, and allows for different future types to be returned.
  *
- * @param <T> the type of Job to schedule
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface QueueScheduler<T extends Job> extends BlockingQueue<T> {
+public interface QueueScheduler extends BlockingQueue<Job> {
 
   /**
    * Get the scheduler to add jobs.
@@ -36,5 +36,28 @@ public interface QueueScheduler<T extends Job> extends BlockingQueue<T> {
    * @return an instance of Scheduler
    */
   Scheduler getScheduler();
+
+  /**
+   * Removes a single instance of the specified element from this queue,
+   * if it is present then Inserts the specified element into this queue
+   * if it is possible to do so immediately without violating capacity
+   * restrictions, returning {@code true} upon success and throwing an
+   * {@code IllegalStateException} if no space is currently available.
+   *
+   * @param job element to be removed from this queue, if present and added
+   * @throws ClassCastException       if the class of the specified element
+   *                                  is incompatible with this queue or if the class
+   *                                  of the specified element
+   *                                  prevents it from being added to this queue
+   * @throws NullPointerException     if the specified element is null
+   * @throws IllegalArgumentException if some property of the specified
+   *                                  element prevents it from being added to this queue
+   */
+  default void removeAndAdd(final @Nonnull Job job) {
+    synchronized (job) {
+      remove(job);
+      add(job);
+    }
+  }
 
 }

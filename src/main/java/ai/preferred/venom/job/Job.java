@@ -18,18 +18,70 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This interface represents only the most basic of a job, to
- * be placed in a scheduler or other forms.
- *
- * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface Job extends Comparable<Job> {
+public class Job {
+
+  /**
+   * Logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
+
+  /**
+   * The request of this job.
+   */
+  private final Request request;
+
+  /**
+   * The handler of this job.
+   */
+  private final Handler handler;
+
+  /**
+   *
+   */
+  private final Map<Class<? extends JobAttribute>, JobAttribute> jobAttributeMap = new HashMap<>();
+
+  /**
+   * The current try of this job.
+   */
+  private int tryCount = 1;
+
+  /**
+   * Constructs a basic job.
+   *
+   * @param request The request of this job.
+   * @param handler The handler of this job.
+   */
+  public Job(final Request request, final Handler handler) {
+    this(request, handler, (JobAttribute[]) null);
+  }
+
+  /**
+   * Constructs a basic job.
+   *
+   * @param request The request of this job.
+   * @param handler The handler of this job.
+   */
+  public Job(final Request request, final Handler handler, final JobAttribute... jobAttributes) {
+    this.request = request;
+    this.handler = handler;
+    if (jobAttributes != null) {
+      for (final JobAttribute jobAttribute : jobAttributes) {
+        jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
+      }
+    }
+  }
+
 
   /**
    * Get the request of this job.
@@ -37,7 +89,9 @@ public interface Job extends Comparable<Job> {
    * @return Request of the job.
    */
   @NotNull
-  Request getRequest();
+  public final Request getRequest() {
+    return request;
+  }
 
   /**
    * Get the handler to handle the response of the job.
@@ -49,26 +103,31 @@ public interface Job extends Comparable<Job> {
    * @return Handler for the response or null.
    */
   @Nullable
-  Handler getHandler();
-
-  /**
-   * Get the current priority set for this job.
-   *
-   * @return the current priority of the job.
-   */
-  Priority getPriority();
-
-  /**
-   * Remove any existing in queue, downgrades the priority and
-   * adds the job back into queue.
-   */
-  void reQueue();
+  public final Handler getHandler() {
+    return handler;
+  }
 
   /**
    * Get attempt number of this job.
    *
    * @return Attempt (try) count of the job.
    */
-  int getTryCount();
+  public final int getTryCount() {
+    return tryCount;
+  }
+
+  public final void prepareRetry() {
+    jobAttributeMap.forEach((k, jobAttribute) -> jobAttribute.prepareRetry());
+    tryCount++;
+  }
+
+  public final Job addJobAttribute(final JobAttribute jobAttribute) {
+    jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
+    return this;
+  }
+
+  public final JobAttribute getJobAttribute(final Class<? extends JobAttribute> clazz) {
+    return jobAttributeMap.get(clazz);
+  }
 
 }

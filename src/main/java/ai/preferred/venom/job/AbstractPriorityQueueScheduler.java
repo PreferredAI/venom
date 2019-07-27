@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Preferred.AI
+ * Copyright (c) 2019 Preferred.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,50 +17,45 @@
 package ai.preferred.venom.job;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Comparator;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- * This class provides and implementation of scheduler with a first in
- * first out queue.
- * <p>
- * Jobs in queue will be processed first in order of insertion.
- * </p>
- *
- * @author Ween Jiann Lee
- */
-public class FIFOQueueScheduler extends AbstractQueueScheduler {
+public abstract class AbstractPriorityQueueScheduler extends AbstractQueueScheduler {
 
   /**
-   * Constructs an instance of FIFOQueueScheduler.
+   * Constructs an instance of AbstractQueueScheduler.
    */
-  public FIFOQueueScheduler() {
-    super(new LinkedBlockingQueue<>());
+  protected AbstractPriorityQueueScheduler() {
+    super(new PriorityBlockingQueue<>(11,
+        Comparator.comparing(o -> ((PriorityJobAttribute) o.getJobAttribute(PriorityJobAttribute.class)))));
+  }
+
+  protected final Job ensurePriorityJobAttribute(final Job job) {
+    if (job.getJobAttribute(PriorityJobAttribute.class) == null) {
+      job.addJobAttribute(new PriorityJobAttribute());
+    }
+    return job;
   }
 
   @Override
   public final void put(final @Nonnull Job job) throws InterruptedException {
+    ensurePriorityJobAttribute(job);
     getQueue().put(job);
   }
 
   @Override
   public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
       throws InterruptedException {
+    ensurePriorityJobAttribute(job);
     return getQueue().offer(job, timeout, unit);
   }
 
   @Override
   public final boolean offer(final @Nonnull Job job) {
+    ensurePriorityJobAttribute(job);
     return getQueue().offer(job);
   }
 
-  @Override
-  public final Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
-    return getQueue().poll(timeout, unit);
-  }
 
-  @Override
-  public final Job poll() {
-    return getQueue().poll();
-  }
 }

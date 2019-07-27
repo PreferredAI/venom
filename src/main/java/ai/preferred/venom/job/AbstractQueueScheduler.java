@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Ween Jiann Lee
  * @author Maksim Tkachenko
  */
-public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements QueueScheduler<Job> {
+public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements QueueScheduler {
 
   /**
    * The queue used for this scheduler.
@@ -50,7 +51,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
    */
   protected AbstractQueueScheduler(final BlockingQueue<Job> queue) {
     this.queue = queue;
-    this.scheduler = new JobScheduler(queue);
+    this.scheduler = new JobScheduler(this);
   }
 
   @Override
@@ -91,11 +92,6 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   @Override
-  public final boolean offer(final @Nonnull Job job) {
-    return queue.offer(job);
-  }
-
-  @Override
   public final Job peek() {
     return queue.peek();
   }
@@ -110,7 +106,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   }
 
   /**
-   * An implementation of ai.preferred.venom.job.Scheduler using BasicJob.
+   * An implementation of ai.preferred.venom.job.Scheduler using Job.
    */
   public static class JobScheduler implements Scheduler {
 
@@ -122,47 +118,43 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     /**
      * The queue used for this scheduler.
      */
-    private final BlockingQueue<Job> queue;
+    private final QueueScheduler queueScheduler;
 
     /**
      * Constructs an instance of JobScheduler.
      *
-     * @param queue an instance of BlockingQueue
+     * @param queueScheduler an instance of BlockingQueue
      */
-    public JobScheduler(final BlockingQueue<Job> queue) {
-      this.queue = queue;
+    public JobScheduler(final QueueScheduler queueScheduler) {
+      this.queueScheduler = queueScheduler;
     }
 
     @Override
-    public final void add(final Request r, final Handler h, final Priority p, final Priority pf) {
-      final Job job = new BasicJob(r, h, p, pf, queue);
-      queue.add(job);
-      LOGGER.debug("Added job {} - {} to queue.", Integer.toHexString(job.hashCode()), r.getUrl());
+    public void add(final @NotNull Request request, final @NotNull Handler handler,
+                    final JobAttribute... jobAttributes) {
+      final Job job = new Job(request, handler);
+      if (jobAttributes != null) {
+        for (JobAttribute jobAttribute : jobAttributes) {
+          job.addJobAttribute(jobAttribute);
+        }
+      }
+      queueScheduler.add(job);
+      LOGGER.debug("Job {} - {} added to queue.", job.toString(), request.getUrl());
     }
 
     @Override
-    public final void add(final Request r, final Handler h, final Priority p) {
-      add(r, h, p, Priority.FLOOR);
+    public void add(final @NotNull Request request, final JobAttribute... jobAttributes) {
+      add(request, null, jobAttributes);
     }
 
     @Override
-    public final void add(final Request r, final Handler h) {
-      add(r, h, Priority.DEFAULT);
+    public final void add(final Request request, final Handler handler) {
+      add(request, handler, (JobAttribute[]) null);
     }
 
     @Override
-    public final void add(final Request r, final Priority p, final Priority pf) {
-      add(r, null, p, pf);
-    }
-
-    @Override
-    public final void add(final Request r, final Priority p) {
-      add(r, null, p, Priority.FLOOR);
-    }
-
-    @Override
-    public final void add(final Request r) {
-      add(r, null, Priority.DEFAULT, Priority.FLOOR);
+    public void add(final @NotNull Request request) {
+      add(request, null, (JobAttribute[]) null);
     }
 
   }

@@ -50,7 +50,10 @@ public class LazyQueueSchedulerTest {
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertEquals(handler, job.getHandler());
-    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertEquals(
+        Priority.DEFAULT,
+        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+    );
   }
 
   @Test
@@ -69,7 +72,6 @@ public class LazyQueueSchedulerTest {
 
     };
 
-
     final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
     final VRequest vRequest = new VRequest(url);
     scheduler.getScheduler().add(vRequest);
@@ -78,7 +80,10 @@ public class LazyQueueSchedulerTest {
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
+    Assertions.assertEquals(
+        Priority.DEFAULT,
+        ((PriorityJobAttribute) job.getJobAttribute(PriorityJobAttribute.class)).getPriority()
+    );
   }
 
 }

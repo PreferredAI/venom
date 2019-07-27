@@ -89,7 +89,7 @@ public final class Crawler implements Interruptible {
    * The scheduler used.
    */
   @NotNull
-  private final QueueScheduler<? extends Job> queueScheduler;
+  private final QueueScheduler queueScheduler;
 
   /**
    * The maximum number of simultaneous connections.
@@ -281,7 +281,9 @@ public final class Crawler implements Interruptible {
       synchronized (pendingJobs) { // Synchronisation required to prevent crawler stopping incorrectly.
         pendingJobs.remove(job);
         if (job.getTryCount() < maxTries) {
-          job.reQueue();
+          job.prepareRetry();
+          queueScheduler.removeAndAdd(job);
+          LOGGER.debug("Job {} - {} re-queued.", Integer.toHexString(job.hashCode()), job.getRequest().getUrl());
         } else {
           LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
         }
@@ -558,7 +560,7 @@ public final class Crawler implements Interruptible {
     /**
      * The scheduler used.
      */
-    private QueueScheduler<? extends Job> queueScheduler;
+    private QueueScheduler queueScheduler;
 
     /**
      * The sleep scheduler used.
@@ -649,7 +651,7 @@ public final class Crawler implements Interruptible {
      * @param queueScheduler scheduler to be used.
      * @return this
      */
-    public Builder setScheduler(final @NotNull QueueScheduler<? extends Job> queueScheduler) {
+    public Builder setScheduler(final @NotNull QueueScheduler queueScheduler) {
       if (queueScheduler == null) {
         throw new IllegalStateException("Attribute 'queueScheduler' cannot be null.");
       }

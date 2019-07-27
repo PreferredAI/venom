@@ -35,7 +35,6 @@ public class FIFOQueueSchedulerTest {
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -54,7 +53,6 @@ public class FIFOQueueSchedulerTest {
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertEquals(handler, job.getHandler());
-    Assertions.assertEquals(Priority.DEFAULT, job.getPriority());
   }
 
   @Test
@@ -65,16 +63,15 @@ public class FIFOQueueSchedulerTest {
     final VRequest vRequest = new VRequest(url);
     final VRequest vRequestNeg = new VRequest(url);
 
-    scheduler.getScheduler().add(vRequest, Priority.HIGH);
-    scheduler.getScheduler().add(vRequestNeg, Priority.HIGHEST);
-    scheduler.getScheduler().add(vRequestNeg, Priority.DEFAULT);
-    scheduler.getScheduler().add(vRequestNeg, Priority.LOW);
+    scheduler.getScheduler().add(vRequest, new PriorityJobAttribute(Priority.HIGH));
+    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.HIGHEST));
+    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.DEFAULT));
+    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.LOW));
 
     final Job job = scheduler.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(Priority.HIGH, job.getPriority());
   }
 
 }
