@@ -18,6 +18,12 @@ package ai.preferred.venom.job;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This class provides an implementation of job attribute with comparable
+ * priority.
+ *
+ * @author Ween Jiann Lee
+ */
 public class PriorityJobAttribute implements JobAttribute, Comparable<PriorityJobAttribute> {
 
   /**
@@ -57,12 +63,17 @@ public class PriorityJobAttribute implements JobAttribute, Comparable<PriorityJo
     this(Priority.DEFAULT);
   }
 
+  /**
+   * Get the priority in this attribute.
+   *
+   * @return the priority in this attribute.
+   */
   public final Priority getPriority() {
     return priority;
   }
 
   @Override
-  public void prepareRetry() {
+  public final void prepareRetry() {
     priority = priority.downgrade(priorityFloor);
   }
 

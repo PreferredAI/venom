@@ -16,8 +16,22 @@
 
 package ai.preferred.venom.job;
 
+/**
+ * This interface represents attributes that can be added
+ * to jobs to manipulate the crawling process.
+ *
+ * @author Ween Jiann Lee
+ */
 public interface JobAttribute {
 
+  /**
+   * This method is called before the job is scheduled
+   * for a retry.
+   * <p>
+   * This method allows you to specify the logic to
+   * move the job into its subsequent state for a retry.
+   * </p>
+   */
   void prepareRetry();
 
 }

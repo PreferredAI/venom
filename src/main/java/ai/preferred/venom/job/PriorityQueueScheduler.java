@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class provides and implementation of scheduler with a priority
+ * This class provides an implementation of scheduler with a priority
  * sensitive queue.
  * <p>
  * Jobs with higher priority will be processed first.

@@ -69,8 +69,9 @@ public class Job {
   /**
    * Constructs a basic job.
    *
-   * @param request The request of this job.
-   * @param handler The handler of this job.
+   * @param request       The request of this job.
+   * @param handler       The handler of this job.
+   * @param jobAttributes attributes to insert to the job.
    */
   public Job(final Request request, final Handler handler, final JobAttribute... jobAttributes) {
     this.request = request;
@@ -116,16 +117,38 @@ public class Job {
     return tryCount;
   }
 
+  /**
+   * This method is called before the job is scheduled
+   * for a retry.
+   * <p>
+   * This method allows you to specify the logic to
+   * move the job into its subsequent state for a retry.
+   * </p>
+   */
   public final void prepareRetry() {
     jobAttributeMap.forEach((k, jobAttribute) -> jobAttribute.prepareRetry());
     tryCount++;
   }
 
+  /**
+   * Adds or replace the current job attribute if the class of
+   * attribute is already present in the map.
+   *
+   * @param jobAttribute the job attribute to add or replace.
+   * @return this.
+   */
   public final Job addJobAttribute(final JobAttribute jobAttribute) {
     jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
     return this;
   }
 
+  /**
+   * Get the job attribute for a specific attribute class or
+   * return {@code null} if not found.
+   *
+   * @param clazz The class of attribute to find.
+   * @return an instance of job attribute for class or null.
+   */
   public final JobAttribute getJobAttribute(final Class<? extends JobAttribute> clazz) {
     return jobAttributeMap.get(clazz);
   }

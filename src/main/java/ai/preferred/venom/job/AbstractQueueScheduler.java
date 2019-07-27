@@ -130,8 +130,8 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     }
 
     @Override
-    public void add(final @NotNull Request request, final @NotNull Handler handler,
-                    final JobAttribute... jobAttributes) {
+    public final void add(final @NotNull Request request, final @NotNull Handler handler,
+                          final JobAttribute... jobAttributes) {
       final Job job = new Job(request, handler);
       if (jobAttributes != null) {
         for (JobAttribute jobAttribute : jobAttributes) {
@@ -143,7 +143,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     }
 
     @Override
-    public void add(final @NotNull Request request, final JobAttribute... jobAttributes) {
+    public final void add(final @NotNull Request request, final JobAttribute... jobAttributes) {
       add(request, null, jobAttributes);
     }
 
@@ -153,7 +153,7 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     }
 
     @Override
-    public void add(final @NotNull Request request) {
+    public final void add(final @NotNull Request request) {
       add(request, null, (JobAttribute[]) null);
     }
 

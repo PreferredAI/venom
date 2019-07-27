@@ -21,6 +21,9 @@ import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Ween Jiann Lee
+ */
 public abstract class AbstractPriorityQueueScheduler extends AbstractQueueScheduler {
 
   /**
@@ -31,7 +34,14 @@ public abstract class AbstractPriorityQueueScheduler extends AbstractQueueSchedu
         Comparator.comparing(o -> ((PriorityJobAttribute) o.getJobAttribute(PriorityJobAttribute.class)))));
   }
 
-  protected final Job ensurePriorityJobAttribute(final Job job) {
+  /**
+   * Check the job for {@see PriorityJobAttribute}, if missing,
+   * adds it to the job.
+   *
+   * @param job the job to check.
+   * @return the input job.
+   */
+  private Job ensurePriorityJobAttribute(final Job job) {
     if (job.getJobAttribute(PriorityJobAttribute.class) == null) {
       job.addJobAttribute(new PriorityJobAttribute());
     }
@@ -40,21 +50,18 @@ public abstract class AbstractPriorityQueueScheduler extends AbstractQueueSchedu
 
   @Override
   public final void put(final @Nonnull Job job) throws InterruptedException {
-    ensurePriorityJobAttribute(job);
-    getQueue().put(job);
+    getQueue().put(ensurePriorityJobAttribute(job));
   }
 
   @Override
   public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
       throws InterruptedException {
-    ensurePriorityJobAttribute(job);
-    return getQueue().offer(job, timeout, unit);
+    return getQueue().offer(ensurePriorityJobAttribute(job), timeout, unit);
   }
 
   @Override
   public final boolean offer(final @Nonnull Job job) {
-    ensurePriorityJobAttribute(job);
-    return getQueue().offer(job);
+    return getQueue().offer(ensurePriorityJobAttribute(job));
   }
 
 
