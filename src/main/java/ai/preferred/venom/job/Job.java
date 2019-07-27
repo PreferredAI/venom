@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class will be placed in a scheduler for queuing requests.
+ *
+ * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
 public class Job {
@@ -126,6 +129,7 @@ public class Job {
    * </p>
    */
   public final void prepareRetry() {
+    LOGGER.debug("Preparing job {} - {} for next state.", Integer.toHexString(this.hashCode()), request.getUrl());
     jobAttributeMap.forEach((k, jobAttribute) -> jobAttribute.prepareRetry());
     tryCount++;
   }
@@ -147,7 +151,7 @@ public class Job {
    * return {@code null} if not found.
    *
    * @param clazz the class of attribute to find.
-   * @param <T> the class of attribute to find.
+   * @param <T>   the class of attribute to find.
    * @return an instance of job attribute for class or null.
    */
   public final <T extends JobAttribute> T getJobAttribute(final Class<T> clazz) {
