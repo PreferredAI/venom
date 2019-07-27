@@ -59,7 +59,6 @@ public class LazyQueueScheduler extends AbstractPriorityQueueScheduler {
    * @param handler  The default handler to use
    */
   public LazyQueueScheduler(final Iterator<Request> requests, final Handler handler) {
-
     this.requests = requests;
     this.handler = handler;
   }
