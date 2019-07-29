@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Deprecated
+ * Deprecated, will be removed in the next release.
+ * Please use LazyPriorityQueueScheduler instead
  */
 @Deprecated
 public class LazyScheduler implements QueueScheduler {

@@ -75,7 +75,7 @@ public interface Scheduler {
   void add(@NotNull Request request);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by the handler specified, and
    * its priority can be downgraded to a minimum priority specified.
@@ -90,7 +90,7 @@ public interface Scheduler {
   void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by the handler specified, and
    * its priority can be downgraded to the default minimum priority.
@@ -104,7 +104,7 @@ public interface Scheduler {
   void add(@NotNull Request r, @NotNull Handler h, Priority p);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by a handler defined in Router
    * or otherwise, and its priority can be downgraded to a minimum
@@ -119,7 +119,7 @@ public interface Scheduler {
   void add(@NotNull Request r, Priority p, Priority pf);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by a handler defined in Router
    * or otherwise defined, and its priority can be downgraded to the
