@@ -27,17 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LazyQueueSchedulerTest {
+class LazyPriorityQueueSchedulerTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
   private final Job job = new Job(vRequest);
 
-  private LazyQueueScheduler scheduler;
+  private LazyPriorityQueueScheduler scheduler;
 
   @BeforeEach
   void initEach() {
-    scheduler = new LazyQueueScheduler(null);
+    scheduler = new LazyPriorityQueueScheduler(null);
   }
 
   @Test
@@ -97,7 +97,7 @@ class LazyQueueSchedulerTest {
 
     };
 
-    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
+    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator(), handler);
 
     final Job pollJob = scheduler.poll();
     Assertions.assertNotNull(pollJob);
@@ -120,7 +120,7 @@ class LazyQueueSchedulerTest {
     requests.add(vRequestNeg);
     requests.add(vRequestNeg);
 
-    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator());
+    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator());
     final Job job = new Job(vRequest);
 
     scheduler.add(job);
@@ -132,7 +132,7 @@ class LazyQueueSchedulerTest {
   void testIsEmpty() {
     final List<Request> requests = new ArrayList<>();
     requests.add(vRequest);
-    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator());
+    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator());
 
     scheduler.add(job);
     Assertions.assertFalse(scheduler.isEmpty());
