@@ -74,4 +74,62 @@ public interface Scheduler {
    */
   void add(@NotNull Request request);
 
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by the handler specified, and
+   * its priority can be downgraded to a minimum priority specified.
+   * </p>
+   *
+   * @param r  request to fetch when dequeued
+   * @param h  handler to be used to parse the request
+   * @param p  initial priority of the request
+   * @param pf the minimum (floor) priority of this request
+   */
+  @Deprecated
+  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by the handler specified, and
+   * its priority can be downgraded to the default minimum priority.
+   * </p>
+   *
+   * @param r request to fetch when dequeued
+   * @param h handler to be used to parse the request
+   * @param p initial priority of the request
+   */
+  @Deprecated
+  void add(@NotNull Request r, @NotNull Handler h, Priority p);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by a handler defined in Router
+   * or otherwise, and its priority can be downgraded to a minimum
+   * priority specified.
+   * </p>
+   *
+   * @param r  request to fetch when dequeued
+   * @param p  initial priority of the request
+   * @param pf the minimum (floor) priority of this request
+   */
+  @Deprecated
+  void add(@NotNull Request r, Priority p, Priority pf);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by a handler defined in Router
+   * or otherwise defined, and its priority can be downgraded to the
+   * default minimum priority.
+   * </p>
+   *
+   * @param r request to fetch when dequeued
+   * @param p initial priority of the request
+   */
+  @Deprecated
+  void add(@NotNull Request r, Priority p);
+
 }

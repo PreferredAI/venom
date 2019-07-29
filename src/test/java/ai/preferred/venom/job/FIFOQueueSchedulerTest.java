@@ -16,62 +16,71 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.VRequest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FIFOQueueSchedulerTest {
+import java.util.concurrent.TimeUnit;
 
-  @Test
-  public void testAddRequest() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
+class FIFOQueueSchedulerTest {
 
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
+  private final String url = "https://venom.preferred.ai";
+  private final VRequest vRequest = new VRequest(url);
+  private final Job job = new Job(vRequest);
 
-    scheduler.getScheduler().add(vRequest);
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
+  private FIFOQueueScheduler scheduler;
+
+  @BeforeEach
+  void initEach() {
+    scheduler = new FIFOQueueScheduler();
   }
 
   @Test
-  public void testAddRequestHandler() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-
-    final Handler handler = (request, response, schedulerH, session, worker) -> {
-
-    };
-
-    scheduler.getScheduler().add(vRequest, handler);
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertEquals(handler, job.getHandler());
+  void testAddRequest() {
+    scheduler.add(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
   }
 
   @Test
-  public void testFIFOQueue() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
+  void testPutRequest() throws InterruptedException {
+    scheduler.put(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
+  }
 
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-    final VRequest vRequestNeg = new VRequest(url);
+  @Test
+  void testOfferRequest() {
+    scheduler.offer(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
+  }
 
-    scheduler.getScheduler().add(vRequest, new PriorityJobAttribute(Priority.HIGH));
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.HIGHEST));
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.DEFAULT));
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.LOW));
+  @Test
+  void testOfferTimeoutRequest() throws InterruptedException {
+    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
+  }
 
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
+  @Test
+  void testPollTimeout() throws InterruptedException {
+    scheduler.add(job);
+    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    Assertions.assertEquals(job, pollJob);
+  }
+
+  @Test
+  void testFIFOQueue() {
+    final Job job = new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGH));
+    scheduler.add(job);
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGHEST)));
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
+
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
   }
 
 }

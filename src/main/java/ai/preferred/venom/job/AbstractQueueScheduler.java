@@ -16,13 +16,7 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handler;
-import ai.preferred.venom.request.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotNull;
 import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
@@ -106,57 +100,4 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
     return queue;
   }
 
-  /**
-   * An implementation of ai.preferred.venom.job.Scheduler using Job.
-   */
-  public static class JobScheduler implements Scheduler {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobScheduler.class);
-
-    /**
-     * The queue used for this scheduler.
-     */
-    private final QueueScheduler queueScheduler;
-
-    /**
-     * Constructs an instance of JobScheduler.
-     *
-     * @param queueScheduler an instance of BlockingQueue
-     */
-    public JobScheduler(final QueueScheduler queueScheduler) {
-      this.queueScheduler = queueScheduler;
-    }
-
-    @Override
-    public final void add(final @NotNull Request request, final @NotNull Handler handler,
-                          final JobAttribute... jobAttributes) {
-      final Job job = new Job(request, handler);
-      if (jobAttributes != null) {
-        for (JobAttribute jobAttribute : jobAttributes) {
-          job.addJobAttribute(jobAttribute);
-        }
-      }
-      queueScheduler.add(job);
-      LOGGER.debug("Job {} - {} added to queue.", job.toString(), request.getUrl());
-    }
-
-    @Override
-    public final void add(final @NotNull Request request, final JobAttribute... jobAttributes) {
-      add(request, null, jobAttributes);
-    }
-
-    @Override
-    public final void add(final Request request, final Handler handler) {
-      add(request, handler, (JobAttribute[]) null);
-    }
-
-    @Override
-    public final void add(final @NotNull Request request) {
-      add(request, null, (JobAttribute[]) null);
-    }
-
-  }
 }

@@ -16,115 +16,79 @@
 
 package ai.preferred.venom.job;
 
-import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.VRequest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PriorityQueueSchedulerTest {
+import java.util.concurrent.TimeUnit;
 
-  @Test
-  public void testAddRequest() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
+class PriorityQueueSchedulerTest {
 
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
+  private final String url = "https://venom.preferred.ai";
+  private final VRequest vRequest = new VRequest(url);
+  private final Job job = new Job(vRequest);
 
-    scheduler.getScheduler().add(vRequest);
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(
-        Priority.DEFAULT,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
+  private PriorityQueueScheduler scheduler;
+
+  @BeforeEach
+  void initEach() {
+    scheduler = new PriorityQueueScheduler();
   }
 
   @Test
-  public void testAddRequestHandler() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-
-    final Handler handler = (request, response, schedulerH, session, worker) -> {
-
-    };
-
-    scheduler.getScheduler().add(vRequest, handler);
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertEquals(handler, job.getHandler());
-    Assertions.assertEquals(
-        Priority.DEFAULT,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
-  }
-
-  @Test
-  public void testPriority() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-    final VRequest vRequestNeg = new VRequest(url);
-
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.HIGH));
-    scheduler.getScheduler().add(vRequest, new PriorityJobAttribute(Priority.HIGHEST));
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.DEFAULT));
-    scheduler.getScheduler().add(vRequestNeg, new PriorityJobAttribute(Priority.LOW));
-
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(
-        Priority.HIGHEST,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
-  }
-
-  @Test
-  public void testPriorityFloor() {
-    final PriorityQueueScheduler scheduler = new PriorityQueueScheduler();
-
-    final String url = "https://venom.preferred.ai";
-    final VRequest vRequest = new VRequest(url);
-
-    scheduler.getScheduler().add(vRequest, new PriorityJobAttribute(Priority.HIGH, Priority.NORMAL));
-
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(
-        Priority.HIGH,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
-
-    job.prepareRetry();
+  void testAddRequest() {
     scheduler.add(job);
-    final Job jobRQ = scheduler.poll();
-    Assertions.assertNotNull(jobRQ);
-    Assertions.assertEquals(vRequest, jobRQ.getRequest());
-    Assertions.assertNull(jobRQ.getHandler());
-    Assertions.assertEquals(
-        Priority.NORMAL,
-        jobRQ.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
 
-    job.prepareRetry();
+  @Test
+  void testPutRequest() throws InterruptedException {
+    scheduler.put(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testOfferRequest() {
+    scheduler.offer(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testOfferTimeoutRequest() throws InterruptedException {
+    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testPollTimeout() throws InterruptedException {
     scheduler.add(job);
-    final Job jobRQRQ = scheduler.poll();
-    Assertions.assertNotNull(jobRQRQ);
-    Assertions.assertEquals(vRequest, jobRQRQ.getRequest());
-    Assertions.assertNull(jobRQRQ.getHandler());
-    Assertions.assertEquals(
-        Priority.NORMAL,
-        jobRQRQ.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
+    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    Assertions.assertEquals(job, pollJob);
+  }
+
+  @Test
+  void testPriorityQueue() {
+    final Job job = new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGHEST));
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGH)));
+    scheduler.add(job);
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
+    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
+
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(pollJob, job);
   }
 
 }

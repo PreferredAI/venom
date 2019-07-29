@@ -62,21 +62,11 @@ public class Job {
   /**
    * Constructs a basic job.
    *
-   * @param request The request of this job.
-   * @param handler The handler of this job.
-   */
-  public Job(final Request request, final Handler handler) {
-    this(request, handler, (JobAttribute[]) null);
-  }
-
-  /**
-   * Constructs a basic job.
-   *
    * @param request       The request of this job.
    * @param handler       The handler of this job.
    * @param jobAttributes attributes to insert to the job.
    */
-  public Job(final Request request, final Handler handler, final JobAttribute... jobAttributes) {
+  public Job(final @NotNull Request request, final Handler handler, final JobAttribute... jobAttributes) {
     this.request = request;
     this.handler = handler;
     if (jobAttributes != null) {
@@ -86,6 +76,24 @@ public class Job {
     }
   }
 
+  /**
+   * Constructs a basic job.
+   *
+   * @param request The request of this job.
+   * @param handler The handler of this job.
+   */
+  public Job(final @NotNull Request request, final Handler handler) {
+    this(request, handler, (JobAttribute[]) null);
+  }
+
+  /**
+   * Constructs a basic job.
+   *
+   * @param request The request of this job.
+   */
+  public Job(final @NotNull Request request) {
+    this(request, null);
+  }
 
   /**
    * Get the request of this job.

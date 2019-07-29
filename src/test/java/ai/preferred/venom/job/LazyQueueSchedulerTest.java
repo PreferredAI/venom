@@ -20,20 +20,73 @@ import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class LazyQueueSchedulerTest {
+class LazyQueueSchedulerTest {
+
+  private final String url = "https://venom.preferred.ai";
+  private final VRequest vRequest = new VRequest(url);
+  private final Job job = new Job(vRequest);
+
+  private LazyQueueScheduler scheduler;
+
+  @BeforeEach
+  void initEach() {
+    scheduler = new LazyQueueScheduler(null);
+  }
 
   @Test
-  public void testIterator() {
-    final List<Request> requests = new ArrayList<>();
+  void testAddRequest() {
+    scheduler.add(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
 
-    final String url = "https://venom.preferred.ai";
+  @Test
+  void testPutRequest() throws InterruptedException {
+    scheduler.put(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testOfferRequest() {
+    scheduler.offer(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testOfferTimeoutRequest() throws InterruptedException {
+    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(job, pollJob);
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
+  }
+
+  @Test
+  void testPollTimeout() throws InterruptedException {
+    scheduler.add(job);
+    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    Assertions.assertEquals(job, pollJob);
+  }
+
+  @Test
+  void testIterator() {
+    final List<Request> requests = new ArrayList<>();
     final VRequest vRequestNeg = new VRequest(url);
-    final VRequest vRequest = new VRequest(url);
 
     requests.add(vRequest);
     requests.add(vRequestNeg);
@@ -46,21 +99,20 @@ public class LazyQueueSchedulerTest {
 
     final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
 
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertEquals(handler, job.getHandler());
+    final Job pollJob = scheduler.poll();
+    Assertions.assertNotNull(pollJob);
+    Assertions.assertEquals(vRequest, pollJob.getRequest());
+    Assertions.assertEquals(handler, pollJob.getHandler());
+    Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
     Assertions.assertEquals(
         Priority.DEFAULT,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
+        pollJob.getJobAttribute(PriorityJobAttribute.class).getPriority()
     );
   }
 
   @Test
-  public void testLazyQueue() {
+  void testLazyQueue() {
     final List<Request> requests = new ArrayList<>();
-
-    final String url = "https://venom.preferred.ai";
     final VRequest vRequestNeg = new VRequest(url);
 
     requests.add(vRequestNeg);
@@ -68,22 +120,30 @@ public class LazyQueueSchedulerTest {
     requests.add(vRequestNeg);
     requests.add(vRequestNeg);
 
-    final Handler handler = (request, response, schedulerH, session, worker) -> {
+    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator());
+    final Job job = new Job(vRequest);
 
-    };
+    scheduler.add(job);
+    final Job pollJob = scheduler.poll();
+    Assertions.assertEquals(job, pollJob);
+  }
 
-    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator(), handler);
-    final VRequest vRequest = new VRequest(url);
-    scheduler.getScheduler().add(vRequest);
+  @Test
+  void testIsEmpty() {
+    final List<Request> requests = new ArrayList<>();
+    requests.add(vRequest);
+    final LazyQueueScheduler scheduler = new LazyQueueScheduler(requests.iterator());
 
-    final Job job = scheduler.poll();
-    Assertions.assertNotNull(job);
-    Assertions.assertEquals(vRequest, job.getRequest());
-    Assertions.assertNull(job.getHandler());
-    Assertions.assertEquals(
-        Priority.DEFAULT,
-        job.getJobAttribute(PriorityJobAttribute.class).getPriority()
-    );
+    scheduler.add(job);
+    Assertions.assertFalse(scheduler.isEmpty());
+    scheduler.poll();
+    Assertions.assertFalse(scheduler.isEmpty());
+    scheduler.poll();
+    Assertions.assertTrue(scheduler.isEmpty());
+    scheduler.add(job);
+    Assertions.assertFalse(scheduler.isEmpty());
+    scheduler.poll();
+    Assertions.assertTrue(scheduler.isEmpty());
   }
 
 }
