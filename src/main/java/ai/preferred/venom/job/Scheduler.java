@@ -39,7 +39,7 @@ public interface Scheduler {
    * @param handler       handler to be used to parse the request.
    * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request request, @NotNull Handler handler, JobAttribute... jobAttributes);
+  void add(@NotNull Request request, Handler handler, @NotNull JobAttribute... jobAttributes);
 
   /**
    * Adds a request to the queue.
@@ -50,7 +50,7 @@ public interface Scheduler {
    * @param request       request to fetch when dequeued.
    * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request request, JobAttribute... jobAttributes);
+  void add(@NotNull Request request, @NotNull JobAttribute... jobAttributes);
 
   /**
    * Adds a request to the queue.
@@ -87,7 +87,7 @@ public interface Scheduler {
    * @param pf the minimum (floor) priority of this request
    */
   @Deprecated
-  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
+  void add(@NotNull Request r, Handler h, Priority p, Priority pf);
 
   /**
    * Adds a request to the queue. Will be removed in the next release.
@@ -101,7 +101,7 @@ public interface Scheduler {
    * @param p initial priority of the request
    */
   @Deprecated
-  void add(@NotNull Request r, @NotNull Handler h, Priority p);
+  void add(@NotNull Request r, Handler h, Priority p);
 
   /**
    * Adds a request to the queue. Will be removed in the next release.

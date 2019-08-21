@@ -48,40 +48,35 @@ public class JobScheduler implements Scheduler {
   }
 
   @Override
-  public final void add(final @NotNull Request request, final @NotNull Handler handler,
-                        final JobAttribute... jobAttributes) {
-    final Job job = new Job(request, handler);
-    if (jobAttributes != null) {
-      for (JobAttribute jobAttribute : jobAttributes) {
-        job.addJobAttribute(jobAttribute);
-      }
-    }
+  public final void add(final @NotNull Request request, final Handler handler,
+                        final @NotNull JobAttribute... jobAttributes) {
+    final Job job = new Job(request, handler, jobAttributes);
     queueScheduler.add(job);
     LOGGER.debug("Job {} - {} added to queue.", job.toString(), request.getUrl());
   }
 
   @Override
-  public final void add(final @NotNull Request request, final JobAttribute... jobAttributes) {
+  public final void add(final @NotNull Request request, final @NotNull JobAttribute... jobAttributes) {
     add(request, null, jobAttributes);
   }
 
   @Override
-  public final void add(final Request request, final Handler handler) {
-    add(request, handler, (JobAttribute[]) null);
+  public final void add(final Request request, final @NotNull Handler handler) {
+    add(request, handler, new JobAttribute[0]);
   }
 
   @Override
   public final void add(final @NotNull Request request) {
-    add(request, null, (JobAttribute[]) null);
+    add(request, null, new JobAttribute[0]);
   }
 
   @Override
-  public final void add(final @NotNull Request r, final @NotNull Handler h, final Priority p, final Priority pf) {
+  public final void add(final @NotNull Request r, final Handler h, final Priority p, final Priority pf) {
     add(r, h, new PriorityJobAttribute(p, pf));
   }
 
   @Override
-  public final void add(final @NotNull Request r, final @NotNull Handler h, final Priority p) {
+  public final void add(final @NotNull Request r, final Handler h, final Priority p) {
     add(r, h, p, Priority.FLOOR);
   }
 

@@ -66,13 +66,11 @@ public class Job {
    * @param handler       The handler of this job.
    * @param jobAttributes attributes to insert to the job.
    */
-  public Job(final @NotNull Request request, final Handler handler, final JobAttribute... jobAttributes) {
+  public Job(final @NotNull Request request, final Handler handler, final @NotNull JobAttribute... jobAttributes) {
     this.request = request;
     this.handler = handler;
-    if (jobAttributes != null) {
-      for (final JobAttribute jobAttribute : jobAttributes) {
-        jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
-      }
+    for (final JobAttribute jobAttribute : jobAttributes) {
+      jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
     }
   }
 
@@ -83,7 +81,7 @@ public class Job {
    * @param handler The handler of this job.
    */
   public Job(final @NotNull Request request, final Handler handler) {
-    this(request, handler, (JobAttribute[]) null);
+    this(request, handler, new JobAttribute[0]);
   }
 
   /**
