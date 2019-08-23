@@ -43,7 +43,7 @@ public abstract class AbstractPriorityQueueScheduler extends AbstractQueueSchedu
    */
   private Job ensurePriorityJobAttribute(final Job job) {
     if (job.getJobAttribute(PriorityJobAttribute.class) == null) {
-      job.addJobAttribute(new PriorityJobAttribute());
+      job.setJobAttribute(new PriorityJobAttribute());
     }
     return job;
   }

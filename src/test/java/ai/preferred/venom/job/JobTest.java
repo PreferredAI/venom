@@ -77,7 +77,7 @@ class JobTest {
 
     final FakeJobAttribute fakeJobAttribute = new FakeJobAttribute();
 
-    job.addJobAttribute(fakeJobAttribute);
+    job.setJobAttribute(fakeJobAttribute);
     final JobAttribute jobAttribute = job.getJobAttribute(fakeJobAttribute.getClass());
     Assertions.assertEquals(fakeJobAttribute, jobAttribute);
   }

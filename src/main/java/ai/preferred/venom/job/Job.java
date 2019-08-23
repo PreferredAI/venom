@@ -147,7 +147,7 @@ public class Job {
    * @param jobAttribute the job attribute to add or replace.
    * @return this.
    */
-  public final Job addJobAttribute(final JobAttribute jobAttribute) {
+  public final Job setJobAttribute(final JobAttribute jobAttribute) {
     jobAttributeMap.put(jobAttribute.getClass(), jobAttribute);
     return this;
   }
