@@ -17,7 +17,6 @@
 package ai.preferred.venom.job;
 
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -36,29 +35,5 @@ public interface QueueScheduler extends BlockingQueue<Job> {
    * @return an instance of Scheduler
    */
   Scheduler getScheduler();
-
-  /**
-   * Removes a single instance of the specified element from this queue,
-   * if it is present then Inserts the specified element into this queue
-   * if it is possible to do so immediately without violating capacity
-   * restrictions, returning {@code true} upon success and throwing an
-   * {@code IllegalStateException} if no space is currently available.
-   *
-   * @param job element to be removed from this queue, if present and added
-   * @throws ClassCastException       if the class of the specified element
-   *                                  is incompatible with this queue or if the class
-   *                                  of the specified element
-   *                                  prevents it from being added to this queue
-   * @throws NullPointerException     if the specified element is null
-   * @throws IllegalArgumentException if some property of the specified
-   *                                  element prevents it from being added to this queue
-   */
-  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-  default void removeAndAdd(final @Nonnull Job job) {
-    synchronized (job) {
-      remove(job);
-      add(job);
-    }
-  }
 
 }

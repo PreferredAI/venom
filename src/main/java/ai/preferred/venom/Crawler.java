@@ -282,7 +282,7 @@ public final class Crawler implements Interruptible {
         pendingJobs.remove(job);
         if (job.getTryCount() < maxTries) {
           job.prepareRetry();
-          queueScheduler.removeAndAdd(job);
+          queueScheduler.add(job);
           LOGGER.debug("Job {} - {} re-queued.", Integer.toHexString(job.hashCode()), job.getRequest().getUrl());
         } else {
           LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
@@ -324,6 +324,7 @@ public final class Crawler implements Interruptible {
               Integer.toHexString(job.hashCode()), job.getRequest().getUrl(), job.getTryCount(), maxTries);
           final CrawlerRequest crawlerRequest = prepareRequest(job.getRequest(), job.getTryCount());
           if (Thread.currentThread().isInterrupted()) {
+            connections.release();
             pendingJobs.remove(job);
             LOGGER.debug("The thread pool is interrupted");
             return;
