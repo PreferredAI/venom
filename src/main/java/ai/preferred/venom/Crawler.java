@@ -31,9 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class handles the coordination between classes during the pre and
@@ -125,7 +129,7 @@ public final class Crawler implements Interruptible {
    * A list of pending futures.
    */
   @NotNull
-  private final Set<Job> pendingJobs;
+  private final AtomicInteger jobsPending;
 
   /**
    * The list of fatal exceptions occurred during response handling.
@@ -158,7 +162,7 @@ public final class Crawler implements Interruptible {
         true
     );
     workerManager = builder.workerManager == null ? new ThreadedWorkerManager(threadPool) : builder.workerManager;
-    pendingJobs = ConcurrentHashMap.newKeySet();
+    jobsPending = new AtomicInteger();
     fatalHandlerExceptions = Collections.synchronizedList(new ArrayList<>());
   }
 
@@ -262,7 +266,7 @@ public final class Crawler implements Interruptible {
     } catch (final Exception e) {
       LOGGER.error("An exception occurred in handler when parsing response: {}", job.getRequest().getUrl(), e);
     } finally {
-      pendingJobs.remove(job);
+      jobsPending.decrementAndGet();
     }
   }
 
@@ -276,10 +280,10 @@ public final class Crawler implements Interruptible {
     if ((ex instanceof ValidationException && ((ValidationException) ex).getStatus() == Validator.Status.STOP)
         || ex instanceof StopCodeException
         || ex instanceof CancellationException) {
-      pendingJobs.remove(job);
+      jobsPending.decrementAndGet();
     } else {
-      synchronized (pendingJobs) { // Synchronisation required to prevent crawler stopping incorrectly.
-        pendingJobs.remove(job);
+      synchronized (jobsPending) { // Synchronisation required to prevent crawler stopping incorrectly.
+        jobsPending.decrementAndGet();
         if (job.getTryCount() < maxTries) {
           job.prepareRetry();
           queueScheduler.add(job);
@@ -301,13 +305,13 @@ public final class Crawler implements Interruptible {
       try {
         final Job job = queueScheduler.poll(100, TimeUnit.MILLISECONDS);
         if (job == null) {
-          if (pendingJobs.size() != 0) {
+          if (jobsPending.get() > 0) {
             continue;
           }
           // This should only run if pendingJob == 0 && job == null
-          synchronized (pendingJobs) {
+          synchronized (jobsPending) {
             LOGGER.debug("({}) Checking for exit conditions.", crawlerThread.getName());
-            if (queueScheduler.peek() == null && pendingJobs.size() == 0 && exitWhenDone.get()) {
+            if (queueScheduler.peek() == null && jobsPending.get() <= 0 && exitWhenDone.get()) {
               break;
             }
           }
@@ -318,14 +322,14 @@ public final class Crawler implements Interruptible {
         lastRequestTime = System.nanoTime();
 
         connections.acquire();
-        pendingJobs.add(job);
+        jobsPending.incrementAndGet();
         threadPool.execute(() -> {
           LOGGER.debug("Preparing job {} - {} (try {}/{}).",
               Integer.toHexString(job.hashCode()), job.getRequest().getUrl(), job.getTryCount(), maxTries);
           final CrawlerRequest crawlerRequest = prepareRequest(job.getRequest(), job.getTryCount());
           if (Thread.currentThread().isInterrupted()) {
             connections.release();
-            pendingJobs.remove(job);
+            jobsPending.decrementAndGet();
             LOGGER.debug("The thread pool is interrupted");
             return;
           }
