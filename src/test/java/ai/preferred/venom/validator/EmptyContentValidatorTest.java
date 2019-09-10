@@ -21,7 +21,6 @@ import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,19 +34,18 @@ public class EmptyContentValidatorTest {
   private final String baseUrl = "https://venom.preferred.ai";
   private final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
   private final Header[] headers = {};
-  private final HttpHost proxy = null;
 
   @Test
   public void testEmptyContent() {
     final byte[] content = "".getBytes();
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_CONTENT, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 
   @Test
   public void testValidContent() {
     final byte[] content = "IPSUM".getBytes();
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 

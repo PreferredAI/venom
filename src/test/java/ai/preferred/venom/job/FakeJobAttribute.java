@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Preferred.AI
+ * Copyright (c) 2019 Preferred.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,19 @@
 
 package ai.preferred.venom.job;
 
+import java.util.concurrent.atomic.AtomicInteger;
 
-import java.util.concurrent.BlockingQueue;
+public class FakeJobAttribute implements JobAttribute {
 
-/**
- * This interface represents only the most basic of a scheduler.
- * It imposes no restrictions or particular details on the the
- * type of queue, and allows for different future types to be returned.
- *
- * @author Maksim Tkachenko
- * @author Ween Jiann Lee
- */
-public interface QueueScheduler extends BlockingQueue<Job> {
+  private final AtomicInteger count = new AtomicInteger();
 
-  /**
-   * Get the scheduler to add jobs.
-   *
-   * @return an instance of Scheduler
-   */
-  Scheduler getScheduler();
+  @Override
+  public void prepareRetry() {
+    count.addAndGet(1);
+  }
+
+  int getCount() {
+    return count.get();
+  }
 
 }

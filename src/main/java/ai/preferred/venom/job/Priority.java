@@ -61,15 +61,6 @@ public enum Priority {
   public static final Priority FLOOR = LOW;
 
   /**
-   * Get the current priority level.
-   *
-   * @return An integer specifying current priority
-   */
-  public int getPriority() {
-    return ordinal();
-  }
-
-  /**
    * Returns the priority one level below the current
    * priority if priority is higher than the specified floor or the
    * lowest available priority. Otherwise return itself.
@@ -78,10 +69,7 @@ public enum Priority {
    * @return Priority after downgrade.
    */
   public Priority downgrade(final Priority floor) {
-    if (this.equals(floor)) {
-      return this;
-    }
-    if (this.equals(LOWEST)) {
+    if (this.compareTo(floor) >= 0) {
       return this;
     }
     return values()[ordinal() + 1];

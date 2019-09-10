@@ -32,6 +32,51 @@ public interface Scheduler {
   /**
    * Adds a request to the queue.
    * <p>
+   * This request would be parsed by the handler specified.
+   * </p>
+   *
+   * @param request       request to fetch when dequeued.
+   * @param handler       handler to be used to parse the request.
+   * @param jobAttributes attributes to insert to the job.
+   */
+  void add(@NotNull Request request, Handler handler, @NotNull JobAttribute... jobAttributes);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by the handler specified.
+   * </p>
+   *
+   * @param request       request to fetch when dequeued.
+   * @param jobAttributes attributes to insert to the job.
+   */
+  void add(@NotNull Request request, @NotNull JobAttribute... jobAttributes);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by the handler specified.
+   * </p>
+   *
+   * @param request request to fetch when dequeued.
+   * @param handler handler to be used to parse the request.
+   */
+  void add(@NotNull Request request, @NotNull Handler handler);
+
+  /**
+   * Adds a request to the queue.
+   * <p>
+   * This request would be parsed by a handler defined in Router
+   * or otherwise defined.
+   * </p>
+   *
+   * @param request request to fetch when dequeued.
+   */
+  void add(@NotNull Request request);
+
+  /**
+   * Adds a request to the queue. Will be removed in the next release.
+   * <p>
    * This request would be parsed by the handler specified, and
    * its priority can be downgraded to a minimum priority specified.
    * </p>
@@ -41,10 +86,11 @@ public interface Scheduler {
    * @param p  initial priority of the request
    * @param pf the minimum (floor) priority of this request
    */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p, Priority pf);
+  @Deprecated
+  void add(@NotNull Request r, Handler h, Priority p, Priority pf);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by the handler specified, and
    * its priority can be downgraded to the default minimum priority.
@@ -54,23 +100,11 @@ public interface Scheduler {
    * @param h handler to be used to parse the request
    * @param p initial priority of the request
    */
-  void add(@NotNull Request r, @NotNull Handler h, Priority p);
+  @Deprecated
+  void add(@NotNull Request r, Handler h, Priority p);
 
   /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by the handler specified, and
-   * it's initialised with default priority that can be downgraded to
-   * the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   * @param h handler to be used to parse the request
-   */
-  void add(@NotNull Request r, @NotNull Handler h);
-
-  /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by a handler defined in Router
    * or otherwise, and its priority can be downgraded to a minimum
@@ -81,10 +115,11 @@ public interface Scheduler {
    * @param p  initial priority of the request
    * @param pf the minimum (floor) priority of this request
    */
+  @Deprecated
   void add(@NotNull Request r, Priority p, Priority pf);
 
   /**
-   * Adds a request to the queue.
+   * Adds a request to the queue. Will be removed in the next release.
    * <p>
    * This request would be parsed by a handler defined in Router
    * or otherwise defined, and its priority can be downgraded to the
@@ -94,18 +129,7 @@ public interface Scheduler {
    * @param r request to fetch when dequeued
    * @param p initial priority of the request
    */
+  @Deprecated
   void add(@NotNull Request r, Priority p);
-
-  /**
-   * Adds a request to the queue.
-   * <p>
-   * This request would be parsed by a handler defined in Router
-   * or otherwise defined, and it's initialised with default priority
-   * that can be downgraded to the default minimum priority.
-   * </p>
-   *
-   * @param r request to fetch when dequeued
-   */
-  void add(@NotNull Request r);
 
 }

@@ -21,7 +21,6 @@ import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,10 +34,9 @@ public class StatusOkValidatorTest {
   private final String baseUrl = "https://venom.preferred.ai";
   private final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
   private final Header[] headers = {};
-  private final HttpHost proxy = null;
 
   private void assertInvalid(int statusCode) {
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 
@@ -51,7 +49,7 @@ public class StatusOkValidatorTest {
   @Test
   public void testValidStatusCode() {
     final int statusCode = 200;
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 

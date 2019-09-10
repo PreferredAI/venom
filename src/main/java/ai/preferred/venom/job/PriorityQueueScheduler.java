@@ -18,11 +18,10 @@ package ai.preferred.venom.job;
 
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class provides and implementation of scheduler with a priority
+ * This class provides an implementation of scheduler with a priority
  * sensitive queue.
  * <p>
  * Jobs with higher priority will be processed first.
@@ -31,25 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public class PriorityQueueScheduler extends AbstractQueueScheduler {
-
-  /**
-   * The queue used for this scheduler.
-   */
-  public PriorityQueueScheduler() {
-    super(new PriorityBlockingQueue<>());
-  }
-
-  @Override
-  public final void put(final @Nonnull Job job) throws InterruptedException {
-    getQueue().put(job);
-  }
-
-  @Override
-  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
-      throws InterruptedException {
-    return getQueue().offer(job, timeout, unit);
-  }
+public class PriorityQueueScheduler extends AbstractPriorityQueueScheduler {
 
   @Override
   public final Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {

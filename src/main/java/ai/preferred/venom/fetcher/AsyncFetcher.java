@@ -660,7 +660,7 @@ public final class AsyncFetcher implements Fetcher {
      * @param codes A list of stop codes.
      * @return this
      */
-    public Builder setStopCodes(final int... codes) {
+    public Builder setStopCodes(final @NotNull int... codes) {
       if (codes == null) {
         throw new IllegalStateException("Attribute 'codes' cannot be null.");
       }

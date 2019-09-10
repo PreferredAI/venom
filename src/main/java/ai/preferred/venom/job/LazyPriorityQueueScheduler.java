@@ -22,7 +22,6 @@ import ai.preferred.venom.request.Request;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public class LazyQueueScheduler extends AbstractQueueScheduler {
+public class LazyPriorityQueueScheduler extends AbstractPriorityQueueScheduler {
 
   /**
    * An object to synchronise upon.
@@ -59,8 +58,7 @@ public class LazyQueueScheduler extends AbstractQueueScheduler {
    * @param requests An iterator to obtain requests
    * @param handler  The default handler to use
    */
-  public LazyQueueScheduler(final Iterator<Request> requests, final Handler handler) {
-    super(new PriorityBlockingQueue<>());
+  public LazyPriorityQueueScheduler(final Iterator<Request> requests, final Handler handler) {
     this.requests = requests;
     this.handler = handler;
   }
@@ -70,7 +68,7 @@ public class LazyQueueScheduler extends AbstractQueueScheduler {
    *
    * @param requests An iterator to obtain requests
    */
-  public LazyQueueScheduler(final Iterator<Request> requests) {
+  public LazyPriorityQueueScheduler(final Iterator<Request> requests) {
     this(requests, null);
   }
 
@@ -80,28 +78,7 @@ public class LazyQueueScheduler extends AbstractQueueScheduler {
    * @return An new job instance
    */
   private Job pollLazyRequest() {
-    return new BasicJob(requests.next(), handler, Priority.DEFAULT, Priority.FLOOR, getQueue());
-  }
-
-  @Override
-  public final Job poll() {
-    synchronized (lock) {
-      if (getQueue().isEmpty() && requests.hasNext()) {
-        return pollLazyRequest();
-      }
-    }
-    return getQueue().poll();
-  }
-
-  @Override
-  public final void put(final @Nonnull Job job) throws InterruptedException {
-    getQueue().put(job);
-  }
-
-  @Override
-  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
-      throws InterruptedException {
-    return getQueue().offer(job, timeout, unit);
+    return new Job(requests.next(), handler, new PriorityJobAttribute());
   }
 
   @Override
@@ -112,6 +89,16 @@ public class LazyQueueScheduler extends AbstractQueueScheduler {
       }
     }
     return getQueue().poll(time, unit);
+  }
+
+  @Override
+  public final Job poll() {
+    synchronized (lock) {
+      if (getQueue().isEmpty() && requests.hasNext()) {
+        return pollLazyRequest();
+      }
+    }
+    return getQueue().poll();
   }
 
   @Override

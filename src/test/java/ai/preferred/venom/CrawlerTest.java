@@ -19,7 +19,7 @@ package ai.preferred.venom;
 import ai.preferred.venom.fetcher.FakeFetcher;
 import ai.preferred.venom.fetcher.Fetcher;
 import ai.preferred.venom.job.FIFOQueueScheduler;
-import ai.preferred.venom.job.LazyQueueScheduler;
+import ai.preferred.venom.job.LazyPriorityQueueScheduler;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import org.apache.http.HttpHost;
@@ -239,7 +239,7 @@ public class CrawlerTest {
         .setMaxConnections(1)
         .setPropRetainProxy(0.2)
         .setMaxTries(5)
-        .setScheduler(new LazyQueueScheduler(requests.iterator(), handler))
+        .setScheduler(new LazyPriorityQueueScheduler(requests.iterator(), handler))
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {

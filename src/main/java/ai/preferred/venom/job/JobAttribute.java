@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Preferred.AI
+ * Copyright (c) 2019 Preferred.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,22 @@
 
 package ai.preferred.venom.job;
 
-
-import java.util.concurrent.BlockingQueue;
-
 /**
- * This interface represents only the most basic of a scheduler.
- * It imposes no restrictions or particular details on the the
- * type of queue, and allows for different future types to be returned.
+ * This interface represents attributes that can be added
+ * to jobs to manipulate the crawling process.
  *
- * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface QueueScheduler extends BlockingQueue<Job> {
+public interface JobAttribute {
 
   /**
-   * Get the scheduler to add jobs.
-   *
-   * @return an instance of Scheduler
+   * This method is called before the job is scheduled
+   * for a retry.
+   * <p>
+   * This method allows you to specify the logic to
+   * move the job into its subsequent state for a retry.
+   * </p>
    */
-  Scheduler getScheduler();
+  void prepareRetry();
 
 }

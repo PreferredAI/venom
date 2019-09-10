@@ -21,7 +21,6 @@ import ai.preferred.venom.request.VRequest;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import org.apache.http.Header;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,12 +35,11 @@ public class MimeTypeValidatorTest {
   private final String baseUrl = "https://venom.preferred.ai";
   private final byte[] content = "IPSUM".getBytes();
   private final Header[] headers = {};
-  private final HttpHost proxy = null;
 
   @Test
   public void testValidMimeTypePattern() {
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID,
         new MimeTypeValidator(Pattern.compile("^text.*")).isValid(request, response));
   }
@@ -49,7 +47,7 @@ public class MimeTypeValidatorTest {
   @Test
   public void testInvalidMimeTypePattern() {
     final ContentType contentType = ContentType.create("text/json", StandardCharsets.UTF_8);
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_CONTENT,
         new MimeTypeValidator(Pattern.compile("^image.*")).isValid(request, response));
   }
@@ -57,7 +55,7 @@ public class MimeTypeValidatorTest {
   @Test
   public void testValidMimeTypeString() {
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID,
         new MimeTypeValidator("^text.*").isValid(request, response));
   }
@@ -65,7 +63,7 @@ public class MimeTypeValidatorTest {
   @Test
   public void testInvalidMimeTypeString() {
     final ContentType contentType = ContentType.create("text/json", StandardCharsets.UTF_8);
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_CONTENT,
         new MimeTypeValidator("^image.*").isValid(request, response));
   }
