@@ -16,21 +16,43 @@
 
 package ai.preferred.venom.job;
 
-
 import javax.annotation.Nonnull;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class provides an implementation of scheduler with a priority
- * sensitive queue.
+ * This class provides and implementation of scheduler with a first in
+ * first out queue.
  * <p>
- * Jobs with higher priority will be processed first.
+ * Jobs in queue will be processed first in order of insertion.
  * </p>
  *
- * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public class PriorityQueueScheduler extends AbstractPriorityQueueScheduler {
+public class FIFOJobQueue extends AbstractJobQueue {
+
+  /**
+   * Constructs an instance of FIFOJobQueue.
+   */
+  public FIFOJobQueue() {
+    super(new LinkedBlockingQueue<>());
+  }
+
+  @Override
+  public final void put(final @Nonnull Job job) throws InterruptedException {
+    getQueue().put(job);
+  }
+
+  @Override
+  public final boolean offer(final Job job, final long timeout, final @Nonnull TimeUnit unit)
+      throws InterruptedException {
+    return getQueue().offer(job, timeout, unit);
+  }
+
+  @Override
+  public final boolean offer(final @Nonnull Job job) {
+    return getQueue().offer(job);
+  }
 
   @Override
   public final Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
@@ -41,5 +63,4 @@ public class PriorityQueueScheduler extends AbstractPriorityQueueScheduler {
   public final Job poll() {
     return getQueue().poll();
   }
-
 }

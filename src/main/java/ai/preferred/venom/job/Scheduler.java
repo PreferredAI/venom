@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Preferred.AI
+ * Copyright (c) 2019 Preferred.AI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package ai.preferred.venom.job;
 
 import ai.preferred.venom.Handler;
 import ai.preferred.venom.request.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * This interface represents only the adding part a scheduler.
@@ -27,7 +30,26 @@ import javax.validation.constraints.NotNull;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface Scheduler {
+public class Scheduler {
+
+  /**
+   * Logger.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
+
+  /**
+   * The queue used for this scheduler.
+   */
+  private final BlockingQueue<Job> queue;
+
+  /**
+   * Constructs an instance of Scheduler.
+   *
+   * @param queue an instance of BlockingQueue
+   */
+  public Scheduler(final BlockingQueue<Job> queue) {
+    this.queue = queue;
+  }
 
   /**
    * Adds a request to the queue.
@@ -39,7 +61,12 @@ public interface Scheduler {
    * @param handler       handler to be used to parse the request.
    * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request request, Handler handler, @NotNull JobAttribute... jobAttributes);
+  public final void add(final @NotNull Request request, final Handler handler,
+                        final @NotNull JobAttribute... jobAttributes) {
+    final Job job = new Job(request, handler, jobAttributes);
+    queue.add(job);
+    LOGGER.debug("Job {} - {} added to queue.", job.toString(), request.getUrl());
+  }
 
   /**
    * Adds a request to the queue.
@@ -50,7 +77,9 @@ public interface Scheduler {
    * @param request       request to fetch when dequeued.
    * @param jobAttributes attributes to insert to the job.
    */
-  void add(@NotNull Request request, @NotNull JobAttribute... jobAttributes);
+  public final void add(final @NotNull Request request, final @NotNull JobAttribute... jobAttributes) {
+    add(request, null, jobAttributes);
+  }
 
   /**
    * Adds a request to the queue.
@@ -61,7 +90,9 @@ public interface Scheduler {
    * @param request request to fetch when dequeued.
    * @param handler handler to be used to parse the request.
    */
-  void add(@NotNull Request request, @NotNull Handler handler);
+  public final void add(final Request request, final @NotNull Handler handler) {
+    add(request, handler, new JobAttribute[0]);
+  }
 
   /**
    * Adds a request to the queue.
@@ -72,7 +103,9 @@ public interface Scheduler {
    *
    * @param request request to fetch when dequeued.
    */
-  void add(@NotNull Request request);
+  public final void add(final @NotNull Request request) {
+    add(request, null, new JobAttribute[0]);
+  }
 
   /**
    * Adds a request to the queue. Will be removed in the next release.
@@ -86,8 +119,9 @@ public interface Scheduler {
    * @param p  initial priority of the request
    * @param pf the minimum (floor) priority of this request
    */
-  @Deprecated
-  void add(@NotNull Request r, Handler h, Priority p, Priority pf);
+  public final void add(final @NotNull Request r, final Handler h, final Priority p, final Priority pf) {
+    add(r, h, new PriorityJobAttribute(p, pf));
+  }
 
   /**
    * Adds a request to the queue. Will be removed in the next release.
@@ -100,8 +134,9 @@ public interface Scheduler {
    * @param h handler to be used to parse the request
    * @param p initial priority of the request
    */
-  @Deprecated
-  void add(@NotNull Request r, Handler h, Priority p);
+  public final void add(final @NotNull Request r, final Handler h, final Priority p) {
+    add(r, h, p, Priority.FLOOR);
+  }
 
   /**
    * Adds a request to the queue. Will be removed in the next release.
@@ -116,7 +151,9 @@ public interface Scheduler {
    * @param pf the minimum (floor) priority of this request
    */
   @Deprecated
-  void add(@NotNull Request r, Priority p, Priority pf);
+  public final void add(final @NotNull Request r, final Priority p, final Priority pf) {
+    add(r, null, p, pf);
+  }
 
   /**
    * Adds a request to the queue. Will be removed in the next release.
@@ -130,6 +167,7 @@ public interface Scheduler {
    * @param p initial priority of the request
    */
   @Deprecated
-  void add(@NotNull Request r, Priority p);
-
+  public final void add(final @NotNull Request r, final Priority p) {
+    add(r, (Handler) null, p);
+  }
 }

@@ -27,7 +27,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Maksim Tkachenko
  */
 @SuppressWarnings("NullableProblems")
-public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implements QueueScheduler {
+public abstract class AbstractJobQueue extends AbstractQueue<Job> implements BlockingQueue<Job> {
 
   /**
    * The queue used for this scheduler.
@@ -35,23 +35,12 @@ public abstract class AbstractQueueScheduler extends AbstractQueue<Job> implemen
   private final BlockingQueue<Job> queue;
 
   /**
-   * The adding part of the scheduler.
-   */
-  private final Scheduler scheduler;
-
-  /**
-   * Constructs an instance of AbstractQueueScheduler.
+   * Constructs an instance of AbstractJobQueue.
    *
    * @param queue an instance of BlockingQueue
    */
-  protected AbstractQueueScheduler(final BlockingQueue<Job> queue) {
+  protected AbstractJobQueue(final BlockingQueue<Job> queue) {
     this.queue = queue;
-    this.scheduler = new JobScheduler(this);
-  }
-
-  @Override
-  public final Scheduler getScheduler() {
-    return scheduler;
   }
 
   @Nonnull

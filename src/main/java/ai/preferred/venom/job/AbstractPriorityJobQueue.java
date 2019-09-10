@@ -18,18 +18,19 @@ package ai.preferred.venom.job;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Ween Jiann Lee
  */
-public abstract class AbstractPriorityQueueScheduler extends AbstractQueueScheduler {
+public abstract class AbstractPriorityJobQueue extends AbstractJobQueue implements BlockingQueue<Job> {
 
   /**
-   * Constructs an instance of AbstractQueueScheduler.
+   * Constructs an instance of AbstractJobQueue.
    */
-  protected AbstractPriorityQueueScheduler() {
+  protected AbstractPriorityJobQueue() {
     super(new PriorityBlockingQueue<>(11,
         Comparator.comparing(o -> (o.getJobAttribute(PriorityJobAttribute.class)))));
   }

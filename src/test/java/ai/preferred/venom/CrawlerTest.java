@@ -18,8 +18,8 @@ package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.FakeFetcher;
 import ai.preferred.venom.fetcher.Fetcher;
-import ai.preferred.venom.job.FIFOQueueScheduler;
-import ai.preferred.venom.job.LazyPriorityQueueScheduler;
+import ai.preferred.venom.job.FIFOJobQueue;
+import ai.preferred.venom.job.LazyPriorityJobQueue;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
 import org.apache.http.HttpHost;
@@ -59,7 +59,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxConnections(1)
         .setMaxTries(2)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -85,7 +85,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxConnections(1)
         .setMaxTries(2)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build();
 
@@ -113,7 +113,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxConnections(1)
         .setMaxTries(5)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -141,7 +141,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxConnections(1)
         .setMaxTries(5)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -174,7 +174,7 @@ public class CrawlerTest {
         .setMaxConnections(1)
         .setPropRetainProxy(0.2)
         .setMaxTries(5)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -207,7 +207,7 @@ public class CrawlerTest {
         .setMaxConnections(1)
         .setPropRetainProxy(0.2)
         .setMaxTries(5)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -239,7 +239,7 @@ public class CrawlerTest {
         .setMaxConnections(1)
         .setPropRetainProxy(0.2)
         .setMaxTries(5)
-        .setScheduler(new LazyPriorityQueueScheduler(requests.iterator(), handler))
+        .setJobQueue(new LazyPriorityJobQueue(requests.iterator(), handler))
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {
@@ -261,7 +261,7 @@ public class CrawlerTest {
     try (final Crawler crawler = Crawler.builder()
         .setFetcher(fetcher)
         .setMaxTries(1)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .setHandlerRouter(urlRouter)
         .build()
@@ -285,7 +285,7 @@ public class CrawlerTest {
           .setFetcher(fetcher)
           .setMaxTries(1)
           .setMaxConnections(1)
-          .setScheduler(new FIFOQueueScheduler())
+          .setJobQueue(new FIFOJobQueue())
           .setSleepScheduler(new SleepScheduler(0))
           .build()
           .start()) {
@@ -324,7 +324,7 @@ public class CrawlerTest {
     try (final Crawler crawler = Crawler.builder()
         .setFetcher(fetcher)
         .setMaxTries(1)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .setSession(session)
         .build()
@@ -355,7 +355,7 @@ public class CrawlerTest {
     final Crawler crawler = Crawler.builder()
         .setFetcher(fetcher)
         .setMaxTries(1)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSession(session)
         .build()
         .start();
@@ -379,7 +379,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxConnections(1)
         .setMaxTries(5)
-        .setScheduler(new FIFOQueueScheduler())
+        .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
         .build()
         .start()) {

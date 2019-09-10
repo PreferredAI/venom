@@ -17,23 +17,29 @@
 package ai.preferred.venom.job;
 
 
-import java.util.concurrent.BlockingQueue;
+import javax.annotation.Nonnull;
+import java.util.concurrent.TimeUnit;
 
 /**
- * This interface represents only the most basic of a scheduler.
- * It imposes no restrictions or particular details on the the
- * type of queue, and allows for different future types to be returned.
+ * This class provides an implementation of scheduler with a priority
+ * sensitive queue.
+ * <p>
+ * Jobs with higher priority will be processed first.
+ * </p>
  *
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public interface QueueScheduler extends BlockingQueue<Job> {
+public class PriorityJobQueue extends AbstractPriorityJobQueue {
 
-  /**
-   * Get the scheduler to add jobs.
-   *
-   * @return an instance of Scheduler
-   */
-  Scheduler getScheduler();
+  @Override
+  public final Job poll(final long timeout, final @Nonnull TimeUnit unit) throws InterruptedException {
+    return getQueue().poll(timeout, unit);
+  }
+
+  @Override
+  public final Job poll() {
+    return getQueue().poll();
+  }
 
 }

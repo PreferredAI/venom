@@ -23,63 +23,63 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-class FIFOQueueSchedulerTest {
+class FIFOJobQueueTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
   private final Job job = new Job(vRequest);
 
-  private FIFOQueueScheduler scheduler;
+  private FIFOJobQueue jobQueue;
 
   @BeforeEach
   void initEach() {
-    scheduler = new FIFOQueueScheduler();
+    jobQueue = new FIFOJobQueue();
   }
 
   @Test
   void testAddRequest() {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testPutRequest() throws InterruptedException {
-    scheduler.put(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.put(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testOfferRequest() {
-    scheduler.offer(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testOfferTimeoutRequest() throws InterruptedException {
-    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testPollTimeout() throws InterruptedException {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll(1L, TimeUnit.NANOSECONDS);
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testFIFOQueue() {
     final Job job = new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGH));
-    scheduler.add(job);
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGHEST)));
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
+    jobQueue.add(job);
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGHEST)));
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
 
-    final Job pollJob = scheduler.poll();
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(job, pollJob);
   }
 
