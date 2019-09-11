@@ -72,7 +72,7 @@ public class ThreadedWorkerManager implements WorkerManager {
 
   @Override
   public final void interrupt() {
-    if (executor == null) {
+    if (executor == null || executor.isTerminated()) {
       return;
     }
     LOGGER.debug("Forcefully shutting down the worker manager.");
@@ -80,16 +80,21 @@ public class ThreadedWorkerManager implements WorkerManager {
   }
 
   @Override
-  public final void close() throws InterruptedException {
-    if (executor == null) {
+  public final void close() {
+    if (executor == null || executor.isTerminated()) {
       return;
     }
     LOGGER.debug("Shutting down the worker manager.");
     executor.shutdown();
-    if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
-      LOGGER.debug("The worker manager has been terminated.");
-    } else {
-      executor.shutdownNow();
+    try {
+      if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
+        LOGGER.debug("The worker manager has been terminated.");
+      } else {
+        interrupt();
+      }
+    } catch (final InterruptedException e) {
+      interrupt();
+      Thread.currentThread().interrupt();
     }
   }
 
