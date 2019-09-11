@@ -22,12 +22,10 @@ package ai.preferred.venom;
 public interface Interruptible extends AutoCloseable {
 
   /**
-   * Interrupt a thread and then close it.
-   *
-   * @throws Exception Exception.
+   * Interrupt the underlying mechanisms of the class.
    */
-  default void interruptAndClose() throws Exception {
-    close();
+  default void interrupt() {
+
   }
 
 }

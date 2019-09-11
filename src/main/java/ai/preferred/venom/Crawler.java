@@ -419,46 +419,29 @@ public final class Crawler implements Interruptible {
     return this;
   }
 
-  @Override
+  /**
+   * Interrupts then close this object.
+   *
+   * @throws Exception if exception is thrown on close.
+   */
   public void interruptAndClose() throws Exception {
     interrupt();
-
-    try {
-      crawlerThread.join();
-      threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-    } catch (final InterruptedException e) {
-      LOGGER.warn("The joining has been interrupted!", e);
-      Thread.currentThread().interrupt();
-    }
+    close();
   }
 
   /**
    * Interrupts crawler, fetcher and worker threads.
-   *
-   * @throws Exception if any resources throws an exception on close.
    */
-  private void interrupt() throws Exception {
+  @Override
+  public void interrupt() {
     exitWhenDone.set(true);
     if (!Thread.currentThread().equals(crawlerThread)) {
       crawlerThread.interrupt();
     }
     threadPool.shutdownNow();
 
-    Exception cachedException = null;
     for (final Interruptible interruptible : new Interruptible[]{workerManager, fetcher}) {
-      try {
-        interruptible.interruptAndClose();
-      } catch (final Exception e) {
-        if (cachedException != null) {
-          cachedException.addSuppressed(e);
-        } else {
-          cachedException = e;
-        }
-      }
-    }
-
-    if (cachedException != null) {
-      throw cachedException;
+      interruptible.interrupt();
     }
   }
 
@@ -466,14 +449,16 @@ public final class Crawler implements Interruptible {
   public void close() throws Exception {
     if (exitWhenDone.compareAndSet(false, true)) {
       LOGGER.debug("Initialising \"{}\" shutdown, waiting for threads to join...", crawlerThread.getName());
+      final AtomicBoolean interrupted = new AtomicBoolean(false);
 
       try {
         crawlerThread.join();
         LOGGER.debug("{} producer thread joined.", crawlerThread.getName());
       } catch (InterruptedException e) {
         LOGGER.warn("The producer thread joining has been interrupted", e);
-        threadPool.shutdownNow();
-        Thread.currentThread().interrupt();
+        if (interrupted.compareAndSet(false, true)) {
+          interrupt();
+        }
       }
 
       threadPool.shutdown();
@@ -482,13 +467,19 @@ public final class Crawler implements Interruptible {
         threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
       } catch (InterruptedException e) {
         LOGGER.warn("The thread pool joining has been interrupted", e);
-        Thread.currentThread().interrupt();
+        if (interrupted.compareAndSet(false, true)) {
+          interrupt();
+        }
       }
 
       Exception cachedException = null;
       for (final AutoCloseable closeable : new AutoCloseable[]{workerManager, fetcher}) {
         try {
           closeable.close();
+        } catch (InterruptedException e) {
+          if (interrupted.compareAndSet(false, true)) {
+            interrupt();
+          }
         } catch (final Exception e) {
           if (cachedException != null) {
             cachedException.addSuppressed(e);
@@ -511,6 +502,10 @@ public final class Crawler implements Interruptible {
           }
         }
         throw mainHandlerException;
+      }
+
+      if (interrupted.get()) {
+        Thread.currentThread().interrupt();
       }
 
       if (cachedException != null) {
