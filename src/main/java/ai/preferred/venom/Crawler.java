@@ -469,7 +469,7 @@ public final class Crawler implements Interruptible {
 
       Exception cachedException = null;
       for (final AutoCloseable closeable : new AutoCloseable[]{workerManager, fetcher}) {
-        if (Thread.interrupted()) {
+        if (Thread.interrupted() && interrupted.compareAndSet(false, true)) {
           interrupt();
         }
 
