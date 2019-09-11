@@ -377,11 +377,7 @@ public final class Crawler implements Interruptible {
     }
     if (!fatalHandlerExceptions.isEmpty()) {
       LOGGER.debug("Handler exception found... Interrupting.");
-      try {
-        interrupt();
-      } catch (final Exception e) {
-        throw new RuntimeException(e);
-      }
+      interrupt();
     }
     LOGGER.debug("({}) will stop producing requests.", crawlerThread.getName());
   }
