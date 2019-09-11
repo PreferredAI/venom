@@ -430,7 +430,6 @@ public final class Crawler implements Interruptible {
    */
   @Override
   public void interrupt() {
-    exitWhenDone.set(true);
     if (!Thread.currentThread().equals(crawlerThread)) {
       crawlerThread.interrupt();
     }
