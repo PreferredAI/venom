@@ -70,7 +70,7 @@ public class ThreadedWorkerManagerTest {
   }
 
   @Test
-  public void testInvokeNull() throws InterruptedException {
+  public void testInvokeNull() {
     try (final ThreadedWorkerManager threadedWorkerManager = new ThreadedWorkerManager(null)) {
       final Worker worker = threadedWorkerManager.getWorker();
       Assertions.assertTrue(worker instanceof ThreadedWorkerManager.ForkJoinWorker);
