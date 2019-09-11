@@ -439,7 +439,9 @@ public final class Crawler implements Interruptible {
    */
   private void interrupt() throws Exception {
     exitWhenDone.set(true);
-    crawlerThread.interrupt();
+    if (!Thread.currentThread().equals(crawlerThread)) {
+      crawlerThread.interrupt();
+    }
     threadPool.shutdownNow();
 
     Exception cachedException = null;
