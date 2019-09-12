@@ -19,15 +19,16 @@ package ai.preferred.venom;
 /**
  * @author Ween Jiann Lee
  */
-public interface Interruptible extends AutoCloseable {
+public interface Interruptible {
 
   /**
-   * Interrupt a thread and then close it.
-   *
-   * @throws Exception Exception.
+   * Interrupt the underlying mechanisms of the class.
+   * <p>
+   * Please note that this {@code interrupt} method should be
+   * idempotent.  In other words, calling this {@code interrupt}
+   * method more than once should not have any side effect.
+   * </p>
    */
-  default void interruptAndClose() throws Exception {
-    close();
-  }
+  void interrupt();
 
 }
