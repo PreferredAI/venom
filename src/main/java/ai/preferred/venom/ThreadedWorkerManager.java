@@ -71,37 +71,29 @@ public class ThreadedWorkerManager implements WorkerManager {
   }
 
   @Override
-  public final void interruptAndClose() {
-    if (executor == null) {
+  public final void interrupt() {
+    if (executor == null || executor.isTerminated()) {
       return;
     }
-    LOGGER.debug("Forcefully shutting down the worker manager");
+    LOGGER.debug("Forcefully shutting down the worker manager.");
     executor.shutdownNow();
-    try {
-      executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-      LOGGER.debug("The worker manager has been terminated");
-    } catch (final InterruptedException e) {
-      LOGGER.warn("Closing has been interrupted", e);
-      Thread.currentThread().interrupt();
-    }
   }
 
   @Override
   public final void close() {
-    if (executor == null) {
+    if (executor == null || executor.isTerminated()) {
       return;
     }
-    LOGGER.debug("Shutting down the worker manager");
+    LOGGER.debug("Shutting down the worker manager.");
     executor.shutdown();
     try {
       if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
-        LOGGER.debug("The worker manager has been terminated");
+        LOGGER.debug("The worker manager has been terminated.");
       } else {
-        executor.shutdownNow();
+        interrupt();
       }
     } catch (final InterruptedException e) {
-      LOGGER.warn("Closing has been interrupted, forcefully shutting down", e);
-      executor.shutdownNow();
+      interrupt();
       Thread.currentThread().interrupt();
     }
   }
@@ -120,7 +112,7 @@ public class ThreadedWorkerManager implements WorkerManager {
       final ManagedBlockerTask managedBlockerTask = new ManagedBlockerTask(task);
       try {
         ForkJoinPool.managedBlock(managedBlockerTask);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         Thread.currentThread().interrupt();
         throw new AssertionError("Exception of unknown cause. Please verify codebase.", e);
       }
