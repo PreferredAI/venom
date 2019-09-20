@@ -17,7 +17,7 @@
 package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.AsyncFetcher;
-import ai.preferred.venom.job.FIFOQueueScheduler;
+import ai.preferred.venom.job.FIFOJobQueue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -71,8 +71,8 @@ public class CrawlerBuilderTest {
 
   @Test
   void testSetScheduler() {
-    Assertions.assertThrows(IllegalStateException.class, () -> Crawler.builder().setScheduler(null));
-    Crawler.builder().setScheduler(new FIFOQueueScheduler());
+    Assertions.assertThrows(IllegalStateException.class, () -> Crawler.builder().setJobQueue(null));
+    Crawler.builder().setJobQueue(new FIFOJobQueue());
   }
 
   @Test

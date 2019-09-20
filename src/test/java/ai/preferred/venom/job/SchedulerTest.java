@@ -21,7 +21,7 @@ import ai.preferred.venom.request.VRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class JobSchedulerTest {
+class SchedulerTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
@@ -31,9 +31,10 @@ class JobSchedulerTest {
 
   @Test
   void testAddRequest() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
-    scheduler.getScheduler().add(vRequest);
-    final Job job = scheduler.poll();
+    final FIFOJobQueue jobQueue = new FIFOJobQueue();
+    final Scheduler scheduler = new Scheduler(jobQueue);
+    scheduler.add(vRequest);
+    final Job job = jobQueue.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
@@ -41,9 +42,10 @@ class JobSchedulerTest {
 
   @Test
   void testAddRequestHandler() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
-    scheduler.getScheduler().add(vRequest, handler);
-    final Job job = scheduler.poll();
+    final FIFOJobQueue jobQueue = new FIFOJobQueue();
+    final Scheduler scheduler = new Scheduler(jobQueue);
+    scheduler.add(vRequest, handler);
+    final Job job = jobQueue.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertEquals(handler, job.getHandler());
@@ -51,10 +53,11 @@ class JobSchedulerTest {
 
   @Test
   void testAddRequestJobAttribute() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
+    final FIFOJobQueue jobQueue = new FIFOJobQueue();
+    final Scheduler scheduler = new Scheduler(jobQueue);
     final PriorityJobAttribute priorityJobAttribute = new PriorityJobAttribute();
-    scheduler.getScheduler().add(vRequest, priorityJobAttribute);
-    final Job job = scheduler.poll();
+    scheduler.add(vRequest, priorityJobAttribute);
+    final Job job = jobQueue.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertNull(job.getHandler());
@@ -63,10 +66,11 @@ class JobSchedulerTest {
 
   @Test
   void testAddRequestHandlerJobAttribute() {
-    final FIFOQueueScheduler scheduler = new FIFOQueueScheduler();
+    final FIFOJobQueue jobQueue = new FIFOJobQueue();
+    final Scheduler scheduler = new Scheduler(jobQueue);
     final PriorityJobAttribute priorityJobAttribute = new PriorityJobAttribute();
-    scheduler.getScheduler().add(vRequest, handler, priorityJobAttribute);
-    final Job job = scheduler.poll();
+    scheduler.add(vRequest, handler, priorityJobAttribute);
+    final Job job = jobQueue.poll();
     Assertions.assertNotNull(job);
     Assertions.assertEquals(vRequest, job.getRequest());
     Assertions.assertEquals(handler, job.getHandler());

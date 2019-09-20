@@ -24,12 +24,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Ween Jiann Lee
  */
-public abstract class AbstractPriorityQueueScheduler extends AbstractQueueScheduler {
+public abstract class AbstractPriorityJobQueue extends AbstractJobQueue {
 
   /**
-   * Constructs an instance of AbstractQueueScheduler.
+   * Constructs an instance of AbstractJobQueue.
    */
-  protected AbstractPriorityQueueScheduler() {
+  protected AbstractPriorityJobQueue() {
     super(new PriorityBlockingQueue<>(11,
         Comparator.comparing(o -> (o.getJobAttribute(PriorityJobAttribute.class)))));
   }

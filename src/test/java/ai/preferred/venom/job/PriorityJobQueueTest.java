@@ -23,23 +23,23 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-class PriorityQueueSchedulerTest {
+class PriorityJobQueueTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
   private final Job job = new Job(vRequest);
 
-  private PriorityQueueScheduler scheduler;
+  private PriorityJobQueue jobQueue;
 
   @BeforeEach
   void initEach() {
-    scheduler = new PriorityQueueScheduler();
+    jobQueue = new PriorityJobQueue();
   }
 
   @Test
   void testAddRequest() {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -47,8 +47,8 @@ class PriorityQueueSchedulerTest {
 
   @Test
   void testPutRequest() throws InterruptedException {
-    scheduler.put(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.put(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -56,8 +56,8 @@ class PriorityQueueSchedulerTest {
 
   @Test
   void testOfferRequest() {
-    scheduler.offer(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -65,8 +65,8 @@ class PriorityQueueSchedulerTest {
 
   @Test
   void testOfferTimeoutRequest() throws InterruptedException {
-    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -74,20 +74,20 @@ class PriorityQueueSchedulerTest {
 
   @Test
   void testPollTimeout() throws InterruptedException {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll(1L, TimeUnit.NANOSECONDS);
     Assertions.assertEquals(job, pollJob);
   }
 
   @Test
   void testPriorityQueue() {
     final Job job = new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGHEST));
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGH)));
-    scheduler.add(job);
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
-    scheduler.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.HIGH)));
+    jobQueue.add(job);
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.DEFAULT)));
+    jobQueue.add(new Job(vRequest, null, new PriorityJobAttribute(Priority.LOW)));
 
-    final Job pollJob = scheduler.poll();
+    final Job pollJob = jobQueue.poll();
     Assertions.assertEquals(pollJob, job);
   }
 

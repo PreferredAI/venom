@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public class LazyPriorityQueueScheduler extends AbstractPriorityQueueScheduler {
+public class LazyPriorityJobQueue extends AbstractPriorityJobQueue {
 
   /**
    * An object to synchronise upon.
@@ -58,7 +58,7 @@ public class LazyPriorityQueueScheduler extends AbstractPriorityQueueScheduler {
    * @param requests An iterator to obtain requests
    * @param handler  The default handler to use
    */
-  public LazyPriorityQueueScheduler(final Iterator<Request> requests, final Handler handler) {
+  public LazyPriorityJobQueue(final Iterator<Request> requests, final Handler handler) {
     this.requests = requests;
     this.handler = handler;
   }
@@ -68,7 +68,7 @@ public class LazyPriorityQueueScheduler extends AbstractPriorityQueueScheduler {
    *
    * @param requests An iterator to obtain requests
    */
-  public LazyPriorityQueueScheduler(final Iterator<Request> requests) {
+  public LazyPriorityJobQueue(final Iterator<Request> requests) {
     this(requests, null);
   }
 

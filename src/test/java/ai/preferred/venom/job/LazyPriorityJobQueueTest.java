@@ -27,23 +27,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class LazyPriorityQueueSchedulerTest {
+class LazyPriorityJobQueueTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
   private final Job job = new Job(vRequest);
 
-  private LazyPriorityQueueScheduler scheduler;
+  private LazyPriorityJobQueue jobQueue;
 
   @BeforeEach
   void initEach() {
-    scheduler = new LazyPriorityQueueScheduler(null);
+    jobQueue = new LazyPriorityJobQueue(null);
   }
 
   @Test
   void testAddRequest() {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -51,8 +51,8 @@ class LazyPriorityQueueSchedulerTest {
 
   @Test
   void testPutRequest() throws InterruptedException {
-    scheduler.put(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.put(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -60,8 +60,8 @@ class LazyPriorityQueueSchedulerTest {
 
   @Test
   void testOfferRequest() {
-    scheduler.offer(job);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -69,8 +69,8 @@ class LazyPriorityQueueSchedulerTest {
 
   @Test
   void testOfferTimeoutRequest() throws InterruptedException {
-    scheduler.offer(job, 1L, TimeUnit.NANOSECONDS);
-    final Job pollJob = scheduler.poll();
+    jobQueue.offer(job, 1L, TimeUnit.NANOSECONDS);
+    final Job pollJob = jobQueue.poll();
     Assertions.assertNotNull(pollJob);
     Assertions.assertEquals(job, pollJob);
     Assertions.assertNotNull(pollJob.getJobAttribute(PriorityJobAttribute.class));
@@ -78,8 +78,8 @@ class LazyPriorityQueueSchedulerTest {
 
   @Test
   void testPollTimeout() throws InterruptedException {
-    scheduler.add(job);
-    final Job pollJob = scheduler.poll(1L, TimeUnit.NANOSECONDS);
+    jobQueue.add(job);
+    final Job pollJob = jobQueue.poll(1L, TimeUnit.NANOSECONDS);
     Assertions.assertEquals(job, pollJob);
   }
 
@@ -97,7 +97,7 @@ class LazyPriorityQueueSchedulerTest {
 
     };
 
-    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator(), handler);
+    final LazyPriorityJobQueue scheduler = new LazyPriorityJobQueue(requests.iterator(), handler);
 
     final Job pollJob = scheduler.poll();
     Assertions.assertNotNull(pollJob);
@@ -120,7 +120,7 @@ class LazyPriorityQueueSchedulerTest {
     requests.add(vRequestNeg);
     requests.add(vRequestNeg);
 
-    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator());
+    final LazyPriorityJobQueue scheduler = new LazyPriorityJobQueue(requests.iterator());
     final Job job = new Job(vRequest);
 
     scheduler.add(job);
@@ -132,7 +132,7 @@ class LazyPriorityQueueSchedulerTest {
   void testIsEmpty() {
     final List<Request> requests = new ArrayList<>();
     requests.add(vRequest);
-    final LazyPriorityQueueScheduler scheduler = new LazyPriorityQueueScheduler(requests.iterator());
+    final LazyPriorityJobQueue scheduler = new LazyPriorityJobQueue(requests.iterator());
 
     scheduler.add(job);
     Assertions.assertFalse(scheduler.isEmpty());

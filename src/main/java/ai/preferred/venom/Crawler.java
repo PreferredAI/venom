@@ -18,8 +18,7 @@ package ai.preferred.venom;
 
 import ai.preferred.venom.fetcher.*;
 import ai.preferred.venom.job.Job;
-import ai.preferred.venom.job.PriorityQueueScheduler;
-import ai.preferred.venom.job.QueueScheduler;
+import ai.preferred.venom.job.PriorityJobQueue;
 import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.CrawlerRequest;
 import ai.preferred.venom.request.Request;
@@ -90,10 +89,16 @@ public final class Crawler implements Interruptible, AutoCloseable {
   private final HandlerRouter router;
 
   /**
+   * The job queue used.
+   */
+  @NotNull
+  private final BlockingQueue<Job> jobQueue;
+
+  /**
    * The scheduler used.
    */
   @NotNull
-  private final QueueScheduler queueScheduler;
+  private final Scheduler scheduler;
 
   /**
    * The maximum number of simultaneous connections.
@@ -148,7 +153,8 @@ public final class Crawler implements Interruptible, AutoCloseable {
     maxTries = builder.maxTries;
     propRetainProxy = builder.propRetainProxy;
     router = builder.router;
-    queueScheduler = builder.queueScheduler;
+    jobQueue = builder.jobQueue;
+    scheduler = new Scheduler(jobQueue);
     connections = new Semaphore(builder.maxConnections);
     session = builder.session;
     sleepScheduler = builder.sleepScheduler;
@@ -286,7 +292,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
         jobsPending.decrementAndGet();
         if (job.getTryCount() < maxTries) {
           job.prepareRetry();
-          queueScheduler.add(job);
+          jobQueue.add(job);
           LOGGER.debug("Job {} - {} re-queued.", Integer.toHexString(job.hashCode()), job.getRequest().getUrl());
         } else {
           LOGGER.error("Max retries reached for request: {}", job.getRequest().getUrl());
@@ -303,7 +309,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
     long lastRequestTime = 0;
     while (!Thread.currentThread().isInterrupted() && !threadPool.isShutdown() && fatalHandlerExceptions.isEmpty()) {
       try {
-        final Job job = queueScheduler.poll(100, TimeUnit.MILLISECONDS);
+        final Job job = jobQueue.poll(100, TimeUnit.MILLISECONDS);
         if (job == null) {
           if (jobsPending.get() > 0) {
             continue;
@@ -311,7 +317,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
           // This should only run if pendingJob == 0 && job == null
           synchronized (jobsPending) {
             LOGGER.debug("({}) Checking for exit conditions.", crawlerThread.getName());
-            if (queueScheduler.peek() == null && jobsPending.get() <= 0 && exitWhenDone.get()) {
+            if (jobQueue.peek() == null && jobsPending.get() <= 0 && exitWhenDone.get()) {
               break;
             }
           }
@@ -388,7 +394,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
    * @return the instance of scheduler used.
    */
   public Scheduler getScheduler() {
-    return queueScheduler.getScheduler();
+    return scheduler;
   }
 
   /**
@@ -404,7 +410,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
 
   /**
    * Starts the crawler by starting a new thread to poll for jobs and close it
-   * after the queue has reached 0.
+   * after the jobQueue has reached 0.
    *
    * @return the instance of Crawler used.
    * @throws Exception if this resource cannot be closed.
@@ -556,9 +562,9 @@ public final class Crawler implements Interruptible, AutoCloseable {
     private HandlerRouter router;
 
     /**
-     * The scheduler used.
+     * The job queue used.
      */
-    private QueueScheduler queueScheduler;
+    private BlockingQueue<Job> jobQueue;
 
     /**
      * The sleep scheduler used.
@@ -582,7 +588,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
       workerManager = null;
       propRetainProxy = 0.05;
       router = null;
-      queueScheduler = new PriorityQueueScheduler();
+      jobQueue = new PriorityJobQueue();
       sleepScheduler = new SleepScheduler(250, 2000);
       session = Session.EMPTY_SESSION;
     }
@@ -644,16 +650,32 @@ public final class Crawler implements Interruptible, AutoCloseable {
     }
 
     /**
-     * Sets the Scheduler to be used, if not set, default will be chosen.
+     * Sets the JobQueue to be used, if not set, default will be chosen.
+     * This is deprecated, use setJobQueue instead.
      *
-     * @param queueScheduler scheduler to be used.
+     * @param jobQueue scheduler to be used.
      * @return this
      */
-    public Builder setScheduler(final @NotNull QueueScheduler queueScheduler) {
-      if (queueScheduler == null) {
-        throw new IllegalStateException("Attribute 'queueScheduler' cannot be null.");
+    @Deprecated
+    public Builder setScheduler(final @NotNull BlockingQueue<Job> jobQueue) {
+      if (jobQueue == null) {
+        throw new IllegalStateException("Attribute 'jobQueue' cannot be null.");
       }
-      this.queueScheduler = queueScheduler;
+      this.jobQueue = jobQueue;
+      return this;
+    }
+
+    /**
+     * Sets the JobQueue to be used, if not set, default will be chosen.
+     *
+     * @param jobQueue scheduler to be used.
+     * @return this
+     */
+    public Builder setJobQueue(final @NotNull BlockingQueue<Job> jobQueue) {
+      if (jobQueue == null) {
+        throw new IllegalStateException("Attribute 'jobQueue' cannot be null.");
+      }
+      this.jobQueue = jobQueue;
       return this;
     }
 
