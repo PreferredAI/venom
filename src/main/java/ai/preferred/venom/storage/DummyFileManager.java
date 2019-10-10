@@ -91,7 +91,7 @@ public class DummyFileManager implements FileManager {
       throw new IOException("The path is not a dir: " + parentDir);
     }
     final File htmlFile = new File(parentDir, filename);
-    try (final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(htmlFile))) {
+    try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(htmlFile))) {
       IOUtils.copy(in, out);
     }
 

@@ -196,10 +196,6 @@
                         <phase>validate</phase>
                         <configuration>
                             <configLocation>checkstyle.xml</configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>false</consoleOutput>
-                            <failsOnError>false</failsOnError>
-                            <failOnViolation>false</failOnViolation>
                         </configuration>
                         <goals>
                             <goal>check</goal>

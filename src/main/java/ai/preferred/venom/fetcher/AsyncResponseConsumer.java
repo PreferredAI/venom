@@ -188,7 +188,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
         }
 
         if (contentType == null) {
-          try (final TikaInputStream stream = TikaInputStream.get(bytes)) {
+          try (TikaInputStream stream = TikaInputStream.get(bytes)) {
             final Tika tika = new Tika();
             final String fileType = tika.detect(stream);
             contentType = ContentType.create(fileType);
@@ -196,7 +196,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
         }
 
         if (contentType.getCharset() == null) {
-          try (final TikaInputStream stream = TikaInputStream.get(bytes)) {
+          try (TikaInputStream stream = TikaInputStream.get(bytes)) {
             final CharsetMatch match = new CharsetDetector()
                 .setText(stream)
                 .detect();

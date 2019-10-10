@@ -140,8 +140,8 @@ public class MysqlFileManager implements FileManager<Integer> {
    * @param table name of table in the database to use for record storage
    */
   private void ensureTable(final String table) {
-    try (final Connection conn = dataSource.getConnection();
-         final Statement statement = conn.createStatement()) {
+    try (Connection conn = dataSource.getConnection();
+         Statement statement = conn.createStatement()) {
       final String sql = "CREATE TABLE IF NOT EXISTS `" + table + "` ("
           + "`id` int(11) NOT NULL AUTO_INCREMENT,\n"
           + "`url` varchar(1024) NOT NULL,\n"
@@ -181,7 +181,7 @@ public class MysqlFileManager implements FileManager<Integer> {
       throw new IOException("The record path is not a dir: " + recordDir);
     }
     final File recordFile = new File(recordDir, recordName);
-    try (final BufferedOutputStream out = new BufferedOutputStream(
+    try (BufferedOutputStream out = new BufferedOutputStream(
         new GZIPOutputStream(new FileOutputStream(recordFile)))) {
       IOUtils.copy(in, out);
     }
@@ -418,8 +418,8 @@ public class MysqlFileManager implements FileManager<Integer> {
 
   @Override
   public final Record<Integer> get(final Integer id) throws StorageException {
-    try (final Connection conn = dataSource.getConnection();
-         final PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` WHERE id = ?")) {
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` WHERE id = ?")) {
       pstmt.setInt(1, id);
       final ResultSet rs = pstmt.executeQuery();
       if (rs.next()) {
@@ -436,8 +436,8 @@ public class MysqlFileManager implements FileManager<Integer> {
 
   @Override
   public final Record<Integer> get(final Request request) throws StorageException {
-    try (final Connection conn = dataSource.getConnection();
-         final PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` "
+    try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM `" + table + "` "
              + "WHERE url = ? "
              + "AND method = ? "
              + "AND request_headers = CAST(? AS JSON) "
