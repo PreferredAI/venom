@@ -119,6 +119,7 @@ public class Scheduler {
    * @param p  initial priority of the request
    * @param pf the minimum (floor) priority of this request
    */
+  @Deprecated
   public final void add(final @NotNull Request r, final Handler h, final Priority p, final Priority pf) {
     add(r, h, new PriorityJobAttribute(p, pf));
   }
@@ -134,6 +135,7 @@ public class Scheduler {
    * @param h handler to be used to parse the request
    * @param p initial priority of the request
    */
+  @Deprecated
   public final void add(final @NotNull Request r, final Handler h, final Priority p) {
     add(r, h, p, Priority.FLOOR);
   }
