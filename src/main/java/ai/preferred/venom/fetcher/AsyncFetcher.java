@@ -132,12 +132,25 @@ public final class AsyncFetcher implements Fetcher {
    */
   private final boolean compressed;
 
+  /**
+   * Creates {@link BasicFuture} and fails the request with a specified exception.
+   *
+   * @param callback request callback
+   * @param ex       specified exeption
+   * @return BasicFuture created
+   */
   private static Future<Response> failRequest(final FutureCallback<Response> callback, final Exception ex) {
     final BasicFuture<Response> f = new BasicFuture<>(callback);
     f.failed(ex);
     return f;
   }
 
+  /**
+   * Creates {@link BasicFuture} and cancels the request.
+   *
+   * @param callback request callback
+   * @return BasicFuture created
+   */
   private static Future<Response> cancelRequest(final FutureCallback<Response> callback) {
     final BasicFuture<Response> f = new BasicFuture<>(callback);
     f.cancel(true);
