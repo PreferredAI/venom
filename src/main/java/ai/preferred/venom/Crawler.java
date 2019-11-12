@@ -376,8 +376,9 @@ public final class Crawler implements Interruptible, AutoCloseable {
 
           fetcher.fetch(crawlerRequest, callback);
         });
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
+        Thread.currentThread().interrupt();
         break;
       }
     }

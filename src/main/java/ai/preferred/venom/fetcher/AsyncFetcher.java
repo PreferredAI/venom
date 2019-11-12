@@ -132,6 +132,18 @@ public final class AsyncFetcher implements Fetcher {
    */
   private final boolean compressed;
 
+  private static Future<Response> failRequest(final FutureCallback<Response> callback, final Exception ex) {
+    final BasicFuture<Response> f = new BasicFuture<>(callback);
+    f.failed(ex);
+    return f;
+  }
+
+  private static Future<Response> cancelRequest(final FutureCallback<Response> callback) {
+    final BasicFuture<Response> f = new BasicFuture<>(callback);
+    f.cancel(true);
+    return f;
+  }
+
   /**
    * Constructs an instance of AsyncFetcher.
    *
@@ -357,14 +369,16 @@ public final class AsyncFetcher implements Fetcher {
       }
     };
 
+    if (Thread.currentThread().isInterrupted()) {
+      return cancelRequest(futureCallback);
+    }
+
     final HttpUriRequest httpReq = prepareHttpRequest(httpFetcherRequest);
     final HttpHost target;
     try {
       target = determineTarget(httpReq);
     } catch (final ClientProtocolException ex) {
-      final BasicFuture<Response> future = new BasicFuture<>(futureCallback);
-      future.failed(ex);
-      return future;
+      return failRequest(futureCallback, ex);
     }
 
     LOGGER.debug("Fetching URL: {}", request.getUrl());
@@ -376,10 +390,8 @@ public final class AsyncFetcher implements Fetcher {
       routedValidator = null;
     }
 
-    if (!httpClient.isRunning()) {
-      final BasicFuture<Response> future = new BasicFuture<>(futureCallback);
-      future.cancel(true);
-      return future;
+    if (!httpClient.isRunning() || Thread.currentThread().isInterrupted()) {
+      return cancelRequest(futureCallback);
     }
 
     return httpClient.execute(
