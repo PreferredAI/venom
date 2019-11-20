@@ -21,6 +21,9 @@ import ai.preferred.venom.ValidatorRouter;
 import ai.preferred.venom.request.HttpFetcherRequest;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.response.Response;
+import ai.preferred.venom.socks.SocksConnectingIOReactor;
+import ai.preferred.venom.socks.SocksHttpRoutePlanner;
+import ai.preferred.venom.socks.SocksIOSessionStrategy;
 import ai.preferred.venom.storage.FileManager;
 import ai.preferred.venom.uagent.DefaultUserAgent;
 import ai.preferred.venom.uagent.UserAgent;
@@ -42,11 +45,20 @@ import org.apache.http.client.protocol.RequestAcceptEncoding;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.conn.DefaultRoutePlanner;
+import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
+import org.apache.http.nio.conn.NoopIOSessionStrategy;
+import org.apache.http.nio.conn.SchemeIOSessionStrategy;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,12 +198,32 @@ public final class AsyncFetcher implements Fetcher {
         .build();
 
     final HttpAsyncClientBuilder clientBuilder = HttpAsyncClientBuilder.create()
-        .setDefaultIOReactorConfig(reactorConfig)
-        .setThreadFactory(builder.threadFactory)
         .setMaxConnPerRoute(builder.maxRouteConnections)
         .setMaxConnTotal(builder.maxConnections)
         .setSSLContext(builder.sslContext)
         .setRedirectStrategy(builder.redirectStrategy);
+
+    if (builder.enableSocksProxy) {
+      final PoolingNHttpClientConnectionManager connectionManager;
+      try {
+        final SSLIOSessionStrategy sslioSessionStrategy = SSLIOSessionStrategy.getDefaultStrategy();
+        final Registry<SchemeIOSessionStrategy> reg = RegistryBuilder.<SchemeIOSessionStrategy>create()
+            .register("socks", new SocksIOSessionStrategy(sslioSessionStrategy))
+            .register("http", NoopIOSessionStrategy.INSTANCE)
+            .register("https", sslioSessionStrategy)
+            .build();
+
+        final SocksConnectingIOReactor reactor = new SocksConnectingIOReactor(reactorConfig, builder.threadFactory);
+        connectionManager = new PoolingNHttpClientConnectionManager(reactor, reg);
+        clientBuilder.setConnectionManager(connectionManager)
+            .setRoutePlanner(new SocksHttpRoutePlanner(new DefaultRoutePlanner(DefaultSchemePortResolver.INSTANCE)));
+      } catch (IOReactorException e) {
+        LOGGER.error("Disabling SOCKS protocol", e);
+        clientBuilder.setDefaultIOReactorConfig(reactorConfig).setThreadFactory(builder.threadFactory);
+      }
+    } else {
+      clientBuilder.setDefaultIOReactorConfig(reactorConfig).setThreadFactory(builder.threadFactory);
+    }
 
     if (builder.maxConnections < builder.maxRouteConnections) {
       clientBuilder.setMaxConnTotal(builder.maxRouteConnections);
@@ -442,6 +474,8 @@ public final class AsyncFetcher implements Fetcher {
      */
     private final List<Callback> callbacks;
 
+    private boolean enableSocksProxy;
+
     /**
      * Determines whether cookie storage is allowed.
      */
@@ -555,6 +589,17 @@ public final class AsyncFetcher implements Fetcher {
       connectTimeout = -1;
       socketTimeout = -1;
       compressed = true;
+      enableSocksProxy = false;
+    }
+
+    /**
+     * Enables SOCKS protocol for proxies (socks://). Experimental.
+     *
+     * @return this
+     */
+    public Builder enableSocksProxy() {
+      enableSocksProxy = true;
+      return this;
     }
 
     /**
