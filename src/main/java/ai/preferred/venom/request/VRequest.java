@@ -118,8 +118,8 @@ public class VRequest implements Request {
    * @param url    Request url
    * @return A new instance of builder
    */
-  public static Builder build(final Method method, final String url) {
-    return new Builder(method, url);
+  public static Builder<?> build(final Method method, final String url) {
+    return new Builder<>(method, url);
   }
 
   @Override
@@ -201,8 +201,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder get(final String url) {
-      return new Builder(Method.GET, url);
+    public static Builder<?> get(final String url) {
+      return new Builder<>(Method.GET, url);
     }
 
     /**
@@ -211,8 +211,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder post(final String url) {
-      return new Builder(Method.POST, url);
+    public static Builder<?> post(final String url) {
+      return new Builder<>(Method.POST, url);
     }
 
     /**
@@ -221,8 +221,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder head(final String url) {
-      return new Builder(Method.HEAD, url);
+    public static Builder<?> head(final String url) {
+      return new Builder<>(Method.HEAD, url);
     }
 
     /**
@@ -231,8 +231,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder put(final String url) {
-      return new Builder(Method.PUT, url);
+    public static Builder<?> put(final String url) {
+      return new Builder<>(Method.PUT, url);
     }
 
     /**
@@ -241,8 +241,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder delete(final String url) {
-      return new Builder(Method.DELETE, url);
+    public static Builder<?> delete(final String url) {
+      return new Builder<>(Method.DELETE, url);
     }
 
     /**
@@ -251,8 +251,8 @@ public class VRequest implements Request {
      * @param url url to fetch.
      * @return an instance of builder.
      */
-    public static Builder options(final String url) {
-      return new Builder(Method.OPTIONS, url);
+    public static Builder<?> options(final String url) {
+      return new Builder<>(Method.OPTIONS, url);
     }
 
     /**

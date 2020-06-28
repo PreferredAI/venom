@@ -27,13 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FakeFileManager implements FileManager {
+public class FakeFileManager implements FileManager<Object> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileManager.class);
 
   private final Callback callback;
 
-  private final Map<Request, Record> requestRecordMap;
+  private final Map<Request, Record<?>> requestRecordMap;
 
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -41,7 +41,7 @@ public class FakeFileManager implements FileManager {
     this(new HashMap<>());
   }
 
-  public FakeFileManager(final Map<Request, Record> requestRecordMap) {
+  public FakeFileManager(final Map<Request, Record<?>> requestRecordMap) {
     this.callback = new FileManagerCallback(this);
     this.requestRecordMap = requestRecordMap;
   }
@@ -53,19 +53,19 @@ public class FakeFileManager implements FileManager {
 
   @Override
   public @NotNull String put(@NotNull Request request, @NotNull Response response) {
-    requestRecordMap.put(request, StorageRecord.builder().build());
+    requestRecordMap.put(request, StorageRecord.builder(new Object()).build());
     LOGGER.info("Put called for request: {}", request.getUrl());
     return "true";
   }
 
   @Override
-  public @NotNull Record get(Object id) {
+  public @NotNull Record<Object> get(Object id) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
-  public @NotNull Record get(@NotNull Request request) throws StorageException {
-    for (Map.Entry<Request, Record> requestRecordEntry : requestRecordMap.entrySet()) {
+  public @NotNull Record<Object> get(@NotNull Request request) throws StorageException {
+    for (Map.Entry<Request, Record<?>> requestRecordEntry : requestRecordMap.entrySet()) {
       final Request trueRequest = requestRecordEntry.getKey();
 
       if (trueRequest == null) {
@@ -78,7 +78,8 @@ public class FakeFileManager implements FileManager {
         if ((trueRequest.getBody() != null && request.getBody() != null
             && trueRequest.getBody().equals(request.getBody()))
             || (trueRequest.getBody() == null && request.getBody() == null)) {
-          return requestRecordEntry.getValue();
+          //noinspection unchecked
+          return (Record<Object>) requestRecordEntry.getValue();
         }
       }
     }

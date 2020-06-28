@@ -37,14 +37,14 @@ public class FileManagerCallback implements Callback {
   /**
    * The file manager used to store raw responses.
    */
-  private final FileManager fileManager;
+  private final FileManager<?> fileManager;
 
   /**
    * Constructs an instance of file manager callback.
    *
    * @param fileManager an instance of file manager used to store raw responses
    */
-  public FileManagerCallback(final FileManager fileManager) {
+  public FileManagerCallback(final FileManager<?> fileManager) {
     this.fileManager = fileManager;
   }
 

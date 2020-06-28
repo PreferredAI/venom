@@ -38,7 +38,7 @@ import java.io.*;
  * @author Maksim Tkachenko
  * @author Ween Jiann Lee
  */
-public class DummyFileManager implements FileManager {
+public class DummyFileManager implements FileManager<Object> {
 
   /**
    * Logger.
@@ -129,12 +129,12 @@ public class DummyFileManager implements FileManager {
   }
 
   @Override
-  public final Record get(final Object i) {
+  public final Record<Object> get(final Object i) {
     throw new UnsupportedOperationException("File not found");
   }
 
   @Override
-  public final Record get(final Request request) {
+  public final Record<Object> get(final Request request) {
     throw new UnsupportedOperationException("File not found");
   }
 

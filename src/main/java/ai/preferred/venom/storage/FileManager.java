@@ -64,7 +64,7 @@ public interface FileManager<T> extends AutoCloseable {
    * @throws StorageException throws StorageException
    */
   @Nullable
-  Record get(T id) throws StorageException;
+  Record<T> get(T id) throws StorageException;
 
   /**
    * Returns latest record matching request.
@@ -74,6 +74,6 @@ public interface FileManager<T> extends AutoCloseable {
    * @throws StorageException throws StorageException
    */
   @NotNull
-  Record get(@NotNull Request request) throws StorageException;
+  Record<T> get(@NotNull Request request) throws StorageException;
 
 }

@@ -23,7 +23,7 @@ import ai.preferred.venom.storage.Record;
  *
  * @author Ween Jiann Lee
  */
-public interface Retrievable extends Response {
+public interface Retrievable<T> extends Response {
 
   /**
    * Returns record archive of this response that has been
@@ -31,5 +31,5 @@ public interface Retrievable extends Response {
    *
    * @return record where an archive has been saved
    */
-  Record getRecord();
+  Record<T> getRecord();
 }

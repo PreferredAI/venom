@@ -24,6 +24,7 @@ import ai.preferred.venom.storage.Record;
 import ai.preferred.venom.storage.StorageException;
 import ai.preferred.venom.storage.StorageRecord;
 import ai.preferred.venom.validator.Validator;
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.Header;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHeader;
@@ -49,7 +50,7 @@ public class StorageFetcherTest {
     final int statusCode = 200;
     final byte[] content = "This is a test".getBytes();
     final ContentType contentType = ContentType.TEXT_PLAIN;
-    final Record record = StorageRecord.builder()
+    final Record<String> record = StorageRecord.builder("")
         .setUrl(url)
         .setRequestMethod(request.getMethod())
         .setStatusCode(statusCode)
@@ -57,7 +58,7 @@ public class StorageFetcherTest {
         .setContentType(contentType)
         .build();
 
-    final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(request, record));
+    final FakeFileManager fileManager = new FakeFileManager(ImmutableMap.of(request, record));
     final Validator validator = Validator.ALWAYS_VALID;
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
       fetcher.start();
@@ -84,7 +85,7 @@ public class StorageFetcherTest {
     final byte[] content = "This is a test".getBytes();
     final ContentType contentType = ContentType.TEXT_PLAIN;
     final Header[] headers = {new BasicHeader(headerKey, headerValue)};
-    final Record record = StorageRecord.builder()
+    final Record<Object> record = StorageRecord.builder(new Object())
         .setUrl(url)
         .setRequestMethod(request.getMethod())
         .setStatusCode(statusCode)
@@ -93,7 +94,7 @@ public class StorageFetcherTest {
         .setResponseHeaders(headers)
         .build();
 
-    final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(request, record));
+    final FakeFileManager fileManager = new FakeFileManager(ImmutableMap.of(request, record));
     final Validator validator = Validator.ALWAYS_VALID;
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
       fetcher.start();
@@ -122,7 +123,7 @@ public class StorageFetcherTest {
     final ContentType contentType = ContentType.TEXT_PLAIN;
 
     final Header[] headers = {new BasicHeader(headerKey, headerValue)};
-    final Record record = StorageRecord.builder()
+    final Record<Object> record = StorageRecord.builder(new Object())
         .setUrl(url)
         .setRequestMethod(submittedRequest.getMethod())
         .setStatusCode(statusCode)
@@ -131,9 +132,9 @@ public class StorageFetcherTest {
         .setResponseHeaders(headers)
         .build();
 
-    final Map<String, String> headerMap = Collections.singletonMap(headerKey, headerValue);
+    final Map<String, String> headerMap = ImmutableMap.of(headerKey, headerValue);
     final Request request = new VRequest(url, headerMap);
-    final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(request, record));
+    final FakeFileManager fileManager = new FakeFileManager(ImmutableMap.of(request, record));
     final Validator validator = Validator.ALWAYS_VALID;
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator)
         .setHeaders(headerMap).build()) {
@@ -162,7 +163,7 @@ public class StorageFetcherTest {
     final ContentType contentType = ContentType.TEXT_PLAIN;
 
     final Header[] headers = {new BasicHeader(headerKey, headerValue)};
-    final Record record = StorageRecord.builder()
+    final Record<Object> record = StorageRecord.builder(new Object())
         .setUrl(url)
         .setRequestMethod(request.getMethod())
         .setStatusCode(statusCode)
@@ -171,8 +172,8 @@ public class StorageFetcherTest {
         .setResponseHeaders(headers)
         .build();
 
-    final Map<String, String> headerMap = Collections.singletonMap(headerKey, headerValue);
-    final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(request, record));
+    final Map<String, String> headerMap = ImmutableMap.of(headerKey, headerValue);
+    final FakeFileManager fileManager = new FakeFileManager(ImmutableMap.of(request, record));
     final Validator validator = Validator.ALWAYS_VALID;
     final AtomicBoolean thrown = new AtomicBoolean(false);
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator)
@@ -201,7 +202,7 @@ public class StorageFetcherTest {
     final int statusCode = 200;
     final byte[] content = "This is a test".getBytes();
     final ContentType contentType = ContentType.TEXT_PLAIN;
-    final Record record = StorageRecord.builder()
+    final Record<Object> record = StorageRecord.builder(new Object())
         .setUrl(url)
         .setRequestMethod(request.getMethod())
         .setStatusCode(statusCode)
@@ -212,7 +213,7 @@ public class StorageFetcherTest {
     final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(null, record));
     final Validator validator = Validator.ALWAYS_VALID;
     final AtomicBoolean thrown = new AtomicBoolean(false);
-    try (final Fetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
+    try (final StorageFetcher<Object> fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
       final Future<Response> responseFuture = fetcher.fetch(request);
       try {
         responseFuture.get();
@@ -235,7 +236,7 @@ public class StorageFetcherTest {
     final int statusCode = 500;
     final byte[] content = "This is a test".getBytes();
     final ContentType contentType = ContentType.TEXT_PLAIN;
-    final Record record = StorageRecord.builder()
+    final Record<Object> record = StorageRecord.builder(new Object())
         .setUrl(url)
         .setRequestMethod(request.getMethod())
         .setStatusCode(statusCode)
@@ -243,7 +244,7 @@ public class StorageFetcherTest {
         .setContentType(contentType)
         .build();
 
-    final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(request, record));
+    final FakeFileManager fileManager = new FakeFileManager(ImmutableMap.of(request, record));
     final AtomicBoolean thrown = new AtomicBoolean(false);
     try (final Fetcher fetcher = StorageFetcher.builder(fileManager).build()) {
       final Future<Response> responseFuture = fetcher.fetch(request);

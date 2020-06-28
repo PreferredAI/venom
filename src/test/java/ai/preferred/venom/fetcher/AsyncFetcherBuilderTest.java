@@ -89,7 +89,7 @@ public class AsyncFetcherBuilderTest {
   @Test
   void testSetFileManager() {
     AsyncFetcher.builder().setFileManager(null);
-    AsyncFetcher.builder().setFileManager(new FileManager() {
+    AsyncFetcher.builder().setFileManager(new FileManager<Object>() {
       @Override
       public @NotNull Callback getCallback() {
         return null;
@@ -102,12 +102,12 @@ public class AsyncFetcherBuilderTest {
 
       @Nullable
       @Override
-      public Record get(Object id) {
+      public Record<Object> get(Object id) {
         return null;
       }
 
       @Override
-      public @NotNull Record get(@NotNull Request request) {
+      public @NotNull Record<Object> get(@NotNull Request request) {
         return null;
       }
 

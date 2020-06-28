@@ -46,7 +46,7 @@ import java.util.concurrent.Future;
  *
  * @author Ween Jiann Lee
  */
-public final class StorageFetcher implements Fetcher {
+public final class StorageFetcher<T> implements Fetcher {
 
   /**
    * Logger.
@@ -56,7 +56,7 @@ public final class StorageFetcher implements Fetcher {
   /**
    * The file manager used to store raw responses.
    */
-  private final FileManager fileManager;
+  private final FileManager<T> fileManager;
 
   /**
    * The validator used.
@@ -73,7 +73,7 @@ public final class StorageFetcher implements Fetcher {
    *
    * @param builder An instance of builder
    */
-  private StorageFetcher(final Builder builder) {
+  private StorageFetcher(final Builder<T> builder) {
     this.fileManager = builder.fileManager;
     this.validator = builder.validator;
     this.headers = builder.headers;
@@ -85,8 +85,8 @@ public final class StorageFetcher implements Fetcher {
    * @param fileManager the file manager to use.
    * @return A new instance of builder
    */
-  public static Builder builder(final FileManager fileManager) {
-    return new Builder(fileManager);
+  public static <T> Builder<T> builder(final FileManager<T> fileManager) {
+    return new Builder<>(fileManager);
   }
 
   /**
@@ -136,7 +136,7 @@ public final class StorageFetcher implements Fetcher {
     });
 
     try {
-      final Record record = fileManager.get(storageFetcherRequest);
+      final Record<T> record = fileManager.get(storageFetcherRequest);
       if (record == null) {
         future.cancel();
         LOGGER.info("No content found from storage for: {}", request.getUrl());
@@ -154,7 +154,7 @@ public final class StorageFetcher implements Fetcher {
       }
       final String baseUrl = tryBaseUrl;
 
-      final StorageResponse response = new StorageResponse(record, baseUrl);
+      final StorageResponse<T> response = new StorageResponse<>(record, baseUrl);
       final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
       if (status != Validator.Status.VALID) {
         future.failed(new ValidationException(status, response, "Invalid response."));
@@ -180,12 +180,12 @@ public final class StorageFetcher implements Fetcher {
   /**
    * A builder for StorageFetcher class.
    */
-  public static final class Builder {
+  public static final class Builder<T> {
 
     /**
      * The file manager used to store raw responses.
      */
-    private final FileManager fileManager;
+    private final FileManager<T> fileManager;
 
     /**
      * A list of headers to append to request.
@@ -202,7 +202,7 @@ public final class StorageFetcher implements Fetcher {
      *
      * @param fileManager an instance file manager used to store raw responses.
      */
-    private Builder(final FileManager fileManager) {
+    private Builder(final FileManager<T> fileManager) {
       this.fileManager = fileManager;
       headers = Collections.emptyMap();
       validator = new PipelineValidator(
@@ -217,7 +217,7 @@ public final class StorageFetcher implements Fetcher {
      * @param headers a map to headers to be used.
      * @return this
      */
-    public Builder setHeaders(final @NotNull Map<String, String> headers) {
+    public Builder<T> setHeaders(final @NotNull Map<String, String> headers) {
       this.headers = headers;
       return this;
     }
@@ -233,7 +233,7 @@ public final class StorageFetcher implements Fetcher {
      * @param validator validator to be used.
      * @return this
      */
-    public Builder setValidator(final @NotNull Validator validator) {
+    public Builder<T> setValidator(final @NotNull Validator validator) {
       this.validator = validator;
       return this;
     }
@@ -249,7 +249,7 @@ public final class StorageFetcher implements Fetcher {
      * @param validators validator to be used.
      * @return this
      */
-    public Builder setValidator(final @NotNull Validator... validators) {
+    public Builder<T> setValidator(final @NotNull Validator... validators) {
       this.validator = new PipelineValidator(validators);
       return this;
     }
@@ -259,8 +259,8 @@ public final class StorageFetcher implements Fetcher {
      *
      * @return an instance of Fetcher.
      */
-    public StorageFetcher build() {
-      return new StorageFetcher(this);
+    public StorageFetcher<T> build() {
+      return new StorageFetcher<>(this);
     }
 
   }

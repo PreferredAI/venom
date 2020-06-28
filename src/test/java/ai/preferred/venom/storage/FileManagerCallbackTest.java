@@ -44,10 +44,10 @@ public class FileManagerCallbackTest {
 
     final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
 
-    final FileManager fileManager = new FakeFileManager();
+    final FileManager<Object> fileManager = new FakeFileManager();
     fileManager.getCallback().completed(request, response);
 
-    final Record record = fileManager.get(request);
+    final Record<Object> record = fileManager.get(request);
     Assertions.assertNotNull(record);
   }
 
@@ -56,10 +56,10 @@ public class FileManagerCallbackTest {
     final String url = "https://preferred.ai/";
     final Request request = new VRequest(url);
 
-    final FileManager fileManager = new FakeFileManager();
+    final FileManager<Object> fileManager = new FakeFileManager();
     fileManager.getCallback().failed(request, new StorageException(""));
 
-    final Record record = fileManager.get(request);
+    final Record<Object> record = fileManager.get(request);
     Assertions.assertNull(record);
   }
 
@@ -68,10 +68,10 @@ public class FileManagerCallbackTest {
     final String url = "https://preferred.ai/";
     final Request request = new VRequest(url);
 
-    final FileManager fileManager = new FakeFileManager();
+    final FileManager<Object> fileManager = new FakeFileManager();
     fileManager.getCallback().cancelled(request);
 
-    final Record record = fileManager.get(request);
+    final Record<Object> record = fileManager.get(request);
     Assertions.assertNull(record);
   }
 

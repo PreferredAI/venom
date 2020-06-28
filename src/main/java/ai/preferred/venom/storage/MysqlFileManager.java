@@ -325,9 +325,8 @@ public class MysqlFileManager implements FileManager<Integer> {
     }
 
     LOGGER.debug("Record found for request: {}", rs.getString("url"));
-    //noinspection unchecked
-    return StorageRecord.builder()
-        .setId(rs.getInt("id"))
+
+    return StorageRecord.builder(rs.getInt("id"))
         .setUrl(rs.getString("url"))
         .setRequestMethod(Request.Method.valueOf(rs.getString("method")))
         .setRequestHeaders(requestHeaders)
@@ -511,7 +510,7 @@ public class MysqlFileManager implements FileManager<Integer> {
      *
      * @param fileManager an instance of file manager used to store raw responses.
      */
-    private CompletedThreadedCallback(final FileManager fileManager) {
+    private CompletedThreadedCallback(final FileManager<?> fileManager) {
       this.fileManagerCallback = new FileManagerCallback(fileManager);
       this.executorService = Executors.newCachedThreadPool(
           new ThreadFactoryBuilder().setNameFormat("FileManager I/O %d").build());

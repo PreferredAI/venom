@@ -29,7 +29,7 @@ public class StorageResponseTest {
     final Header[] headers = {new BasicHeader(headerKey, headerValue)};
     final Map<String, String> body = Collections.singletonMap("body", "body");
 
-    final StorageRecord storageRecord = StorageRecord.builder()
+    final StorageRecord<Object> storageRecord = StorageRecord.builder(new Object())
         .setResponseHeaders(headers)
         .setContentType(contentType)
         .setResponseContent(content)
@@ -40,7 +40,7 @@ public class StorageResponseTest {
         .setRequestBody(body)
         .build();
 
-    final StorageResponse storageResponse = new StorageResponse(storageRecord, url);
+    final StorageResponse<Object> storageResponse = new StorageResponse<>(storageRecord, url);
 
     Assertions.assertEquals(statusCode, storageResponse.getStatusCode());
     Assertions.assertEquals(content, storageResponse.getContent());
