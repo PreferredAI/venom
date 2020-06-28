@@ -110,7 +110,22 @@ public class MysqlFileManager implements FileManager<Integer> {
    */
   public MysqlFileManager(final String url, final String table, final String username, final String password,
                           final File storagePath) {
-    this.dataSource = setupDataSource(url, username, password);
+    this(url, table, username, password, storagePath, 10);
+  }
+
+  /**
+   * Constructs an instance of MysqlFileManager.
+   *
+   * @param url         a JDBC URL to the database
+   * @param table       name of table in the database to use for record storage
+   * @param username    username for the database
+   * @param password    password for the database
+   * @param storagePath storage path to use for content storage
+   * @param maxPoolSize maximum connection pool size
+   */
+  public MysqlFileManager(final String url, final String table, final String username, final String password,
+                          final File storagePath, final int maxPoolSize) {
+    this.dataSource = setupDataSource(url, username, password, maxPoolSize);
     ensureTable(table);
     this.table = table;
     this.storagePath = storagePath;
@@ -125,12 +140,14 @@ public class MysqlFileManager implements FileManager<Integer> {
    * @param password password for the database
    * @return an instance of DataSource
    */
-  private DataSource setupDataSource(final String url, final String username, final String password) {
+  private DataSource setupDataSource(final String url, final String username, final String password,
+                                     final int maxPoolSize) {
     final HikariDataSource dataSource = new HikariDataSource();
     dataSource.setJdbcUrl(url);
     dataSource.setUsername(username);
     dataSource.setPassword(password);
     dataSource.setAutoCommit(false);
+    dataSource.setMaximumPoolSize(maxPoolSize);
     return dataSource;
   }
 
