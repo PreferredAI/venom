@@ -25,12 +25,12 @@ import org.apache.http.entity.ContentType;
 /**
  * @author Ween Jiann Lee
  */
-public class StorageResponse<T> implements Response, Retrievable<T> {
+public class StorageResponse implements Response, Retrievable {
 
   /**
    * The record holding this response.
    */
-  private final Record<T> record;
+  private final Record<?> record;
 
   /**
    * The base url of this response.
@@ -43,7 +43,7 @@ public class StorageResponse<T> implements Response, Retrievable<T> {
    * @param record  record holding this response
    * @param baseUrl base URL of the response
    */
-  public StorageResponse(final Record<T> record, final String baseUrl) {
+  public StorageResponse(final Record<?> record, final String baseUrl) {
     this.record = record;
     this.baseUrl = baseUrl;
   }
@@ -79,7 +79,7 @@ public class StorageResponse<T> implements Response, Retrievable<T> {
   }
 
   @Override
-  public final Record<T> getRecord() {
+  public final Record<?> getRecord() {
     return record;
   }
 }

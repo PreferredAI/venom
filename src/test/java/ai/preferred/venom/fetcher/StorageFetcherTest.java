@@ -213,7 +213,7 @@ public class StorageFetcherTest {
     final FakeFileManager fileManager = new FakeFileManager(Collections.singletonMap(null, record));
     final Validator validator = Validator.ALWAYS_VALID;
     final AtomicBoolean thrown = new AtomicBoolean(false);
-    try (final StorageFetcher<Object> fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
+    try (final StorageFetcher fetcher = StorageFetcher.builder(fileManager).setValidator(validator).build()) {
       final Future<Response> responseFuture = fetcher.fetch(request);
       try {
         responseFuture.get();

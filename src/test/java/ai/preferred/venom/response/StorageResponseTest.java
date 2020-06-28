@@ -40,7 +40,7 @@ public class StorageResponseTest {
         .setRequestBody(body)
         .build();
 
-    final StorageResponse<Object> storageResponse = new StorageResponse<>(storageRecord, url);
+    final StorageResponse storageResponse = new StorageResponse(storageRecord, url);
 
     Assertions.assertEquals(statusCode, storageResponse.getStatusCode());
     Assertions.assertEquals(content, storageResponse.getContent());
