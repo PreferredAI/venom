@@ -50,7 +50,7 @@ public class MysqlFileManagerTest {
     db = DB.newEmbeddedDB(randomPort);
     db.start();
     storage = Files.createTempDirectory("test_storage_directory");
-    fileManager = new MysqlFileManager("jdbc:mysql://localhost:" + randomPort + "/test",
+    fileManager = new MysqlFileManager("jdbc:mysql://localhost:" + randomPort + "/test?&serverTimezone=UTC",
         "test", "root", "", storage.toFile());
   }
 
