@@ -391,31 +391,10 @@ public final class AsyncFetcher implements Fetcher {
   public Future<Response> fetch(final Request request, final Callback callback) {
     final HttpFetcherRequest httpFetcherRequest = prepareFetcherRequest(request);
 
-    final FutureCallback<Response> futureCallback = new FutureCallback<Response>() {
-      @Override
-      public void completed(final Response response) {
-        LOGGER.debug("Executing completion callback on {}.", request.getUrl());
-        callbacks.forEach(callback -> callback.completed(httpFetcherRequest, response));
-        callback.completed(httpFetcherRequest, response);
-      }
-
-      @Override
-      public void failed(final Exception ex) {
-        LOGGER.debug("Executing failed callback on {}.", request.getUrl(), ex);
-        callbacks.forEach(callback -> callback.failed(httpFetcherRequest, ex));
-        callback.failed(httpFetcherRequest, ex);
-      }
-
-      @Override
-      public void cancelled() {
-        LOGGER.debug("Executing cancelled callback on {}.", request.getUrl());
-        callbacks.forEach(callback -> callback.cancelled(httpFetcherRequest));
-        callback.cancelled(httpFetcherRequest);
-      }
-    };
+    final FutureCallback<Response> requestCallback = new RequestCallback(httpFetcherRequest, callback);
 
     if (Thread.currentThread().isInterrupted()) {
-      return cancelRequest(futureCallback);
+      return cancelRequest(requestCallback);
     }
 
     final HttpUriRequest httpReq = prepareHttpRequest(httpFetcherRequest);
@@ -423,7 +402,7 @@ public final class AsyncFetcher implements Fetcher {
     try {
       target = determineTarget(httpReq);
     } catch (final ClientProtocolException ex) {
-      return failRequest(futureCallback, ex);
+      return failRequest(requestCallback, ex);
     }
 
     LOGGER.debug("Fetching URL: {}", request.getUrl());
@@ -436,20 +415,24 @@ public final class AsyncFetcher implements Fetcher {
     }
 
     if (!httpClient.isRunning() || Thread.currentThread().isInterrupted()) {
-      return cancelRequest(futureCallback);
+      return cancelRequest(requestCallback);
     }
 
-    return httpClient.execute(
-        HttpAsyncMethods.create(target, httpReq),
-        new AsyncResponseConsumer(
-            prepareValidator(routedValidator),
-            stopCodes,
-            compressed,
-            httpFetcherRequest
-        ),
-        HttpClientContext.create(),
-        futureCallback
-    );
+    try {
+      return httpClient.execute(
+          HttpAsyncMethods.create(target, httpReq),
+          new AsyncResponseConsumer(
+              prepareValidator(routedValidator),
+              stopCodes,
+              compressed,
+              httpFetcherRequest
+          ),
+          HttpClientContext.create(),
+          requestCallback
+      );
+    } catch (final Exception e) {
+      return failRequest(requestCallback, e);
+    }
   }
 
   @Override
@@ -891,6 +874,48 @@ public final class AsyncFetcher implements Fetcher {
      */
     public AsyncFetcher build() {
       return new AsyncFetcher(this);
+    }
+
+  }
+
+  private class RequestCallback implements FutureCallback<Response> {
+
+    private final HttpFetcherRequest fetcherRequest;
+    private final Callback crawlerCallback;
+
+    RequestCallback(HttpFetcherRequest fetcherRequest, Callback crawlerCallback) {
+      this.fetcherRequest = fetcherRequest;
+      this.crawlerCallback = crawlerCallback;
+    }
+
+    @Override
+    public void completed(final Response response) {
+      LOGGER.debug("Executing completion callback on {}.", fetcherRequest.getUrl());
+      try {
+        callbacks.forEach(callback -> callback.completed(fetcherRequest, response));
+      } finally {
+        crawlerCallback.completed(fetcherRequest, response);
+      }
+    }
+
+    @Override
+    public void failed(final Exception ex) {
+      LOGGER.debug("Executing failed callback on {}.", fetcherRequest.getUrl(), ex);
+      try {
+        callbacks.forEach(callback -> callback.failed(fetcherRequest, ex));
+      } finally {
+        crawlerCallback.failed(fetcherRequest, ex);
+      }
+    }
+
+    @Override
+    public void cancelled() {
+      LOGGER.debug("Executing cancelled callback on {}.", fetcherRequest.getUrl());
+      try {
+        callbacks.forEach(callback -> callback.cancelled(fetcherRequest));
+      } finally {
+        crawlerCallback.cancelled(fetcherRequest);
+      }
     }
 
   }
