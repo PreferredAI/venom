@@ -9,7 +9,7 @@ before_install:  mvn versions:resolve-ranges
 
 install: mvn -s .mvn.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
-script: mvn clean test jacoco:report coveralls:report
+script: mvn clean test
 
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_a3af7f3d4f29_key -iv $encrypted_a3af7f3d4f29_iv -in key.gpg.enc -out key.gpg -d
