@@ -351,30 +351,7 @@ public final class Crawler implements Interruptible, AutoCloseable {
                 }
               });
 
-          final Callback callback = new Callback() {
-            @Override
-            public void completed(final @NotNull Request request, final @NotNull Response response) {
-              LOGGER.debug("Completed received for job {} - {}.", Integer.toHexString(job.hashCode()),
-                  job.getRequest().getUrl());
-              completableResponseFuture.complete(response);
-            }
-
-            @Override
-            public void failed(final @NotNull Request request, final @NotNull Exception ex) {
-              LOGGER.debug("Failed received for job {} - {}.", Integer.toHexString(job.hashCode()),
-                  job.getRequest().getUrl());
-              completableResponseFuture.completeExceptionally(ex);
-            }
-
-            @Override
-            public void cancelled(final @NotNull Request request) {
-              LOGGER.debug("Cancelled received for job {} - {}.", Integer.toHexString(job.hashCode()),
-                  job.getRequest().getUrl());
-              completableResponseFuture.cancel(true);
-            }
-          };
-
-          fetcher.fetch(crawlerRequest, callback);
+          fetcher.fetch(crawlerRequest, new CompletableCallback(job, completableResponseFuture));
         });
       } catch (final InterruptedException e) {
         LOGGER.debug("({}) producer thread interrupted.", crawlerThread.getName(), e);
@@ -515,6 +492,55 @@ public final class Crawler implements Interruptible, AutoCloseable {
         throw cachedException;
       }
     }
+  }
+
+  /**
+   * A callback that utilises CompletableFuture.
+   */
+  private static final class CompletableCallback implements Callback {
+
+    /**
+     * The job this callback is for.
+     */
+    private final Job job;
+
+    /**
+     * The CompletableFuture to call upon response.
+     */
+    private final CompletableFuture<Response> completableResponseFuture;
+
+    /**
+     * Constructs an instance of CompletableCallback.
+     *
+     * @param job                       The job this callback is for.
+     * @param completableResponseFuture The CompletableFuture to call upon response.
+     */
+    private CompletableCallback(final Job job, final CompletableFuture<Response> completableResponseFuture) {
+      this.job = job;
+      this.completableResponseFuture = completableResponseFuture;
+    }
+
+    @Override
+    public void completed(final @NotNull Request request, final @NotNull Response response) {
+      LOGGER.debug("Completed received for job {} - {}.", Integer.toHexString(job.hashCode()),
+          job.getRequest().getUrl());
+      completableResponseFuture.complete(response);
+    }
+
+    @Override
+    public void failed(final @NotNull Request request, final @NotNull Exception ex) {
+      LOGGER.debug("Failed received for job {} - {}.", Integer.toHexString(job.hashCode()),
+          job.getRequest().getUrl());
+      completableResponseFuture.completeExceptionally(ex);
+    }
+
+    @Override
+    public void cancelled(final @NotNull Request request) {
+      LOGGER.debug("Cancelled received for job {} - {}.", Integer.toHexString(job.hashCode()),
+          job.getRequest().getUrl());
+      completableResponseFuture.cancel(true);
+    }
+
   }
 
   /**
