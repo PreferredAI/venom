@@ -30,7 +30,7 @@ public class StorageResponse implements Response, Retrievable {
   /**
    * The record holding this response.
    */
-  private final Record record;
+  private final Record<?> record;
 
   /**
    * The base url of this response.
@@ -43,7 +43,7 @@ public class StorageResponse implements Response, Retrievable {
    * @param record  record holding this response
    * @param baseUrl base URL of the response
    */
-  public StorageResponse(final Record record, final String baseUrl) {
+  public StorageResponse(final Record<?> record, final String baseUrl) {
     this.record = record;
     this.baseUrl = baseUrl;
   }
@@ -79,7 +79,7 @@ public class StorageResponse implements Response, Retrievable {
   }
 
   @Override
-  public final Record getRecord() {
+  public final Record<?> getRecord() {
     return record;
   }
 }

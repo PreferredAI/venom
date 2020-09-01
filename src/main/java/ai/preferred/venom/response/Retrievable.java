@@ -31,5 +31,5 @@ public interface Retrievable extends Response {
    *
    * @return record where an archive has been saved
    */
-  Record getRecord();
+  Record<?> getRecord();
 }

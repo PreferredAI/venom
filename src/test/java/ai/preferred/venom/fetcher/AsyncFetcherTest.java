@@ -439,7 +439,7 @@ public class AsyncFetcherTest {
   @Test
   public void testFileMangerIntegration() throws Exception {
     fetcher.close();
-    final FileManager fileManager = new FakeFileManager();
+    final FileManager<Object> fileManager = new FakeFileManager();
     fetcher = AsyncFetcher.builder().setFileManager(fileManager).build();
     fetcher.start();
 
@@ -464,7 +464,7 @@ public class AsyncFetcherTest {
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
 
     fetcher.close();
-    final Record record = fileManager.get(request);
+    final Record<Object> record = fileManager.get(request);
     Assertions.assertNotNull(record, "Record not found.");
   }
 

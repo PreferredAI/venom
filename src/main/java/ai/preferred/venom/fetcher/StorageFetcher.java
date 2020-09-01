@@ -56,7 +56,7 @@ public final class StorageFetcher implements Fetcher {
   /**
    * The file manager used to store raw responses.
    */
-  private final FileManager fileManager;
+  private final FileManager<?> fileManager;
 
   /**
    * The validator used.
@@ -85,7 +85,7 @@ public final class StorageFetcher implements Fetcher {
    * @param fileManager the file manager to use.
    * @return A new instance of builder
    */
-  public static Builder builder(final FileManager fileManager) {
+  public static Builder builder(final FileManager<?> fileManager) {
     return new Builder(fileManager);
   }
 
@@ -136,7 +136,7 @@ public final class StorageFetcher implements Fetcher {
     });
 
     try {
-      final Record record = fileManager.get(storageFetcherRequest);
+      final Record<?> record = fileManager.get(storageFetcherRequest);
       if (record == null) {
         future.cancel();
         LOGGER.info("No content found from storage for: {}", request.getUrl());
@@ -185,7 +185,7 @@ public final class StorageFetcher implements Fetcher {
     /**
      * The file manager used to store raw responses.
      */
-    private final FileManager fileManager;
+    private final FileManager<?> fileManager;
 
     /**
      * A list of headers to append to request.
@@ -202,7 +202,7 @@ public final class StorageFetcher implements Fetcher {
      *
      * @param fileManager an instance file manager used to store raw responses.
      */
-    private Builder(final FileManager fileManager) {
+    private Builder(final FileManager<?> fileManager) {
       this.fileManager = fileManager;
       headers = Collections.emptyMap();
       validator = new PipelineValidator(

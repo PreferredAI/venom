@@ -47,8 +47,7 @@ public class StorageRecordTest {
     final String md5 = "md5";
     final Map<String, String> body = Collections.singletonMap("body", "body");
 
-    final StorageRecord storageRecord = StorageRecord.builder()
-        .setId(id)
+    final StorageRecord<Object> storageRecord = StorageRecord.builder(id)
         .setResponseHeaders(headers)
         .setContentType(contentType)
         .setResponseContent(content)

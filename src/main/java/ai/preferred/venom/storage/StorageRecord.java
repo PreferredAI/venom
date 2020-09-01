@@ -108,10 +108,11 @@ public final class StorageRecord<T> implements Record<T> {
    * Create an instance of builder.
    *
    * @param <T> the type of id
+   * @param id  id for the record
    * @return a new instance of builder
    */
-  public static <T> Builder<T> builder() {
-    return new Builder<>();
+  public static <T> Builder<T> builder(T id) {
+    return new Builder<>(id);
   }
 
   @Override
@@ -178,12 +179,12 @@ public final class StorageRecord<T> implements Record<T> {
    *
    * @param <T> the type of id
    */
-  public static class Builder<T> {
+  public static final class Builder<T> {
 
     /**
      * The id of this record.
      */
-    private T id;
+    private final T id;
 
     /**
      * The url for this request.
@@ -236,14 +237,12 @@ public final class StorageRecord<T> implements Record<T> {
     private long dateCreated;
 
     /**
-     * Sets the id for the record.
+     * Constructs an instance of StorageRecord.Builder.
      *
      * @param id id for the record
-     * @return this
      */
-    public final Builder setId(final T id) {
+    private Builder(T id) {
       this.id = id;
-      return this;
     }
 
     /**
@@ -252,7 +251,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param url url for the request
      * @return this
      */
-    public final Builder setUrl(final String url) {
+    public Builder<T> setUrl(final String url) {
       this.url = url;
       return this;
     }
@@ -263,7 +262,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param requestMethod method of the request
      * @return this
      */
-    public final Builder setRequestMethod(final Request.Method requestMethod) {
+    public Builder<T> setRequestMethod(final Request.Method requestMethod) {
       this.requestMethod = requestMethod;
       return this;
     }
@@ -274,7 +273,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param requestHeaders headers of the request
      * @return this
      */
-    public final Builder setRequestHeaders(final Map<String, String> requestHeaders) {
+    public Builder<T> setRequestHeaders(final Map<String, String> requestHeaders) {
       this.requestHeaders = requestHeaders;
       return this;
     }
@@ -285,7 +284,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param requestBody body of the request
      * @return this
      */
-    public final Builder setRequestBody(final Map<String, String> requestBody) {
+    public Builder<T> setRequestBody(final Map<String, String> requestBody) {
       this.requestBody = requestBody;
       return this;
     }
@@ -296,7 +295,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param statusCode status code of the response
      * @return this
      */
-    public final Builder setStatusCode(final int statusCode) {
+    public Builder<T> setStatusCode(final int statusCode) {
       this.statusCode = statusCode;
       return this;
     }
@@ -307,7 +306,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param responseHeaders headers of the response
      * @return this
      */
-    public final Builder setResponseHeaders(final Header[] responseHeaders) {
+    public Builder<T> setResponseHeaders(final Header[] responseHeaders) {
       this.responseHeaders = responseHeaders;
       return this;
     }
@@ -318,7 +317,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param contentType content type of the response
      * @return this
      */
-    public final Builder setContentType(final ContentType contentType) {
+    public Builder<T> setContentType(final ContentType contentType) {
       this.contentType = contentType;
       return this;
     }
@@ -329,7 +328,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param responseContent content of the response
      * @return this
      */
-    public final Builder setResponseContent(final byte[] responseContent) {
+    public Builder<T> setResponseContent(final byte[] responseContent) {
       this.responseContent = responseContent;
       return this;
     }
@@ -340,7 +339,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param md5 md5 hash of the response content
      * @return this
      */
-    public final Builder setMD5(final String md5) {
+    public Builder<T> setMD5(final String md5) {
       this.md5 = md5;
       return this;
     }
@@ -351,7 +350,7 @@ public final class StorageRecord<T> implements Record<T> {
      * @param dateCreated date created of the record
      * @return this
      */
-    public final Builder setDateCreated(final long dateCreated) {
+    public Builder<T> setDateCreated(final long dateCreated) {
       this.dateCreated = dateCreated;
       return this;
     }
@@ -361,7 +360,7 @@ public final class StorageRecord<T> implements Record<T> {
      *
      * @return an instance of StorageRecord.
      */
-    public final StorageRecord<T> build() {
+    public StorageRecord<T> build() {
       return new StorageRecord<>(this);
     }
 
