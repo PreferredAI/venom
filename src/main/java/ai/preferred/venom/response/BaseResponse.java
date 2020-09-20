@@ -20,6 +20,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Maksim Tkachenko
  * @author Truong Quoc Tuan
@@ -88,22 +90,22 @@ public class BaseResponse implements Response {
   }
 
   @Override
-  public final ContentType getContentType() {
+  public final @NotNull ContentType getContentType() {
     return contentType;
   }
 
   @Override
-  public final Header[] getHeaders() {
+  public final @NotNull Header[] getHeaders() {
     return headers;
   }
 
   @Override
-  public final String getUrl() {
+  public final @NotNull String getUrl() {
     return url;
   }
 
   @Override
-  public final String getBaseUrl() {
+  public final @NotNull String getBaseUrl() {
     return getUrl();
   }
 

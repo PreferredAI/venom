@@ -87,7 +87,7 @@ public class FakeFetcher implements Fetcher {
       callback.failed(request, ex);
     }
 
-    return new Future<Response>() {
+    return new Future<>() {
       @Override
       public boolean cancel(boolean mayInterruptIfRunning) {
         return false;

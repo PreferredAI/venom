@@ -61,22 +61,22 @@ public class StorageResponse implements Response, Retrievable {
   }
 
   @Override
-  public final ContentType getContentType() {
+  public final @NotNull ContentType getContentType() {
     return record.getContentType();
   }
 
   @Override
-  public final Header[] getHeaders() {
+  public final @NotNull Header[] getHeaders() {
     return record.getResponseHeaders();
   }
 
   @Override
-  public @NotNull String getUrl() {
+  public final @NotNull String getUrl() {
     return url;
   }
 
   @Override
-  public final String getBaseUrl() {
+  public final @NotNull String getBaseUrl() {
     return getUrl();
   }
 

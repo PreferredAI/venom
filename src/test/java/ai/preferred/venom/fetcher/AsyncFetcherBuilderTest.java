@@ -89,7 +89,7 @@ public class AsyncFetcherBuilderTest {
   @Test
   void testSetFileManager() {
     AsyncFetcher.builder().setFileManager(null);
-    AsyncFetcher.builder().setFileManager(new FileManager<Object>() {
+    AsyncFetcher.builder().setFileManager(new FileManager<>() {
       @Override
       public @NotNull Callback getCallback() {
         return null;
