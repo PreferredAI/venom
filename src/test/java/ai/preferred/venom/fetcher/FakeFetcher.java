@@ -63,13 +63,12 @@ public class FakeFetcher implements Fetcher {
   @Override
   public @NotNull Future<Response> fetch(@NotNull Request request, @NotNull Callback callback) {
     final int statusCode = 200;
-    final String baseUrl = request.getUrl();
     final byte[] content = "IPSUM".getBytes();
     final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
     final Header[] headers = {};
     final HttpHost proxy = request.getProxy();
 
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, proxy);
+    final Response response = new BaseResponse(statusCode, request.getUrl(), content, contentType, headers, proxy);
 
     final Status status = statuses.poll();
     counter.incrementAndGet();

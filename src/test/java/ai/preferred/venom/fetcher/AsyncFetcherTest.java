@@ -91,7 +91,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -114,7 +114,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -137,7 +137,7 @@ public class AsyncFetcherTest {
 //    final Future<Response> responseFuture = fetcher.fetch(request);
 //    final Response response = responseFuture.get();
 //    Assertions.assertEquals(200, response.getStatusCode());
-//    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+//    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 //    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
 //    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 //
@@ -160,7 +160,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -183,7 +183,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -206,7 +206,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -235,7 +235,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("image/png", response.getContentType().getMimeType());
   }
 
@@ -254,7 +254,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
 
     final VResponse vResponse = new VResponse(response);
@@ -283,7 +283,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/json", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -321,7 +321,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
@@ -346,7 +346,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
@@ -372,7 +372,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
@@ -400,7 +400,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
@@ -430,7 +430,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
 
     final VResponse vResponse = new VResponse(response);
     Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
@@ -456,7 +456,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 
@@ -504,7 +504,7 @@ public class AsyncFetcherTest {
     final Future<Response> responseFuture = fetcher.fetch(request);
     final Response response = responseFuture.get();
     Assertions.assertEquals(200, response.getStatusCode());
-    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getBaseUrl());
+    Assertions.assertEquals("http://127.0.0.1:" + port + path, response.getUrl());
     Assertions.assertEquals("text/html", response.getContentType().getMimeType());
     Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
 

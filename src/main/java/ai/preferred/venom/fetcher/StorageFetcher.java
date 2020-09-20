@@ -24,7 +24,6 @@ import ai.preferred.venom.response.StorageResponse;
 import ai.preferred.venom.storage.FileManager;
 import ai.preferred.venom.storage.Record;
 import ai.preferred.venom.storage.StorageException;
-import ai.preferred.venom.utils.UrlUtil;
 import ai.preferred.venom.validator.EmptyContentValidator;
 import ai.preferred.venom.validator.PipelineValidator;
 import ai.preferred.venom.validator.StatusOkValidator;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -145,16 +143,8 @@ public final class StorageFetcher implements Fetcher {
 
       LOGGER.debug("Record found with id: {}", record.getId());
 
-      String tryBaseUrl;
-      try {
-        tryBaseUrl = UrlUtil.getBaseUrl(request);
-      } catch (URISyntaxException e) {
-        LOGGER.warn("Could not parse base URL: " + request.getUrl());
-        tryBaseUrl = request.getUrl();
-      }
-      final String baseUrl = tryBaseUrl;
-
-      final StorageResponse response = new StorageResponse(record, baseUrl);
+      // TODO: storage fetcher handle 403 natively
+      final StorageResponse response = new StorageResponse(record, request.getUrl());
       final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
       if (status != Validator.Status.VALID) {
         future.failed(new ValidationException(status, response, "Invalid response."));

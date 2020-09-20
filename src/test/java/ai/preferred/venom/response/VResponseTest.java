@@ -30,7 +30,7 @@ public class VResponseTest {
     Assertions.assertEquals(content, vResponse.getContent());
     Assertions.assertEquals(contentType, vResponse.getContentType());
     Assertions.assertEquals(headers, vResponse.getHeaders());
-    Assertions.assertEquals(url, vResponse.getBaseUrl());
+    Assertions.assertEquals(url, vResponse.getUrl());
     Assertions.assertEquals(proxy, vResponse.getProxy());
     Assertions.assertEquals(contentStr, vResponse.getHtml());
     Assertions.assertNotNull(vResponse.getJsoup());

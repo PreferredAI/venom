@@ -31,12 +31,11 @@ public class StatusOkValidatorTest {
 
   private final Request request = new VRequest("https://venom.preferred.ai");
   private final byte[] content = "".getBytes();
-  private final String baseUrl = "https://venom.preferred.ai";
   private final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
   private final Header[] headers = {};
 
   private void assertInvalid(int statusCode) {
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
+    final Response response = new BaseResponse(statusCode, request.getUrl(), content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_STATUS_CODE, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 
@@ -49,7 +48,7 @@ public class StatusOkValidatorTest {
   @Test
   public void testValidStatusCode() {
     final int statusCode = 200;
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
+    final Response response = new BaseResponse(statusCode, request.getUrl(), content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID, StatusOkValidator.INSTANCE.isValid(request, response));
   }
 

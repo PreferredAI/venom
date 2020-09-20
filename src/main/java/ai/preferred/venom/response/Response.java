@@ -65,10 +65,20 @@ public interface Response {
   Header[] getHeaders();
 
   /**
+   * Returns the url used to fetch the response, if the request
+   * is redirected, this will be the final requested url.
+   *
+   * @return stripped down version of requested url
+   */
+  @NotNull
+  String getUrl();
+
+  /**
    * Returns the base form of the url used in this request.
    *
    * @return stripped down version of requested url
    */
+  @Deprecated
   @NotNull
   String getBaseUrl();
 

@@ -29,7 +29,7 @@ public class BaseResponseTest {
     Assertions.assertEquals(content, baseResponse.getContent());
     Assertions.assertEquals(contentType, baseResponse.getContentType());
     Assertions.assertEquals(headers, baseResponse.getHeaders());
-    Assertions.assertEquals(url, baseResponse.getBaseUrl());
+    Assertions.assertEquals(url, baseResponse.getUrl());
     Assertions.assertEquals(proxy, baseResponse.getProxy());
 
   }

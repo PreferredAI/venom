@@ -21,6 +21,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 
+import javax.validation.constraints.NotNull;
+
 
 /**
  * @author Ween Jiann Lee
@@ -33,19 +35,19 @@ public class StorageResponse implements Response, Retrievable {
   private final Record<?> record;
 
   /**
-   * The base url of this response.
+   * The url of this response.
    */
-  private final String baseUrl;
+  private final String url;
 
   /**
    * Constructs a base response.
    *
-   * @param record  record holding this response
-   * @param baseUrl base URL of the response
+   * @param record record holding this response
+   * @param url    base URL of the response
    */
-  public StorageResponse(final Record<?> record, final String baseUrl) {
+  public StorageResponse(final Record<?> record, final String url) {
     this.record = record;
-    this.baseUrl = baseUrl;
+    this.url = url;
   }
 
   @Override
@@ -69,8 +71,13 @@ public class StorageResponse implements Response, Retrievable {
   }
 
   @Override
+  public @NotNull String getUrl() {
+    return url;
+  }
+
+  @Override
   public final String getBaseUrl() {
-    return baseUrl;
+    return getUrl();
   }
 
   @Override

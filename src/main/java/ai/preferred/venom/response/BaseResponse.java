@@ -50,7 +50,7 @@ public class BaseResponse implements Response {
   /**
    * The base url of this response.
    */
-  private final String baseUrl;
+  private final String url;
 
   /**
    * The proxy used to obtain response.
@@ -61,16 +61,16 @@ public class BaseResponse implements Response {
    * Constructs a base response.
    *
    * @param statusCode  Status code of the response
-   * @param baseUrl     Base url of the response
+   * @param url         Base url of the response
    * @param content     Content from the response
    * @param contentType Content type of the response
    * @param headers     Headers from the response
    * @param proxy       Proxy used to obtain the response
    */
-  public BaseResponse(final int statusCode, final String baseUrl, final byte[] content, final ContentType contentType,
+  public BaseResponse(final int statusCode, final String url, final byte[] content, final ContentType contentType,
                       final Header[] headers, final HttpHost proxy) {
     this.statusCode = statusCode;
-    this.baseUrl = baseUrl;
+    this.url = url;
     this.content = content;
     this.contentType = contentType;
     this.headers = headers;
@@ -98,8 +98,13 @@ public class BaseResponse implements Response {
   }
 
   @Override
+  public final String getUrl() {
+    return url;
+  }
+
+  @Override
   public final String getBaseUrl() {
-    return baseUrl;
+    return getUrl();
   }
 
   @Override

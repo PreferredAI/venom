@@ -46,7 +46,7 @@ public class StorageResponseTest {
     Assertions.assertEquals(content, storageResponse.getContent());
     Assertions.assertEquals(contentType, storageResponse.getContentType());
     Assertions.assertEquals(headers, storageResponse.getHeaders());
-    Assertions.assertEquals(url, storageResponse.getBaseUrl());
+    Assertions.assertEquals(url, storageResponse.getUrl());
     Assertions.assertNull(storageResponse.getProxy());
     Assertions.assertEquals(storageRecord, storageResponse.getRecord());
   }

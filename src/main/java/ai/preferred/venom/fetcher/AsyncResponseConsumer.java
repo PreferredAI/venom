@@ -21,12 +21,12 @@ import ai.preferred.venom.request.Unwrappable;
 import ai.preferred.venom.response.BaseResponse;
 import ai.preferred.venom.response.Response;
 import ai.preferred.venom.utils.ResponseDecompressor;
-import ai.preferred.venom.utils.UrlUtil;
 import ai.preferred.venom.validator.Validator;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -43,8 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -146,9 +147,18 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
    * @return An instance of base response
    * @throws IOException Reading http response
    */
-  private BaseResponse createVenomResponse(final boolean compressed) throws IOException {
+  private BaseResponse createVenomResponse(final boolean compressed, final HttpContext context) throws IOException {
     if (compressed) {
       RESPONSE_DECOMPRESSOR.decompress(httpResponse);
+    }
+
+    final HttpClientContext clientContext = HttpClientContext.adapt(context);
+    final List<URI> redirectedLocations = clientContext.getRedirectLocations();
+    final String url;
+    if (redirectedLocations == null) {
+      url = request.getUrl();
+    } else {
+      url = redirectedLocations.get(redirectedLocations.size() - 1).toString();
     }
 
     final HttpEntity entity = httpResponse.getEntity();
@@ -157,18 +167,9 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
     final ContentType contentType = getContentType(entity);
     final Header[] headers = httpResponse.getAllHeaders();
 
-    String tryBaseUrl;
-    try {
-      tryBaseUrl = UrlUtil.getBaseUrl(request);
-    } catch (URISyntaxException e) {
-      LOGGER.warn("Could not parse base URL: " + request.getUrl());
-      tryBaseUrl = request.getUrl();
-    }
-    final String baseUrl = tryBaseUrl;
-
     return new BaseResponse(
         httpResponse.getStatusLine().getStatusCode(),
-        baseUrl,
+        url,
         content,
         contentType,
         headers,
@@ -253,7 +254,7 @@ public class AsyncResponseConsumer extends AbstractAsyncResponseConsumer<Respons
       throw new StopCodeException(statusCode, "Stop code received.");
     }
 
-    final BaseResponse response = createVenomResponse(compressed);
+    final BaseResponse response = createVenomResponse(compressed, context);
     releaseResources();
 
     final Validator.Status status;

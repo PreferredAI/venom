@@ -72,8 +72,13 @@ public class VResponse implements Response, Unwrappable {
   }
 
   @Override
+  public final String getUrl() {
+    return getInner().getUrl();
+  }
+
+  @Override
   public final String getBaseUrl() {
-    return getInner().getBaseUrl();
+    return getInner().getUrl();
   }
 
   @Override
@@ -110,7 +115,7 @@ public class VResponse implements Response, Unwrappable {
    * @return jsoup document of response
    */
   public final Document getJsoup() {
-    return Jsoup.parse(getHtml(), getBaseUrl());
+    return Jsoup.parse(getHtml(), getUrl());
   }
 
   /**
@@ -120,7 +125,7 @@ public class VResponse implements Response, Unwrappable {
    * @return jsoup document of response
    */
   public final Document getJsoup(final Charset charset) {
-    return Jsoup.parse(getHtml(charset), getBaseUrl());
+    return Jsoup.parse(getHtml(charset), getUrl());
   }
 
   @Override
