@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -563,5 +564,37 @@ public class AsyncFetcherTest {
     Assertions.assertTrue(thrown.get(), "CancellationException not thrown.");
   }
 
+  @Test
+  public void testRedirection() throws Exception {
+    final int port = wireMockServer.port();
+    configureFor("localhost", port);
+    final List<String> paths = List.of(
+        "/test-redirect-1",
+        "/test-redirect-2",
+        "/test-fetch"
+    );
+
+    for (int i = 0; i < paths.size() - 1; i++) {
+      stubFor(get(urlEqualTo(paths.get(i)))
+          .willReturn(temporaryRedirect(paths.get(i + 1))));
+    }
+
+    stubFor(get(urlEqualTo(paths.get(paths.size() - 1)))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "text/html; charset=utf-8")
+            .withBody(content)));
+
+    final Request request = new VRequest("http://127.0.0.1:" + port + paths.get(0));
+    final Future<Response> responseFuture = fetcher.fetch(request);
+    final Response response = responseFuture.get();
+    Assertions.assertEquals(200, response.getStatusCode());
+    Assertions.assertEquals("http://127.0.0.1:" + port + paths.get(paths.size() - 1), response.getUrl());
+    Assertions.assertEquals("text/html", response.getContentType().getMimeType());
+    Assertions.assertEquals(StandardCharsets.UTF_8, response.getContentType().getCharset());
+
+    final VResponse vResponse = new VResponse(response);
+    Assertions.assertTrue(vResponse.getHtml().contains("Venom is an open source focused crawler for the deep web."));
+  }
 
 }
