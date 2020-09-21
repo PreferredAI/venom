@@ -116,7 +116,7 @@ public final class StorageFetcher implements Fetcher {
     LOGGER.debug("Getting record for: {}", request.getUrl());
     final StorageFetcherRequest storageFetcherRequest = normalize(request).prependHeaders(headers);
 
-    final BasicFuture<Response> future = new BasicFuture<>(new FutureCallback<>() {
+    final BasicFuture<Response> future = new BasicFuture<>(new FutureCallback<Response>() {
       @Override
       public void completed(final Response result) {
         callback.completed(request, result);
