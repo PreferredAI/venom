@@ -143,7 +143,6 @@ public final class StorageFetcher implements Fetcher {
 
       LOGGER.debug("Record found with id: {}", record.getId());
 
-      // TODO: storage fetcher handle 403 natively
       final StorageResponse response = new StorageResponse(record, request.getUrl());
       final Validator.Status status = validator.isValid(Unwrappable.unwrapRequest(request), response);
       if (status != Validator.Status.VALID) {
