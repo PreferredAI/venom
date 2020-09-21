@@ -14,7 +14,7 @@ public class BaseResponseTest {
     final String path = "/test-response";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
 
     final int statusCode = 200;
     final String contentStr = "This is a test";

@@ -44,7 +44,7 @@ public class StorageFetcherTest {
   @Test
   public void testTrue() throws Exception {
     final String path = "/test-fetch";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request request = new VRequest(url);
 
     final int statusCode = 200;
@@ -78,7 +78,7 @@ public class StorageFetcherTest {
     final String path = "/test-headers";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request request = new VRequest(url);
 
     final int statusCode = 200;
@@ -115,7 +115,7 @@ public class StorageFetcherTest {
     final String path = "/fetcher-headers";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request submittedRequest = new VRequest(url);
 
     final int statusCode = 200;
@@ -155,7 +155,7 @@ public class StorageFetcherTest {
     final String path = "/not-found";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request request = new VRequest(url);
 
     final int statusCode = 200;
@@ -196,7 +196,7 @@ public class StorageFetcherTest {
   @Test
   public void testFailure() throws Exception {
     final String path = "/test-failure";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request request = new VRequest(url);
 
     final int statusCode = 200;
@@ -230,7 +230,7 @@ public class StorageFetcherTest {
   @Test
   public void testValidation() throws Exception {
     final String path = "/test-validation";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Request request = new VRequest(url);
 
     final int statusCode = 500;

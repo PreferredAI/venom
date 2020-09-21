@@ -34,7 +34,7 @@ public class StorageRecordTest {
     final String path = "/test-headers";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Map<String, String> headerMap = Collections.singletonMap(headerKey, headerValue);
     final Request request = new VRequest(url, headerMap);
 

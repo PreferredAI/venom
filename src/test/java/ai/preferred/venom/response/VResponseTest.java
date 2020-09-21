@@ -14,7 +14,7 @@ public class VResponseTest {
     final String path = "/test-response";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
 
     final int statusCode = 200;
     final String contentStr = "This is a test";
@@ -36,6 +36,32 @@ public class VResponseTest {
     Assertions.assertNotNull(vResponse.getJsoup());
     Assertions.assertNotNull(vResponse.getJsoup(VResponse.DEFAULT_CHARSET));
     Assertions.assertEquals(baseResponse, vResponse.getInner());
+  }
+
+  @Test
+  public void testJsoupRelUrl() {
+    final String path = "/test-response/info#hashtag";
+    final String headerKey = "Cookie";
+    final String headerValue = "text=json;";
+    final String url = "http://127.0.0.1" + path;
+
+    final int statusCode = 200;
+    final String contentStr = "<!DOCTYPE html>\n" +
+        "<html>\n" +
+        "<body>\n" +
+        "<a id=\"test\" href=\"test-rel\">TEST</a>\n" +
+        "</body>\n" +
+        "</html>\n";
+    final byte[] content = contentStr.getBytes();
+    final ContentType contentType = ContentType.TEXT_HTML;
+    final Header[] headers = {new BasicHeader(headerKey, headerValue)};
+
+    final BaseResponse baseResponse = new BaseResponse(statusCode, url, content, contentType, headers, null);
+    final VResponse vResponse = new VResponse(baseResponse);
+    final String hrefUrl = vResponse.getJsoup().getElementById("test").absUrl("href");
+
+    Assertions.assertEquals("http://127.0.0.1/test-response/test-rel", hrefUrl);
+
   }
 
 }
