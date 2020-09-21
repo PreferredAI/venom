@@ -31,21 +31,20 @@ public class EmptyContentValidatorTest {
 
   private final Request request = new VRequest("https://venom.preferred.ai");
   private final int statusCode = 200;
-  private final String baseUrl = "https://venom.preferred.ai";
   private final ContentType contentType = ContentType.create("text/html", StandardCharsets.UTF_8);
   private final Header[] headers = {};
 
   @Test
   public void testEmptyContent() {
     final byte[] content = "".getBytes();
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
+    final Response response = new BaseResponse(statusCode, request.getUrl(), content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.INVALID_CONTENT, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 
   @Test
   public void testValidContent() {
     final byte[] content = "IPSUM".getBytes();
-    final Response response = new BaseResponse(statusCode, baseUrl, content, contentType, headers, null);
+    final Response response = new BaseResponse(statusCode, request.getUrl(), content, contentType, headers, null);
     Assertions.assertEquals(Validator.Status.VALID, EmptyContentValidator.INSTANCE.isValid(request, response));
   }
 

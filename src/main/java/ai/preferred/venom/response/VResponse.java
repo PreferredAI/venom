@@ -22,6 +22,7 @@ import org.apache.http.entity.ContentType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.validation.constraints.NotNull;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -62,18 +63,23 @@ public class VResponse implements Response, Unwrappable {
   }
 
   @Override
-  public final ContentType getContentType() {
+  public final @NotNull ContentType getContentType() {
     return getInner().getContentType();
   }
 
   @Override
-  public final Header[] getHeaders() {
+  public final @NotNull Header[] getHeaders() {
     return getInner().getHeaders();
   }
 
   @Override
-  public final String getBaseUrl() {
-    return getInner().getBaseUrl();
+  public final @NotNull String getUrl() {
+    return getInner().getUrl();
+  }
+
+  @Override
+  public final @NotNull String getBaseUrl() {
+    return getInner().getUrl();
   }
 
   @Override
@@ -110,7 +116,7 @@ public class VResponse implements Response, Unwrappable {
    * @return jsoup document of response
    */
   public final Document getJsoup() {
-    return Jsoup.parse(getHtml(), getBaseUrl());
+    return Jsoup.parse(getHtml(), getUrl());
   }
 
   /**
@@ -120,7 +126,7 @@ public class VResponse implements Response, Unwrappable {
    * @return jsoup document of response
    */
   public final Document getJsoup(final Charset charset) {
-    return Jsoup.parse(getHtml(charset), getBaseUrl());
+    return Jsoup.parse(getHtml(charset), getUrl());
   }
 
   @Override

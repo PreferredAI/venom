@@ -19,7 +19,7 @@ public class StorageResponseTest {
     final String path = "/test-response";
     final String headerKey = "Cookie";
     final String headerValue = "text=json;";
-    final String url = "http://127.0.0.1/" + path;
+    final String url = "http://127.0.0.1" + path;
     final Map<String, String> headerMap = Collections.singletonMap(headerKey, headerValue);
     final Request request = new VRequest(url, headerMap);
 
@@ -46,7 +46,7 @@ public class StorageResponseTest {
     Assertions.assertEquals(content, storageResponse.getContent());
     Assertions.assertEquals(contentType, storageResponse.getContentType());
     Assertions.assertEquals(headers, storageResponse.getHeaders());
-    Assertions.assertEquals(url, storageResponse.getBaseUrl());
+    Assertions.assertEquals(url, storageResponse.getUrl());
     Assertions.assertNull(storageResponse.getProxy());
     Assertions.assertEquals(storageRecord, storageResponse.getRecord());
   }

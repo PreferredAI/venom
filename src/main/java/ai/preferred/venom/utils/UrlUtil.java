@@ -42,6 +42,7 @@ public final class UrlUtil {
    * @return base URL string
    * @throws URISyntaxException if not a proper URL
    */
+  @Deprecated
   public static String getBaseUrl(final Request request) throws URISyntaxException {
     final URI uri = new URI(request.getUrl());
     final URI baseUri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null);
