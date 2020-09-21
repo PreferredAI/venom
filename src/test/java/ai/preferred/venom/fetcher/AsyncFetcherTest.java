@@ -571,7 +571,7 @@ public class AsyncFetcherTest {
     configureFor("localhost", port);
     final List<String> paths = ImmutableList.of(
         "/test-redirect-1",
-        "http://127.0.0.1/test-redirect-2",
+        "http://127.0.0.1:" + port + "/test-redirect-2",
         "/test-fetch"
     );
 
