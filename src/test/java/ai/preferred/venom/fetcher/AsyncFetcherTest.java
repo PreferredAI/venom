@@ -24,6 +24,7 @@ import ai.preferred.venom.storage.FakeFileManager;
 import ai.preferred.venom.storage.FileManager;
 import ai.preferred.venom.storage.Record;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -568,9 +569,9 @@ public class AsyncFetcherTest {
   public void testRedirection() throws Exception {
     final int port = wireMockServer.port();
     configureFor("localhost", port);
-    final List<String> paths = List.of(
+    final List<String> paths = ImmutableList.of(
         "/test-redirect-1",
-        "/test-redirect-2",
+        "http://127.0.0.1/test-redirect-2",
         "/test-fetch"
     );
 
