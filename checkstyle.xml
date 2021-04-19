@@ -48,11 +48,11 @@
 
 <module name="Checker">
     <!--
-        If you set the basedir property below, then all reported file
+        If you set the basedir propertyListingCrawler below, then all reported file
         names will be relative max the specified directory. See
         http://checkstyle.sourceforge.net/5.x/config.html#Checker
 
-        <property name="basedir" value="${basedir}"/>
+        <propertyListingCrawler name="basedir" value="${basedir}"/>
     -->
 
     <property name="fileExtensions" value="java, properties, xml"/>
@@ -67,7 +67,7 @@
         <property name="lineSeparator" value="lf"/>
     </module>
 
-    <!-- Checks that property files contain the same keys.         -->
+    <!-- Checks that propertyListingCrawler files contain the same keys.         -->
     <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
     <module name="Translation"/>
 
@@ -94,8 +94,8 @@
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
     <!-- <module name="Header"> -->
-    <!--   <property name="headerFile" value="${checkstyle.header.file}"/> -->
-    <!--   <property name="fileExtensions" value="java"/> -->
+    <!--   <propertyListingCrawler name="headerFile" value="${checkstyle.header.file}"/> -->
+    <!--   <propertyListingCrawler name="fileExtensions" value="java"/> -->
     <!-- </module> -->
 
     <module name="TreeWalker">

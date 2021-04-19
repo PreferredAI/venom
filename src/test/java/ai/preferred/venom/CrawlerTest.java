@@ -20,8 +20,10 @@ import ai.preferred.venom.fetcher.FakeFetcher;
 import ai.preferred.venom.fetcher.Fetcher;
 import ai.preferred.venom.job.FIFOJobQueue;
 import ai.preferred.venom.job.LazyPriorityJobQueue;
+import ai.preferred.venom.job.Scheduler;
 import ai.preferred.venom.request.Request;
 import ai.preferred.venom.request.VRequest;
+import ai.preferred.venom.response.VResponse;
 import org.apache.http.HttpHost;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,21 @@ public class CrawlerTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
-  private final Handler handler = (request, response, schedulerH, session, worker) -> {
+  final Handler handler = new Handler() {
+    @Override
+    public void tokenize() {
+
+    }
+
+    @Override
+    public void parse() {
+
+    }
+
+    @Override
+    public void extract() {
+
+    }
   };
 
   @Test
@@ -46,12 +62,26 @@ public class CrawlerTest {
     statuses.add(FakeFetcher.Status.COMPLETE);
 
     final FakeFetcher fetcher = new FakeFetcher(statuses);
-    final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      try {
-        Assertions.assertNull(request.getProxy());
-        Assertions.assertEquals(url, request.getUrl());
-      } catch (AssertionFailedError e) {
-        throw new FatalHandlerException(e);
+    final Handler assertHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+        try {
+          Assertions.assertNull(request.getProxy());
+          Assertions.assertEquals(url, request.getUrl());
+        } catch (AssertionFailedError e) {
+          throw new FatalHandlerException(e);
+        }
+
+      }
+
+      @Override
+      public void extract() {
+
       }
     };
 
@@ -160,14 +190,28 @@ public class CrawlerTest {
 
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
     final FakeFetcher fetcher = new FakeFetcher(statuses);
-    final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      try {
-        Assertions.assertEquals(url, request.getUrl());
-        Assertions.assertNull(response.getProxy());
-      } catch (AssertionFailedError e) {
-        throw new FatalHandlerException(e);
-      }
-    };
+      final Handler assertHandler = new Handler() {
+          @Override
+          public void tokenize() {
+
+          }
+
+          @Override
+          public void parse() {
+              try {
+                Assertions.assertEquals(proxy, request.getProxy());
+                Assertions.assertEquals(url, request.getUrl());
+              } catch (AssertionFailedError e) {
+                  throw new FatalHandlerException(e);
+              }
+
+          }
+
+          @Override
+          public void extract() {
+
+          }
+      };
 
     try (final Crawler crawler = Crawler.builder()
         .setFetcher(fetcher)
@@ -193,14 +237,28 @@ public class CrawlerTest {
 
     final HttpHost proxy = new HttpHost("127.0.0.1:8080");
     final FakeFetcher fetcher = new FakeFetcher(statuses);
-    final Handler assertHandler = (request, response, schedulerH, session, worker) -> {
-      try {
-        Assertions.assertEquals(url, request.getUrl());
-        Assertions.assertEquals(proxy, response.getProxy());
-      } catch (AssertionFailedError e) {
-        throw new FatalHandlerException(e);
-      }
-    };
+      final Handler assertHandler = new Handler() {
+          @Override
+          public void tokenize() {
+
+          }
+
+          @Override
+          public void parse() {
+              try {
+                  Assertions.assertEquals(proxy, request.getProxy());
+                  Assertions.assertEquals(url, request.getUrl());
+              } catch (AssertionFailedError e) {
+                  throw new FatalHandlerException(e);
+              }
+
+          }
+
+          @Override
+          public void extract() {
+
+          }
+      };
 
     try (final Crawler crawler = Crawler.builder()
         .setFetcher(fetcher)
@@ -290,17 +348,38 @@ public class CrawlerTest {
           .build()
           .start()) {
 
-        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
-          // do nothing
-        });
+        final Handler handler = new Handler() {
+          @Override
+          public void tokenize() {
+          }
+          @Override
+          public void parse() {
+          }
+          @Override
+          public void extract() {
 
-        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
-          throw new FatalHandlerException("FatalHandlerException");
-        });
+          }
+        };
 
-        crawler.getScheduler().add(vRequest, (request, response, scheduler, session, worker) -> {
-          // do nothing
-        });
+        final Handler exceptionHandler = new Handler() {
+          @Override
+          public void tokenize() {
+          }
+          @Override
+          public void parse() {
+              throw new FatalHandlerException();
+          }
+          @Override
+          public void extract() {
+
+          }
+        };
+
+        crawler.getScheduler().add(vRequest, handler);
+
+        crawler.getScheduler().add(vRequest, exceptionHandler);
+
+        crawler.getScheduler().add(vRequest, handler);
       }
     });
   }
@@ -312,12 +391,26 @@ public class CrawlerTest {
 
     final FakeFetcher fetcher = new FakeFetcher(statuses);
 
-    final Session session = Session.EMPTY_SESSION;
-    final Handler assertHandler = (request, response, schedulerH, handleSession, worker) -> {
-      try {
-        Assertions.assertEquals(session, handleSession);
-      } catch (AssertionFailedError e) {
-        throw new FatalHandlerException(e);
+    final Session emptySession = Session.EMPTY_SESSION;
+
+    final Handler assertHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+        try {
+          Assertions.assertEquals(emptySession, this.session);
+        } catch (AssertionFailedError e) {
+          throw new FatalHandlerException(e);
+        }
+      }
+
+      @Override
+      public void extract() {
+
       }
     };
 
@@ -326,7 +419,7 @@ public class CrawlerTest {
         .setMaxTries(1)
         .setJobQueue(new FIFOJobQueue())
         .setSleepScheduler(new SleepScheduler(0))
-        .setSession(session)
+        .setSession(emptySession)
         .build()
         .start()) {
 
@@ -343,12 +436,25 @@ public class CrawlerTest {
 
     final FakeFetcher fetcher = new FakeFetcher(statuses);
 
-    final Session session = Session.EMPTY_SESSION;
-    final Handler assertHandler = (request, response, schedulerH, handleSession, worker) -> {
-      try {
-        Assertions.assertEquals(session, handleSession);
-      } catch (AssertionFailedError e) {
-        throw new FatalHandlerException(e);
+    final Session emptySession = Session.EMPTY_SESSION;
+    final Handler assertHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+        try {
+          Assertions.assertEquals(emptySession, this.session);
+        } catch (AssertionFailedError e) {
+          throw new FatalHandlerException(e);
+        }
+      }
+
+      @Override
+      public void extract() {
+
       }
     };
 
@@ -356,7 +462,7 @@ public class CrawlerTest {
         .setFetcher(fetcher)
         .setMaxTries(1)
         .setJobQueue(new FIFOJobQueue())
-        .setSession(session)
+        .setSession(emptySession)
         .build()
         .start();
 

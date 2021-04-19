@@ -27,8 +27,21 @@ public class UrlRouterTest {
 
   @Test
   public void testUrlRouterNoDefault() {
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
 
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
     final Validator validator = (request, response) -> null;
 
@@ -44,10 +57,38 @@ public class UrlRouterTest {
 
   @Test
   public void testUrlRouter() {
-    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    final Handler defaultHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
     final Validator validator = (request, response) -> null;
 
@@ -63,8 +104,21 @@ public class UrlRouterTest {
 
   @Test
   public void testUrlRouterSeparateNoDefault() {
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
 
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
     final Validator validator = (request, response) -> null;
 
@@ -81,10 +135,38 @@ public class UrlRouterTest {
 
   @Test
   public void testUrlRouterSeparate() {
-    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    final Handler defaultHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
     final Validator validator = (request, response) -> null;
 
@@ -102,7 +184,38 @@ public class UrlRouterTest {
 
   @Test
   public void testValidatorUrlRouter() {
-    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    final Handler defaultHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
+    };
+
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
     final Validator validator = (request, response) -> null;
@@ -119,10 +232,38 @@ public class UrlRouterTest {
 
   @Test
   public void testHandlerUrlRouter() {
-    final Handler defaultHandler = (request, response, scheduler, session, worker) -> {
+    final Handler defaultHandler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
+
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
     final UrlRouter urlRouter = new UrlRouter(defaultHandler);

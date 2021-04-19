@@ -28,9 +28,21 @@ class JobTest {
   void testJob() {
     final String url = "https://venom.preferred.ai";
     final VRequest vRequest = new VRequest(url);
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
 
-    final Handler handler = (request, response, scheduler, session, worker) -> {
+      }
 
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
     final FakeJobAttribute fakeJobAttribute = new FakeJobAttribute();

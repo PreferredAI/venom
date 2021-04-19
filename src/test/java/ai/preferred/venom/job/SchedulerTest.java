@@ -25,8 +25,21 @@ class SchedulerTest {
 
   private final String url = "https://venom.preferred.ai";
   private final VRequest vRequest = new VRequest(url);
-  private final Handler handler = (request, response, scheduler, session, worker) -> {
+  final Handler handler = new Handler() {
+    @Override
+    public void tokenize() {
 
+    }
+
+    @Override
+    public void parse() {
+
+    }
+
+    @Override
+    public void extract() {
+
+    }
   };
 
   @Test

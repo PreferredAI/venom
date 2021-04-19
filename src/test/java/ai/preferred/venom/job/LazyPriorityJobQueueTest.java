@@ -93,8 +93,21 @@ class LazyPriorityJobQueueTest {
     requests.add(vRequestNeg);
     requests.add(vRequestNeg);
 
-    final Handler handler = (request, response, schedulerH, session, worker) -> {
+    final Handler handler = new Handler() {
+      @Override
+      public void tokenize() {
 
+      }
+
+      @Override
+      public void parse() {
+
+      }
+
+      @Override
+      public void extract() {
+
+      }
     };
 
     final LazyPriorityJobQueue scheduler = new LazyPriorityJobQueue(requests.iterator(), handler);
