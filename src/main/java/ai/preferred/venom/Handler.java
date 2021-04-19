@@ -43,4 +43,19 @@ public interface Handler {
    */
   void handle(Request request, VResponse response, Scheduler scheduler, Session session, Worker worker);
 
+
+  /**
+   * This function is called when the request is fetched successfully.
+   * <p>
+   * This function will hold the logic after the page/file has been fetched.
+   * </p>
+   *
+   * @param request   request fetched.
+   * @param response  venom response received.
+   * @param scheduler scheduler used for this request.
+   * @param session   session variables defined when the crawler is initiated.
+   * @param worker    provides the ability to run code in a separate thread.
+   * @param parser    takes a template method parser for parsing messages.
+   */
+  void handle(Request request, VResponse response, Scheduler scheduler, Session session, Worker worker, Parser parser);
 }
