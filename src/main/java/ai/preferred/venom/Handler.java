@@ -28,11 +28,11 @@ import ai.preferred.venom.response.VResponse;
  * @author Ween Jiann Lee
  */
 public abstract class Handler {
-  public Request request;
-  public VResponse response;
-  public Scheduler scheduler;
-  public Session session;
-  public Worker worker;
+  private Request request;
+  private VResponse response;
+  private Scheduler scheduler;
+  private Session session;
+  private Worker worker;
 
   public Request getRequest() {
     return request;

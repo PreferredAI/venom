@@ -71,8 +71,8 @@ public class CrawlerTest {
       @Override
       public void parse() {
         try {
-          Assertions.assertNull(request.getProxy());
-          Assertions.assertEquals(url, request.getUrl());
+          Assertions.assertNull(getRequest().getProxy());
+          Assertions.assertEquals(url, getRequest().getUrl());
         } catch (AssertionFailedError e) {
           throw new FatalHandlerException(e);
         }
@@ -199,8 +199,8 @@ public class CrawlerTest {
           @Override
           public void parse() {
               try {
-                Assertions.assertEquals(proxy, request.getProxy());
-                Assertions.assertEquals(url, request.getUrl());
+                Assertions.assertEquals(proxy, getRequest().getProxy());
+                Assertions.assertEquals(url, getRequest().getUrl());
               } catch (AssertionFailedError e) {
                   throw new FatalHandlerException(e);
               }
@@ -246,8 +246,8 @@ public class CrawlerTest {
           @Override
           public void parse() {
               try {
-                  Assertions.assertEquals(proxy, request.getProxy());
-                  Assertions.assertEquals(url, request.getUrl());
+                  Assertions.assertEquals(proxy, getRequest().getProxy());
+                  Assertions.assertEquals(url, getRequest().getUrl());
               } catch (AssertionFailedError e) {
                   throw new FatalHandlerException(e);
               }
@@ -402,7 +402,7 @@ public class CrawlerTest {
       @Override
       public void parse() {
         try {
-          Assertions.assertEquals(emptySession, this.session);
+          Assertions.assertEquals(emptySession, getSession());
         } catch (AssertionFailedError e) {
           throw new FatalHandlerException(e);
         }
@@ -446,7 +446,7 @@ public class CrawlerTest {
       @Override
       public void parse() {
         try {
-          Assertions.assertEquals(emptySession, this.session);
+          Assertions.assertEquals(emptySession, getSession());
         } catch (AssertionFailedError e) {
           throw new FatalHandlerException(e);
         }
