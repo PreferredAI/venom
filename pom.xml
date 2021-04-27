@@ -10,7 +10,7 @@
 
     <groupId>ai.preferred</groupId>
     <artifactId>venom</artifactId>
-    <version>4.2.7</version>
+    <version>4.2.8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -257,12 +257,12 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>[67.0,68.0)</version>
+            <version>[69.0,70.0)</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>30.1.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -274,15 +274,20 @@
             <artifactId>validation-api</artifactId>
             <version>2.0.1.Final</version>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>mysql</groupId>-->
+        <!--            <artifactId>mysql-connector-java</artifactId>-->
+        <!--            <version>[8.0,8.1)</version>-->
+        <!--        </dependency>-->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>[8.0,8.1)</version>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>[2.7,2.8)</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>[3.4,3.5)</version>
+            <version>[4.0,4.1)</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -297,7 +302,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.6.2</version>
+            <version>[5.7,5.8)</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -313,7 +318,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.vorburger.mariaDB4j</groupId>
+            <groupId>org.craftercms.mariaDB4j</groupId>
             <artifactId>mariaDB4j</artifactId>
             <version>[2.4,2.5)</version>
             <scope>test</scope>
